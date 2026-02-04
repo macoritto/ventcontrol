@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="250" pageHeight="400" columnWidth="210" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c852d7ae-1738-4f0e-b3cf-78c50b84df90">
+	<property name="ireport.zoom" value="2.8531167061100033"/>
+	<property name="ireport.x" value="50"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="vCodventa" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     a.*,
+     b.*,
+     p.*,
+     b."por_ven" AS nomproducto,
+     c."razon" AS razon,
+     concat(c."nombre",' ',c."apellido") AS direccion,
+     c."telefono" AS telefono,
+     c."ruc" AS ruc,
+     d."usuario" AS vendedor,
+     b."total" AS totald,
+     a."descripcion" AS descrip
+FROM
+     "venta" a INNER JOIN "detventa" b ON a."codventa" = b."venta_codventa"
+     INNER JOIN "cliente" c ON a."cliente_id" = c."id"
+     INNER JOIN "usuario" d ON a."usuario_id" = d."id"
+     INNER JOIN "producto" p ON b."producto_codprodu" = p."codprodu"
+     INNER JOIN "marca" k ON p."marca" = k."id_marca"
+WHERE
+     a.codventa = $P{vCodventa}]]>
+	</queryString>
+	<field name="codventa" class="java.lang.Integer"/>
+	<field name="fecha" class="java.sql.Date"/>
+	<field name="total" class="java.lang.Integer"/>
+	<field name="estado" class="java.lang.String"/>
+	<field name="fecha1" class="java.sql.Date"/>
+	<field name="porc_ven" class="java.lang.Integer"/>
+	<field name="resto" class="java.lang.Integer"/>
+	<field name="descripcion" class="java.lang.String"/>
+	<field name="entregado" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="usuario_id" class="java.lang.Integer"/>
+	<field name="cliente_id" class="java.lang.Integer"/>
+	<field name="vendedor_id" class="java.lang.Integer"/>
+	<field name="id" class="java.lang.Integer"/>
+	<field name="cantidad" class="java.lang.Double"/>
+	<field name="preunit" class="java.lang.Integer"/>
+	<field name="iva" class="java.lang.Double"/>
+	<field name="montoiva" class="java.lang.Double"/>
+	<field name="por_ven" class="java.lang.String"/>
+	<field name="producto_codprodu" class="java.lang.Integer"/>
+	<field name="venta_codventa" class="java.lang.Integer"/>
+	<field name="codprodu" class="java.lang.Integer"/>
+	<field name="costo" class="java.lang.Integer"/>
+	<field name="venta" class="java.lang.Integer"/>
+	<field name="venta_m" class="java.lang.Integer"/>
+	<field name="stock" class="java.lang.Integer"/>
+	<field name="promocion" class="java.lang.Integer"/>
+	<field name="historial" class="java.lang.Integer"/>
+	<field name="venta_c" class="java.lang.Integer"/>
+	<field name="tipo_id" class="java.lang.Integer"/>
+	<field name="unidad_medida" class="java.lang.String"/>
+	<field name="cant_paquete" class="java.lang.Integer"/>
+	<field name="estante" class="java.lang.String"/>
+	<field name="descuento" class="java.lang.Double"/>
+	<field name="marca" class="java.lang.Integer"/>
+	<field name="razon" class="java.lang.String"/>
+	<field name="direccion" class="java.lang.String"/>
+	<field name="telefono" class="java.lang.String"/>
+	<field name="ruc" class="java.lang.String"/>
+	<field name="vendedor" class="java.lang.String"/>
+	<field name="totald" class="java.lang.Integer"/>
+	<field name="descrip" class="java.lang.String"/>
+	<field name="nomproducto" class="java.lang.String"/>
+	<variable name="totalf" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{totald}]]></variableExpression>
+	</variable>
+	<variable name="iva" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{montoiva}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="57" splitType="Stretch">
+			<staticText>
+				<reportElement x="101" y="20" width="40" height="19" uuid="1a14cc84-930d-439f-a2f0-f4a06c4d22fc"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha Emision:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="142" y="20" width="45" height="19" uuid="c3d9af9c-7fa8-40e8-a62c-8c65aca99d41"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="102" y="0" width="40" height="20" uuid="aad23cff-9133-4412-9d4f-9b11d28af846"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Numero de Pre.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="142" y="0" width="31" height="20" uuid="24375a4d-c23c-42cf-a07c-64df188310e8"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codventa}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="100" y="36" width="109" height="9" uuid="9f383b6d-e514-4bb2-8c13-511cfa2b782f"/>
+				<textElement>
+					<font size="5" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[AQUIDABAN C/ HERNANDARIAS N 1247]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="45" width="108" height="9" uuid="0cf316ef-c58b-48a6-ab72-878f2b93025d"/>
+				<textElement>
+					<font size="5" isBold="true" isItalic="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[TELEF.: 0972 - 828 163 / 0521 20 21 00]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="45" width="69" height="12" uuid="583b266a-6fdc-4695-b0de-072db5cfd01c"/>
+				<textElement>
+					<font size="5" isBold="true" isItalic="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[CNEL. OVIEDO - PY]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="43" splitType="Stretch">
+			<staticText>
+				<reportElement x="2" y="3" width="36" height="20" uuid="1c14520e-5358-4b53-aff3-a5f350cded44"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Señor(es):]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="3" width="32" height="20" uuid="187f32d9-1248-4a08-b146-6d1d6639298a"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ruc:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="101" y="23" width="46" height="20" uuid="32dfa25d-0172-4934-8116-f1d9bbb46ff5"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Telefono:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="133" y="23" width="34" height="20" uuid="c7786359-5863-450c-a940-fc2a1a3f671a"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefono}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="132" y="3" width="43" height="20" uuid="ff131f43-7bf1-4e51-bac0-c33647e08727"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ruc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="28" y="3" width="95" height="20" uuid="6953d487-9273-4dbe-b8c5-70085c0fa611"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{direccion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement x="27" y="5" width="74" height="18" uuid="17d0cd59-c09f-4e3c-8f7c-de766e62279d"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="112" y="6" width="50" height="17" uuid="4ee565a3-5473-4d29-acca-cb3f50c96b0a"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Precio Unitario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="165" y="5" width="28" height="19" uuid="b61b7f9e-6af3-4694-8a9c-068446f4c7b5"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="5" width="26" height="18" uuid="71c72b3d-baaf-4201-ae72-79e418b1e756"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cantidad]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="24" width="210" height="1" uuid="09c1352e-aa76-400a-bfd8-8df773158095"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField pattern="¤ #,##0">
+				<reportElement x="114" y="1" width="50" height="17" uuid="a2a5edc2-c8f0-49ca-ab3a-988b1dc66ff6"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{preunit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0">
+				<reportElement x="166" y="1" width="43" height="17" uuid="56e0b0e2-daf1-4a67-893d-1240b59be399"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totald}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="28" y="0" width="83" height="16" uuid="b4b75df4-8446-43e1-ac7c-1af887675afa"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nomproducto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="2" y="1" width="25" height="17" uuid="53be2550-5b5c-4978-95a2-50ab9d4b3695"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement x="2" y="5" width="26" height="20" uuid="afcee1d6-233f-4b05-a83b-2a1c8af626c6"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vendedor:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="28" y="5" width="43" height="20" uuid="d78fc200-2801-482c-87e7-dab2f69505fb"/>
+				<textElement>
+					<font fontName="Times New Roman" size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendedor}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="71" y="5" width="40" height="20" uuid="ccec455c-a574-4d5f-bed4-de75b5e9409c"/>
+				<textElement>
+					<font size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0">
+				<reportElement x="117" y="5" width="37" height="20" uuid="59ac0924-033e-4c54-bc6a-47bedd96b1ce"/>
+				<textElement>
+					<font fontName="SansSerif" size="5" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totalf}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="4" width="210" height="1" uuid="1b9bcc7e-21c6-48ee-80f4-9bd1fee898ff"/>
+			</line>
+			<staticText>
+				<reportElement x="57" y="27" width="85" height="7" uuid="adfec7d3-b5cf-45aa-9160-0128c6baaa71"/>
+				<textElement>
+					<font fontName="Dialog" size="5" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRACIAS POR SU PREFERENCIA!!]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

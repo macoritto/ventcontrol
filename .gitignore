@@ -1,0 +1,12 @@
+# Archivos generados por NetBeans
+build/
+dist/
+nbproject/private/
+*.class
+
+# Archivos de sistema
+Thumbs.db
+*.log
+
+# Otros que no quieras subir
+jar/

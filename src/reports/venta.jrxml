@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="venta" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c95aee50-106e-468a-9e72-f884b2409952">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString language="SQL">
+		<![CDATA[select * from venta]]>
+	</queryString>
+	<field name="vendedor.nombre" class="java.lang.String"/>
+	<field name="cliente.razon" class="java.lang.String"/>
+	<field name="fecha" class="java.util.Date"/>
+	<field name="total" class="java.lang.Integer"/>
+	<variable name="suma" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="57" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="3" y="8" width="552" height="47" backcolor="#99CCFF" uuid="08eb8443-39bd-4062-8b0b-62f8abe44ba1"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="180" y="20" width="204" height="35" forecolor="#F0F0F0" uuid="784f743e-ba83-4157-8292-ed43ff7c2e94"/>
+				<textElement>
+					<font fontName="Eras Demi ITC" size="22" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Reporte de Ventas]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="21" splitType="Stretch">
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="384" y="1" width="144" height="20" forecolor="#000000" uuid="fb462dd3-ddaa-411e-8410-85b8d59e606b"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="0" y="4" width="552" height="20" backcolor="#CCCCCC" uuid="9a51ac02-69f0-410c-8e15-9d835ef9cd5e"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="39" y="4" width="100" height="20" uuid="10db8c50-8053-4947-a2ce-963a0bdfa4f0"/>
+				<textElement>
+					<font fontName="Dialog" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vendedor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="4" width="100" height="20" uuid="6aefc0f6-14af-4b1a-b5e1-fb6bdda6905e"/>
+				<textElement>
+					<font fontName="Dialog" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cliente]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="317" y="4" width="100" height="20" uuid="a83d7ee0-d7a9-4924-b3e9-292834fcb831"/>
+				<textElement>
+					<font fontName="Dialog" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="447" y="4" width="100" height="20" uuid="475b0c58-861d-42d9-b52c-473dd40c902d"/>
+				<textElement>
+					<font fontName="Dialog" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="317" y="0" width="100" height="20" uuid="d8a91b96-15bf-4278-804d-44fe3eb5c5dd"/>
+				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="447" y="0" width="74" height="20" uuid="39cb0805-a1ae-4c33-8a27-e6f7ca1e95cf"/>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="148" y="0" width="139" height="20" uuid="5d67157a-b644-4bb0-b7fd-11a99df1aece"/>
+				<textFieldExpression><![CDATA[$F{cliente.razon}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="37" y="0" width="89" height="20" uuid="477b3fab-32c0-4bea-ac15-9253177de14e"/>
+				<textFieldExpression><![CDATA[$F{vendedor.nombre}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="15" y="20" width="525" height="1" uuid="fe9ead00-8f24-4764-a41a-1e021fbcd4e4"/>
+			</line>
+			<line>
+				<reportElement x="539" y="0" width="1" height="20" uuid="307aec8b-d6a5-40bf-87e8-abbaf7e47acc"/>
+			</line>
+			<line>
+				<reportElement x="15" y="0" width="1" height="20" uuid="13e9fe06-e6c6-41f9-9548-777bf0092fa7"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="65" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="3" y="2" width="552" height="20" backcolor="#CCCCCC" uuid="947cd0a8-4b4b-4b2a-a2d3-d44f9b177d83"/>
+			</rectangle>
+			<textField pattern="¤ #,##0">
+				<reportElement x="428" y="2" width="100" height="20" uuid="4783905c-4d69-4068-8001-945437e1217b"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{suma}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="317" y="2" width="100" height="20" uuid="2565c700-af2b-4b77-8228-ad068595ecbb"/>
+				<textElement>
+					<font fontName="Dialog" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Ventas:]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

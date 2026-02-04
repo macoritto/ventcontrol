@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="salida" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c852d7ae-1738-4f0e-b3cf-78c50b84df90">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="vCodventa" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select a.*,b.*,p.*, p.nomprodu as producto, b.cant as cantidad, p.codprodu as cod from salida a inner join salida_pro b on a.id_salida = b.salida_id_salida    
+     inner join producto p on b.producto_codprodu = p.codprodu
+     where a.id_salida = $P{vCodventa}]]>
+	</queryString>
+	<field name="producto" class="java.lang.String"/>
+	<field name="cod" class="java.lang.Integer"/>
+	<field name="cantidad" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="209" y="10" width="123" height="20" uuid="921d63ea-b941-40c7-b686-cc5f9d65eeb0"/>
+				<text><![CDATA[Salida de Mercaderia]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="31" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="27" splitType="Stretch">
+			<staticText>
+				<reportElement x="397" y="0" width="100" height="20" uuid="e1f09b3a-6fd7-441a-b3bb-e61e02fd8daa"/>
+				<text><![CDATA[cantidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="149" y="0" width="100" height="20" uuid="200a2acf-e947-4efa-b2be-0cfb585568db"/>
+				<text><![CDATA[Producto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="13" y="0" width="100" height="20" uuid="a3c86cc5-7a7e-410d-ae09-ced9f0ae9755"/>
+				<text><![CDATA[Cod]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="27" splitType="Stretch">
+			<textField>
+				<reportElement x="149" y="0" width="300" height="20" uuid="d290ed55-f5cf-4d86-bb29-ea1506c76f0a"/>
+				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="13" y="0" width="100" height="20" uuid="64b2be8b-067e-46f9-a055-a5af9ac7b7cc"/>
+				<textFieldExpression><![CDATA[$F{cod}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="397" y="0" width="137" height="20" uuid="cca551b3-6eee-4720-b7ae-7a1d7ad80448"/>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="26" splitType="Stretch"/>
+	</summary>
+</jasperReport>

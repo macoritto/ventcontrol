@@ -1,0 +1,672 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ventcontrol;
+import claseConectar.conectar;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.*;
+import javax.swing.table.*;
+import java.awt.event.WindowEvent;
+import javax.swing.JOptionPane;
+import java.util.Date;
+import java.sql.ResultSet;
+//import org.apache.log4j.Logger;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.text.DecimalFormat;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+
+/**
+ *
+ * @author Usuario
+ */
+public class extracto1 extends JDialog {
+
+    DefaultTableModel model;
+    DefaultComboBoxModel modeloRol;
+    Integer band=0;
+    String codid, montofactura, saldo, fcliente;
+    Integer usuarioactu;
+    public extracto1(menu menuprincipal, boolean modal, Integer usuario) {
+        super(menuprincipal, modal);
+        initComponents();        
+        this.setLocation(300, 70);  
+        int contador=0;
+        usuarioactu=usuario;
+        this.setTitle("Deudas por Cliente.");
+        //fechaini.setDate(new Date());
+        //fechafin.setDate(new Date());
+        delete.setEnabled(false);
+        cargar("");
+        buscartxt.setDocument(new solomayusculas());
+        //buscartxt.setEnabled(false);
+        //nrocompras.setText("0");
+        //totalcompra.setText("0");
+        //view.setEnabled(false);
+        //delete1.setEnabled(false);
+        //cargar("");
+        //bloquear();
+        
+    }
+
+    extracto1(menu2 mimenu2, boolean b) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    void cargar(String valor){
+        String [] titulos ={"Cod","Nombre","Nro. Facturas","Total Deuda"};
+        String [] registros = new String[4];
+        String sql, sql1;
+            sql="SELECT * FROM cliente ORDER BY nombre";
+            System.out.print("entra en el simple");
+               
+        model = new DefaultTableModel (null, titulos){
+        @Override
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+        };        
+        try{
+                conectar cc = new conectar();
+                Connection cn = cc.conexion(); 
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(sql);
+                System.out.print(sql);
+                Integer conta=0, montopasivo=0,montoactivo=0,diferencia=0, contasaldo=0;            
+                DecimalFormat formateador = new DecimalFormat("###,###");
+                while(rs.next()){                    
+                    //this.codid =rs.getString("codventa");
+                    
+                    //registros[2] = rs.getString("c.proveedor_nombre");
+                    //registros[3] = rs.getString("venta");        
+                    //registros[4] = rs.getString("descripcion");   
+                     
+                    sql1="SELECT * FROM extracto v where v.cliente='"+rs.getString("id")+"'";
+                    System.out.print(sql1);
+                    Statement st1 = cn.createStatement();
+                    ResultSet as = st1.executeQuery(sql1);
+                    while(as.next()){
+                        conta=conta+1;                       
+                        montopasivo=montopasivo+Integer.parseInt(as.getString("pasivo"));
+                        montoactivo=montoactivo+Integer.parseInt(as.getString("activo"));
+                        System.out.print("   hola     ");
+                    }
+                    diferencia=montoactivo-montopasivo;
+                    if(diferencia<0){
+                        registros[0] = rs.getString("id");
+                        registros[1] = rs.getString("nombre")+" "+rs.getString("apellido");
+                        registros[2] = formateador.format(diferencia);
+                        registros[3] = formateador.format(diferencia);
+                        contasaldo=contasaldo+diferencia;
+                        model.addRow(registros);
+                    }
+                    montopasivo=0;
+                    montoactivo=0; 
+                    diferencia=0;
+                    //conta=0; monto=0;
+                                                                                     
+                    //JTableHeader header = tablausu.getTableHeader();
+
+                    //header.setForeground(Color.yellow);
+                }
+                //nrocompras.setText(conta.toString());
+                //totalcompra.setText(formateador.format(monto));
+                //saldo.setText(formateador.format(contasaldo));
+                tablacliente.setModel(model);   
+                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(30);
+                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
+                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
+                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
+                //tablaproveedor.getColumnModel().getColumn(4).setPreferredWidth(200);
+//                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(80);
+//                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(80);
+                model.fireTableDataChanged(); 
+                deuda.setText(formateador.format(contasaldo));
+                cn.close();
+        }catch(SQLException ex){
+                        JOptionPane.showMessageDialog(null, "");
+        } 
+       //view.setEnabled(false);
+       //cargarcompra.setEnabled(false);
+       //buscartxt.setEnabled(true);
+    }
+        void cargarcli(String valor){
+        String [] titulos ={"Cod","Nombre","Nro. Facturas","Total Deuda"};
+        String [] registros = new String[4];
+        String sql, sql1;
+        if(valor.equals("")){
+            sql="SELECT * FROM cliente ORDER BY nombre";
+            System.out.print("entra en el simple");
+        }else{
+            sql="SELECT * FROM cliente where UPPER(nombre) LIKE UPPER('%"+valor+"%') ORDER BY nombre";
+            System.out.print("entra en el segundo");
+        } 
+            //sql="SELECT * FROM cliente ORDER BY nombre";
+            //System.out.print("entra en el simple");
+               
+        model = new DefaultTableModel (null, titulos){
+        @Override
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+        };        
+        try{
+                conectar cc = new conectar();
+                Connection cn = cc.conexion(); 
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(sql);
+                System.out.print(sql);
+                Integer conta=0, montopasivo=0,montoactivo=0,diferencia=0, contasaldo=0;            
+                DecimalFormat formateador = new DecimalFormat("###,###");
+                while(rs.next()){                    
+                    //this.codid =rs.getString("codventa");
+                    
+                    //registros[2] = rs.getString("c.proveedor_nombre");
+                    //registros[3] = rs.getString("venta");        
+                    //registros[4] = rs.getString("descripcion");   
+                     
+                    sql1="SELECT * FROM extracto v where v.cliente='"+rs.getString("id")+"'";
+                    System.out.print(sql1);
+                    Statement st1 = cn.createStatement();
+                    ResultSet as = st1.executeQuery(sql1);
+                    while(as.next()){
+                        conta=conta+1;                       
+                        montopasivo=montopasivo+Integer.parseInt(as.getString("pasivo"));
+                        montoactivo=montoactivo+Integer.parseInt(as.getString("activo"));
+                        System.out.print("   hola     ");
+                    }
+                    diferencia=montoactivo-montopasivo;
+                    if(diferencia<0){
+                        registros[0] = rs.getString("id");
+                        registros[1] = rs.getString("nombre")+" "+rs.getString("apellido");
+                        registros[2] = formateador.format(diferencia);
+                        registros[3] = formateador.format(diferencia);
+                        contasaldo=contasaldo+diferencia;
+                        model.addRow(registros);
+                    }
+                    montopasivo=0;
+                    montoactivo=0; 
+                    diferencia=0;
+                    //conta=0; monto=0;
+                                                                                     
+                    //JTableHeader header = tablausu.getTableHeader();
+
+                    //header.setForeground(Color.yellow);
+                }
+                //nrocompras.setText(conta.toString());
+                //totalcompra.setText(formateador.format(monto));
+                //saldo.setText(formateador.format(contasaldo));
+                tablacliente.setModel(model);   
+                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(30);
+                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
+                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
+                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
+                //tablaproveedor.getColumnModel().getColumn(4).setPreferredWidth(200);
+//                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(80);
+//                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(80);
+                model.fireTableDataChanged(); 
+                deuda.setText(formateador.format(contasaldo));
+                delete.setEnabled(false);
+                cn.close();
+        }catch(SQLException ex){
+                        JOptionPane.showMessageDialog(null, "");
+        } 
+       //view.setEnabled(false);
+       //cargarcompra.setEnabled(false);
+       //buscartxt.setEnabled(true);
+    }
+//    void cargarci(String valor){
+//        String [] titulos ={"Cod","Fecha","CodCli","Cliente","Descripcion", "Total"};
+//        String [] registros = new String[6];
+//        String sql, sql1;
+//        if(valor.equals("")){
+//            sql="SELECT * FROM venta ORDER BY codventa";
+//            System.out.print("entra en el simple");
+//        }else{
+//            sql="SELECT * FROM venta c inner join cliente p on c.cliente_id=p.id where fecha BETWEEN '"+fechaini.getDate()+"' and '"+fechafin.getDate()+"' and p.nombre LIKE '%"+valor+"%' ORDER BY codventa";
+//            System.out.print("entra en el segundo");
+//        }                
+//        model = new DefaultTableModel (null, titulos);       
+//        Integer conta=0, monto=0;   
+//        try{
+//                conectar cc = new conectar();
+//                Connection cn = cc.conexion(); 
+//                Statement st = cn.createStatement();
+//                ResultSet rs = st.executeQuery(sql);
+//                System.out.print(sql);
+//                while(rs.next()){
+//                    registros[0] = rs.getString("codventa");
+//                    registros[1] = rs.getString("fecha");
+//                    //registros[2] = rs.getString("c.proveedor_nombre");
+//                    //registros[3] = rs.getString("venta");        
+//                    registros[4] = rs.getString("descripcion");   
+//                    registros[5] = rs.getString("total");                       
+//                    sql1="SELECT * FROM cliente where id='"+rs.getString("cliente_id")+"'";
+//                    System.out.print(sql1);
+//                    st = cn.createStatement();
+//                    conta = conta+1;
+//                    monto = monto + Integer.parseInt(registros[5]);  
+//                    ResultSet as = st.executeQuery(sql1);
+//                    while(as.next()){
+//                        registros[3] = as.getString("nombre")+" "+as.getString("apellido");
+//                        registros[2] = as.getString("id");
+//                    }
+//                    model.addRow(registros);                                                                 
+//                    //JTableHeader header = tablausu.getTableHeader();
+//
+//                    //header.setForeground(Color.yellow);
+//                }                
+//                tablacliente.setModel(model);   
+//                model.fireTableDataChanged();      
+//                nrocompras.setText(conta.toString());
+//                totalcompra.setText(monto.toString());
+//        }catch(SQLException ex){
+//                        JOptionPane.showMessageDialog(null, "");
+//        } 
+//       //view.setEnabled(false);
+//       //cargarcompra.setEnabled(false);
+//       //buscartxt.setEnabled(true);
+//        
+//    }
+//    void buscartipo(String valor){
+//        String [] titulos ={"Cod","Nombre","P. Costo","P. Venta", "Stock","Estante", "Tipo"};
+//        String [] registros = new String[7];
+//        String sql, sql1;
+//        if(valor.equals("")){
+//            sql="SELECT * FROM producto ORDER BY codprodu";
+//            System.out.print("entra en el simple");
+//        }else{
+//            sql="SELECT * FROM producto c inner join tipo t on c.tipo_id=t.id where UPPER(t.nombre) LIKE UPPER('%"+valor+"%') ORDER BY c.codprodu";
+//            System.out.print("entra en el segundo");
+//        }                
+//        model = new DefaultTableModel (null, titulos);        
+//        conectar cc = new conectar();
+//        Connection cn = cc.conexion();
+//        try{                 
+//                Statement st = cn.createStatement();
+//                ResultSet rs = st.executeQuery(sql);
+//                System.out.print(sql);
+//                while(rs.next()){
+//                    registros[0] = rs.getString("codprodu");
+//                    registros[1] = rs.getString("nomprodu");
+//                    registros[2] = rs.getString("costo");
+//                    registros[3] = rs.getString("venta");        
+//                    registros[4] = rs.getString("stock");   
+//                    registros[5] = rs.getString("estante");   
+//                    sql1="SELECT * FROM tipo where id='"+rs.getString("tipo_id")+"'";
+//                    System.out.print(sql1);
+//                    st = cn.createStatement();
+//                    ResultSet as = st.executeQuery(sql1);
+//                    while(as.next()){
+//                        registros[6] = as.getString("nombre");                       
+//                    }                     
+//                    model.addRow(registros);                                                            
+//                    //JTableHeader header = tablausu.getTableHeader();
+//
+//                    //header.setForeground(Color.yellow);
+//                }                     
+//                tablacliente.setModel(model);   
+//                model.fireTableDataChanged();                                
+//        }catch(SQLException ex){
+//                        JOptionPane.showMessageDialog(null, "");
+//        } 
+//        view.setEnabled(false);
+//        //cargarcompra.setEnabled(false);
+//        
+//    }
+//    public static void model(DefaultTableModel modelo){
+//        tablacliente.setModel(modelo);
+//        modelo.fireTableDataChanged();   
+//        tablacliente.repaint();
+//        System.out.print("hola");
+//    }
+//    void bloquear(){
+//        view.setEnabled(false);
+//        //cargarcompra.setEnabled(false);
+//    }    
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablacliente = new javax.swing.JTable();
+        jLabel3 = new javax.swing.JLabel();
+        deuda = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        nuevo = new javax.swing.JButton();
+        delete = new javax.swing.JButton();
+        view = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        search = new javax.swing.JLabel();
+        buscartxt = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        fondo = new javax.swing.JLabel();
+        menu = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jSeparator5 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem4 = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+            public void windowIconified(java.awt.event.WindowEvent evt) {
+                formWindowIconified(evt);
+            }
+        });
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentHidden(java.awt.event.ComponentEvent evt) {
+                formComponentHidden(evt);
+            }
+        });
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        tablacliente.setBackground(new java.awt.Color(0, 102, 153));
+        tablacliente.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        tablacliente.setForeground(new java.awt.Color(240, 240, 240));
+        tablacliente.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {},
+                {},
+                {},
+                {}
+            },
+            new String [] {
+
+            }
+        ));
+        tablacliente.setSelectionBackground(new java.awt.Color(0, 0, 0));
+        tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaclienteMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tablacliente);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 680, 440));
+
+        jLabel3.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel3.setText("ESTADO DE DUEDAS POR CLIENTE.");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, -1, -1));
+
+        deuda.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        getContentPane().add(deuda, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 520, 140, 30));
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("TOTAL DEUDA:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 530, 110, 20));
+
+        nuevo.setBackground(new java.awt.Color(0, 102, 153));
+        nuevo.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        nuevo.setForeground(new java.awt.Color(240, 240, 240));
+        nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
+        nuevo.setText("NUEVO PAGO");
+        nuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nuevoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 160, 60));
+
+        delete.setBackground(new java.awt.Color(0, 102, 153));
+        delete.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        delete.setForeground(new java.awt.Color(240, 240, 240));
+        delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money2.png"))); // NOI18N
+        delete.setText("VER EXTRACTO");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+        getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, 160, 60));
+
+        view.setBackground(new java.awt.Color(0, 102, 153));
+        view.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        view.setForeground(new java.awt.Color(240, 240, 240));
+        view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
+        view.setText("   VER PAGOS");
+        view.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewActionPerformed(evt);
+            }
+        });
+        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 160, 60));
+
+        jLabel5.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel5.setText("BUSCAR");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 40, -1, 20));
+
+        search.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/research.png"))); // NOI18N
+        getContentPane().add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 30, 40, 40));
+
+        buscartxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscartxtActionPerformed(evt);
+            }
+        });
+        buscartxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                buscartxtKeyReleased(evt);
+            }
+        });
+        getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 30, 260, 40));
+
+        jLabel6.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel6.setText("POR CLIENTE");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 10, -1, 20));
+
+        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
+        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 880, 570));
+
+        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
+        jMenu1.setText("Acciones");
+        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jSeparator5);
+
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
+        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
+        jMenuItem4.setText("Salir");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem4);
+
+        menu.add(jMenu1);
+
+        setJMenuBar(menu);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        
+    }//GEN-LAST:event_formWindowClosed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        
+    }//GEN-LAST:event_formWindowClosing
+
+    private void formComponentHidden(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentHidden
+        
+    }//GEN-LAST:event_formComponentHidden
+
+    private void formWindowIconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowIconified
+//        menu m = menu.getInstance();
+//        m.setEnabled(true);
+//        m.show();
+    }//GEN-LAST:event_formWindowIconified
+    
+    private void tablaclienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaclienteMouseClicked
+        int FilaSelec = tablacliente.getSelectedRow();
+        if(FilaSelec>=0)            
+        {
+              delete.setEnabled(true);
+//            this.codid = tablacliente.getValueAt(FilaSelec, 0).toString();
+//            this.saldo =tablacliente.getValueAt(FilaSelec, 5).toString();
+//            this.montofactura =tablacliente.getValueAt(FilaSelec, 4).toString();
+//            this.fcliente= this.codid+" "+tablacliente.getValueAt(FilaSelec, 3).toString();
+//            this.dispose();
+        }
+    }//GEN-LAST:event_tablaclienteMouseClicked
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu1ActionPerformed
+
+    private void nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoActionPerformed
+        cargarpago1 cv;
+        menu mimenu;
+        DecimalFormat formateador = new DecimalFormat("###,###");
+        mimenu = new menu(0);
+        this.band=1;
+        cv = new cargarpago1(mimenu, true, this.band, usuarioactu);
+        cv.setVisible(true);
+        Integer deudaaux;
+        if(cv.model!=null){
+            System.out.print("       Aca ni de bromaaa    ");
+            tablacliente.setModel(cv.model);
+            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(30);
+            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
+            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
+            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
+            deudaaux=cv.deuda;
+            System.out.print("       ESTE ES EL MONTO DE LA DEUDA   ");
+            System.out.print(deudaaux);
+            deuda.setText(formateador.format(cv.deuda));
+        }
+    }//GEN-LAST:event_nuevoActionPerformed
+
+    private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+        int FilaSelec = tablacliente.getSelectedRow();
+        verextracto cp;
+        menu mimenu;
+        mimenu = new menu(0);
+        this.band=2;
+        cp = new verextracto(mimenu, true, Integer.parseInt(tablacliente.getValueAt(FilaSelec, 0).toString()));
+        cp.setVisible(true);
+    }//GEN-LAST:event_deleteActionPerformed
+
+    private void viewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewActionPerformed
+        DecimalFormat formateador = new DecimalFormat("###,###");
+        pagos1 cp;
+        menu mimenu;
+        mimenu = new menu(0);
+        this.band=2;
+        cp = new pagos1(mimenu, true);
+        cp.setVisible(true);
+        Integer deudaaux;
+        if(cp.modelRefresca!=null){
+            System.out.print("       Aca ni de bromaaa    ");
+            tablacliente.setModel(cp.modelRefresca);
+            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(30);
+            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
+            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
+            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
+            deudaaux=cp.deuda;
+            System.out.print("       ESTE ES EL MONTO DE LA DEUDA   ");
+            System.out.print(deudaaux);
+            deuda.setText(formateador.format(cp.deuda));
+        }
+        
+        //cargar("");
+    }//GEN-LAST:event_viewActionPerformed
+
+    private void buscartxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscartxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buscartxtActionPerformed
+
+    private void buscartxtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscartxtKeyReleased
+        cargarcli(buscartxt.getText());
+    }//GEN-LAST:event_buscartxtKeyReleased
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new proveedor().setVisible(true);
+//            }
+//        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField buscartxt;
+    private javax.swing.JButton delete;
+    private javax.swing.JTextField deuda;
+    private javax.swing.JLabel fondo;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuItem jMenuItem4;
+    public static javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPopupMenu.Separator jSeparator5;
+    private javax.swing.JMenuBar menu;
+    private javax.swing.JButton nuevo;
+    private javax.swing.JLabel search;
+    public static javax.swing.JTable tablacliente;
+    private javax.swing.JButton view;
+    // End of variables declaration//GEN-END:variables
+}

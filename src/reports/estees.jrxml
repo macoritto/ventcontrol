@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" language="groovy" pageWidth="390" pageHeight="150" columnWidth="390" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="7ed2d2d3-9f9a-47b2-90ef-4c01ef87f9eb">
+	<property name="ireport.zoom" value="2.1435888100000016"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="vCodventa" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     a.*,
+     b.*,
+     p.*,
+     b."por_ven" AS producto,
+     b."cantidad" AS cantidad,
+     b."preunit" AS precio,
+     c."razon" AS razon,
+     concat(c."nombre",' ',c."apellido") AS direccion,
+     c."telefono" AS telefono,
+     c."ruc" AS ruc,
+     d."usuario" AS vendedor,
+     b."total" AS sub_total,
+     b."ivacinco" AS cinco,
+     b."ivadiez" AS diez,
+     b."ivaex" AS exentas,
+     a."descripcion" AS descrip
+FROM
+     "venta" a INNER JOIN "detventa" b ON a."codventa" = b."venta_codventa"
+     INNER JOIN "cliente" c ON a."cliente_id" = c."id"
+     INNER JOIN "usuario" d ON a."usuario_id" = d."id"
+     INNER JOIN "producto" p ON b."producto_codprodu" = p."codprodu"
+     INNER JOIN "marca" k ON p."marca" = k."id_marca"
+WHERE
+     a.codventa = $P{vCodventa}]]>
+	</queryString>
+	<field name="codventa" class="java.lang.Integer"/>
+	<field name="fecha" class="java.sql.Date"/>
+	<field name="ruc" class="java.lang.String"/>
+	<field name="direccion" class="java.lang.String"/>
+	<field name="total" class="java.lang.Integer"/>
+	<field name="producto" class="java.lang.String"/>
+	<field name="cantidad" class="java.lang.Integer"/>
+	<field name="precio" class="java.lang.Integer"/>
+	<field name="sub_total" class="java.lang.Integer"/>
+	<field name="exentas" class="java.lang.Integer"/>
+	<field name="cinco" class="java.lang.Integer"/>
+	<field name="diez" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="6" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="4" splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="13" y="0" width="13" height="20" uuid="be270b6e-c96c-4a3d-927d-132de3eb7926"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="32" y="0" width="173" height="20" uuid="95f3f1f7-d4aa-48df-a90d-ac2a1af5a72c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="250" y="0" width="41" height="20" uuid="99ba6e4b-f27b-417a-bde7-d07a6e72e1c1"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{exentas}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="292" y="0" width="45" height="20" uuid="65fa7e06-0475-4ee1-b870-0ed5f4c6b4f4"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cinco}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="331" y="0" width="54" height="20" uuid="d839f0d0-e487-49b2-b05e-2b38be9dc5ba"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{diez}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="205" y="0" width="55" height="20" uuid="a9a735f0-2332-4af0-aeba-c0f2b969226b"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{precio}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="7"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="4"/>
+	</pageFooter>
+</jasperReport>

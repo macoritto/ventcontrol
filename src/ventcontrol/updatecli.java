@@ -1,0 +1,750 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ventcontrol;
+
+import claseConectar.conectar;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.text.DecimalFormat;
+import static ventcontrol.cliente.tablacliente;
+
+/**
+ *
+ * @author Usuario
+ */
+    public class updatecli extends JDialog {
+
+    /**
+     * Creates new form cargarprov
+     */
+    Integer ban;    
+    DefaultTableModel model;
+    DefaultTableModel modeloRefresca;
+    Integer banlim=0;
+    Integer bandescu=0;
+    public updatecli(menu menuprincipal, boolean modal, Integer band, String codigo) {
+        super(menuprincipal, modal);
+        initComponents();
+        this.setLocationRelativeTo(null);
+        cod.setEnabled(false);                
+        this.ban = band;
+        this.setTitle("Cliente.");       
+        MENSAJE.setVisible(false);
+        nece1.setVisible(false);
+        nece2.setVisible(false);
+        nece3.setVisible(false);
+        bloquear();
+        nombre.setDocument(new solomayusculas());
+        apellido.setDocument(new solomayusculas());
+        razon.setDocument(new solomayusculas());
+        direccion.setDocument(new solomayusculas());        
+        cargar(codigo);
+    }
+    void limpiar(){
+        nombre.setText(null);
+        ci.setText(null);
+        telefono.setText(null);         
+        direccion.setText("");
+        apellido.setText("");
+        ci.setText("");
+        razon.setText("");
+        descuento.setText("");
+        limcre.setText("");        
+    }
+    void bloquear(){
+        nombre.setEnabled(false);
+        ci.setEnabled(false);
+        telefono.setEnabled(false);         
+        direccion.setEnabled(false);
+        apellido.setEnabled(false);
+        ci.setEnabled(false);
+        razon.setEnabled(false);
+        descuento.setEnabled(false);
+        limcre.setEnabled(false);
+        checkcre.setEnabled(false);
+        checkdescu.setEnabled(false);
+        btnguardar.setEnabled(false);
+        ruc.setEnabled(false);
+        sexocombo.setEnabled(false);
+    }
+    void desbloquear(){
+        nombre.setEnabled(true);
+        ci.setEnabled(true);
+        telefono.setEnabled(true);         
+        direccion.setEnabled(true);
+        apellido.setEnabled(true);
+        ci.setEnabled(true);
+        razon.setEnabled(true);
+        //descuento.setEnabled(true);
+        //limcre.setEnabled(true);
+        checkcre.setEnabled(true);
+        checkdescu.setEnabled(true);
+        btnguardar.setEnabled(true);
+        ruc.setEnabled(true);
+        sexocombo.setEnabled(true);
+    }
+    public void setModel(DefaultTableModel modelo){
+        modelo = modeloRefresca;
+    }
+    void cargar(String valor){
+        String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
+        String [] registros = new String[6];
+        String sql;
+        sql="SELECT * FROM cliente where id='"+valor+"'";
+        conectar cc = new conectar();
+        Connection cn = cc.conexion(); 
+        String sex="";
+        try{
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(sql);
+                while(rs.next()){
+                    cod.setText(rs.getString("id"));
+                    nombre.setText(rs.getString("nombre"));
+                    apellido.setText(rs.getString("apellido"));
+                    ci.setText(rs.getString("ci"));        
+                    sex=(rs.getString("sexo"));
+                    direccion.setText(rs.getString("direccion"));                                                                                
+                    telefono.setText(rs.getString("telefono"));
+                    limcre.setText(rs.getString("lim_cre"));
+                    razon.setText(rs.getString("razon"));
+                    ruc.setText(rs.getString("ruc"));
+                    descuento.setText(rs.getString("descuento"));
+                }
+                if(sex.equals("M")){
+                    sexocombo.setSelectedItem("Minorista");
+                }else{
+                    if(sex.equals("F")){
+                        sexocombo.setSelectedItem("Mayorista");
+                    }
+                }
+                Double aux1=0.0, aux2;
+                aux1 = Double.parseDouble(descuento.getText())*100;
+                descuento.setText(aux1.toString());
+        }catch(SQLException ex){
+                        JOptionPane.showMessageDialog(null, "hola");
+        } 
+    }
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel2 = new javax.swing.JLabel();
+        cod = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        nombre = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        ci = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        telefono = new javax.swing.JTextField();
+        btnmodificar = new javax.swing.JButton();
+        btnguardar = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        apellido = new javax.swing.JTextField();
+        descuento = new javax.swing.JTextField(new Integer(2));
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        razon = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        sexocombo = new javax.swing.JComboBox();
+        direccion = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        checkdescu = new javax.swing.JCheckBox();
+        ruc = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        checkcre = new javax.swing.JCheckBox();
+        limcre = new javax.swing.JTextField();
+        MENSAJE = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        nece1 = new javax.swing.JLabel();
+        nece2 = new javax.swing.JLabel();
+        nece3 = new javax.swing.JLabel();
+        fondo = new javax.swing.JLabel();
+        menu = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jSeparator5 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem4 = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel2.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel2.setText("COD.:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
+
+        cod.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                codActionPerformed(evt);
+            }
+        });
+        getContentPane().add(cod, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 20, 100, 30));
+
+        jLabel3.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel3.setText("NOMBRE:");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 70, -1));
+
+        nombre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nombreActionPerformed(evt);
+            }
+        });
+        getContentPane().add(nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 70, 170, 30));
+
+        jLabel4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel4.setText("CI:");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 70, -1));
+
+        ci.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ciActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ci, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 170, 30));
+
+        jLabel5.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel5.setText("RAZON:");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 80, -1));
+
+        telefono.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                telefonoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(telefono, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 170, 170, 30));
+
+        btnmodificar.setBackground(new java.awt.Color(0, 102, 153));
+        btnmodificar.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnmodificar.setForeground(new java.awt.Color(240, 240, 240));
+        btnmodificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/edit.png"))); // NOI18N
+        btnmodificar.setText("Modificar");
+        btnmodificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnmodificarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnmodificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 380, 130, 40));
+
+        btnguardar.setBackground(new java.awt.Color(0, 102, 153));
+        btnguardar.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnguardar.setForeground(new java.awt.Color(240, 240, 240));
+        btnguardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/save3.png"))); // NOI18N
+        btnguardar.setText("Guardar");
+        btnguardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnguardarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnguardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 380, 120, 40));
+
+        jLabel7.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel7.setText("APELLIDO:");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 80, 70, -1));
+
+        apellido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                apellidoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(apellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 70, 190, 30));
+
+        descuento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                descuentoActionPerformed(evt);
+            }
+        });
+        descuento.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                descuentoKeyTyped(evt);
+            }
+        });
+        getContentPane().add(descuento, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 320, 130, 30));
+
+        jLabel8.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel8.setText("RUC:");
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 130, 70, -1));
+
+        jLabel9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel9.setText("SEXO:");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 180, 60, -1));
+
+        razon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                razonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(razon, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 220, 470, 30));
+
+        jLabel10.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel10.setText("TELEFONO:");
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 80, -1));
+
+        sexocombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] {"Minorista", "Mayorista"}));
+        getContentPane().add(sexocombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 170, 190, 30));
+
+        direccion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                direccionActionPerformed(evt);
+            }
+        });
+        getContentPane().add(direccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 270, 470, 30));
+
+        jLabel11.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel11.setText("%");
+        getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 320, -1, 30));
+
+        jLabel12.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel12.setText("DIRECCION:");
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 280, 80, -1));
+
+        checkdescu.setBackground(new java.awt.Color(0, 0, 0));
+        checkdescu.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkdescuItemStateChanged(evt);
+            }
+        });
+        checkdescu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkdescuActionPerformed(evt);
+            }
+        });
+        getContentPane().add(checkdescu, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 320, -1, 30));
+
+        ruc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rucActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ruc, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, 190, 30));
+
+        jLabel13.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel13.setText("L. CREDITO:");
+        getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 330, -1, -1));
+
+        checkcre.setBackground(new java.awt.Color(0, 0, 0));
+        checkcre.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkcreItemStateChanged(evt);
+            }
+        });
+        checkcre.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                checkcreKeyTyped(evt);
+            }
+        });
+        getContentPane().add(checkcre, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 320, -1, 30));
+
+        limcre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limcreActionPerformed(evt);
+            }
+        });
+        limcre.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                limcreKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                limcreKeyTyped(evt);
+            }
+        });
+        getContentPane().add(limcre, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 320, 150, 30));
+
+        MENSAJE.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        MENSAJE.setForeground(new java.awt.Color(204, 0, 0));
+        MENSAJE.setText("*");
+        getContentPane().add(MENSAJE, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 70, 20, 30));
+
+        jLabel15.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel15.setText("DESCUENTO:");
+        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 330, -1, -1));
+
+        nece1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        nece1.setForeground(new java.awt.Color(204, 0, 0));
+        nece1.setText("CARGAR LOS DATOS REQUERIDOS.");
+        getContentPane().add(nece1, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 360, -1, -1));
+
+        nece2.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        nece2.setForeground(new java.awt.Color(204, 0, 0));
+        nece2.setText("*");
+        getContentPane().add(nece2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 70, 20, 30));
+
+        nece3.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        nece3.setForeground(new java.awt.Color(204, 0, 0));
+        nece3.setText("*");
+        getContentPane().add(nece3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 120, 20, 30));
+
+        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul.jpg"))); // NOI18N
+        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 630, 440));
+
+        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
+        jMenu1.setText("Acciones");
+        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jSeparator5);
+
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
+        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
+        jMenuItem4.setText("Salir");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem4);
+
+        menu.add(jMenu1);
+
+        setJMenuBar(menu);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnmodificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmodificarActionPerformed
+        desbloquear();
+        nombre.requestFocus();
+        btnmodificar.setEnabled(false);
+        this.setTitle("Editar Cliente");
+    }//GEN-LAST:event_btnmodificarActionPerformed
+
+    private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
+        //menu m = new menu();
+        //proveedor p = new proveedor(m, false);
+       String sqlcompa, sqlcompa1;
+       Integer bandera=0;
+       String nomproducto="", nomproducto1="";
+        //Integer contador=0, sumacompra=0, sumaventa=0, aux1=0,aux2=0;
+//        if(valor.equals("")){
+//            sql="SELECT * FROM producto ORDER BY codprodu";
+//            System.out.print("entra en el simple");
+//        }else{
+            sqlcompa="SELECT * FROM cliente";
+            System.out.print("entra en el segundo");
+//        }                
+//        model = new DefaultTableModel (null, titulos);        
+        try{
+                conectar cc = new conectar();
+                Connection cn = cc.conexion(); 
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(sqlcompa);
+                System.out.print(sqlcompa);
+                DecimalFormat formateador = new DecimalFormat("###,###");
+                while(rs.next()){
+                    //sqlcompa1="SELECT * FROM marca where id_marca='"+rs.getString("marca")+"'";
+                    //st = cn.createStatement();
+                    //ResultSet bs = st.executeQuery(sqlcompa1);
+                    //while(bs.next()){
+                        nomproducto =rs.getString("nombre").toUpperCase()+' '+rs.getString("apellido").toUpperCase();
+                        System.out.print("       LA PRIMERA CADENA      ");
+                        System.out.print(nomproducto);
+                    //}                   
+                    //System.out.print("       LA segunda CADENA      ");
+                    //nomproducto1=nombre.getText()+' '+marca.getSelectedItem().toString();
+                    if(nomproducto.equals(nombre.getText().toUpperCase()+' '+apellido.getText().toUpperCase())){
+                        System.out.print("       LA segunda CADENA      ");
+                        System.out.print(nombre.getText()+' '+apellido.getText().toString());
+                        bandera=bandera+1;
+                    }
+                }
+        }catch(SQLException ex){
+                        JOptionPane.showMessageDialog(null, "");
+        }    
+        if(bandera<2){
+                    String sql="";
+                    String sexaux="";
+                    if(sexocombo.getSelectedItem().equals("Minorista")){
+                        sexaux="M";            
+                    }else{
+                        if(sexocombo.getSelectedItem().equals("Mayorista")){
+                            sexaux="F";
+                        }
+                    }
+                    String descuaux="";
+                    Double des=0.0;
+                    des = Double.parseDouble(descuento.getText())/100;            
+                    descuaux= des.toString();       
+                    sql ="UPDATE cliente SET nombre='"+nombre.getText()+"', apellido='"+apellido.getText()+"', ci='"+ci.getText()+"', sexo='"+sexaux+"', direccion='"+direccion.getText()+"', telefono='"+telefono.getText()+"', lim_cre='"+limcre.getText()+"', ciudad='-', razon='"+razon.getText()+"', ruc='"+ruc.getText()+"', descuento='"+descuaux+"' where id='"+cod.getText()+"'";         
+                    conectar cc = new conectar();
+                    Connection cn = cc.conexion();
+                    try{        
+                        PreparedStatement st = cn.prepareStatement(sql);         
+                        st.executeUpdate();
+                        System.out.print(sql);
+                        bloquear();        
+                        String valor="";                 
+                    if(st.executeUpdate()>0){
+                        JOptionPane.showMessageDialog(null, "Se actualizó correctamente el Registro.");                                       
+                    }        
+                    btnmodificar.setEnabled(true);
+                    st.close();        
+                    }catch(SQLException ex){            
+                    }
+                            String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
+                            String [] registros = new String[5];
+                            String sql1;        
+                            sql1="SELECT * FROM cliente ORDER BY id";
+                            System.out.print("entra en el simple"); 
+
+                            modeloRefresca = new DefaultTableModel (null, titulos);                  
+                    try{                 
+                            Statement st = cn.createStatement();
+                            ResultSet rs = st.executeQuery(sql1);
+                            System.out.print(sql);
+                            while(rs.next()){
+                                registros[0] = rs.getString("id");
+                                registros[1] = rs.getString("nombre")+(" ")+rs.getString("apellido");
+                                registros[2] = rs.getString("ci");
+                                registros[3] = rs.getString("direccion");        
+                                registros[4] = rs.getString("ruc");                 
+                                modeloRefresca.addRow(registros);                                                                 
+                                //JTableHeader header = tablausu.getTableHeader();
+
+                                //header.setForeground(Color.yellow);
+                            }                                
+                            modeloRefresca.fireTableDataChanged();                                
+                    }catch(SQLException ex){
+                                    JOptionPane.showMessageDialog(null, "");
+                    } 
+                    this.dispose();
+        }else{
+            JOptionPane.showMessageDialog(null, "Este mismo nombre de cliente ya se encuentra registrado.");
+        }            
+        
+    }//GEN-LAST:event_btnguardarActionPerformed
+
+    private void codActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_codActionPerformed
+
+    private void nombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nombreActionPerformed
+        nombre.transferFocus();
+    }//GEN-LAST:event_nombreActionPerformed
+
+    private void ciActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ciActionPerformed
+        ci.transferFocus();
+    }//GEN-LAST:event_ciActionPerformed
+
+    private void telefonoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_telefonoActionPerformed
+        telefono.transferFocus();
+    }//GEN-LAST:event_telefonoActionPerformed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosed
+
+    private void apellidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apellidoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_apellidoActionPerformed
+
+    private void descuentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_descuentoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_descuentoActionPerformed
+
+    private void razonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_razonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_razonActionPerformed
+
+    private void direccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_direccionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_direccionActionPerformed
+
+    private void rucActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rucActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rucActionPerformed
+
+    private void limcreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limcreActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_limcreActionPerformed
+
+    private void checkdescuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkdescuActionPerformed
+//        if(checkdescu.getActionCommand().equals("Enable")){            
+//            
+//        }
+    }//GEN-LAST:event_checkdescuActionPerformed
+
+    private void checkdescuItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkdescuItemStateChanged
+        if(evt.getStateChange()==java.awt.event.ItemEvent.SELECTED){
+            descuento.setEnabled(true);
+            descuento.requestFocus();
+            bandescu=1;
+        }else{
+            if(evt.getStateChange()==java.awt.event.ItemEvent.DESELECTED){
+                descuento.setEnabled(false);
+ 
+                bandescu=0;
+            }
+        }
+    }//GEN-LAST:event_checkdescuItemStateChanged
+
+    private void descuentoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_descuentoKeyTyped
+         char []p={'1','2','3','4','5','6','7','8','9','0','.'};
+        int b=0;
+        for(int i=0;i<=10;i++){
+        if (p[i]==evt.getKeyChar())
+        {
+            b=1;
+        }
+        }
+        if(b==0){
+            evt.consume();
+            getToolkit().beep();             
+        }
+    }//GEN-LAST:event_descuentoKeyTyped
+
+    private void checkcreKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_checkcreKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkcreKeyTyped
+
+    private void limcreKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_limcreKeyTyped
+        char []p={'1','2','3','4','5','6','7','8','9','0','.'};
+        int b=0;
+        for(int i=0;i<=10;i++){
+        if (p[i]==evt.getKeyChar())
+        {
+            b=1;
+        }
+        }
+        if(b==0){
+            evt.consume();
+            getToolkit().beep();             
+        }
+    }//GEN-LAST:event_limcreKeyTyped
+
+    private void checkcreItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkcreItemStateChanged
+        if(evt.getStateChange()==java.awt.event.ItemEvent.SELECTED){
+            limcre.setEnabled(true);
+            limcre.requestFocus();
+            banlim=1;
+        }else{
+            if(evt.getStateChange()==java.awt.event.ItemEvent.DESELECTED){
+                limcre.setEnabled(false);
+
+                banlim=0;
+            }
+        }
+    }//GEN-LAST:event_checkcreItemStateChanged
+
+    private void limcreKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_limcreKeyPressed
+//        DecimalFormat formateador = new DecimalFormat("###,####,####,##");
+//        System.out.print(formateador.format(descuento));
+//        descuento.setText(formateador.format(descuento));
+    }//GEN-LAST:event_limcreKeyPressed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenu1ActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(cargarprov.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(cargarprov.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(cargarprov.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(cargarprov.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new cargarprov().setVisible(true);
+//            }
+//        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel MENSAJE;
+    private javax.swing.JTextField apellido;
+    private javax.swing.JButton btnguardar;
+    private javax.swing.JButton btnmodificar;
+    private javax.swing.JCheckBox checkcre;
+    private javax.swing.JCheckBox checkdescu;
+    private javax.swing.JTextField ci;
+    private javax.swing.JTextField cod;
+    private javax.swing.JTextField descuento;
+    private javax.swing.JTextField direccion;
+    private javax.swing.JLabel fondo;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JPopupMenu.Separator jSeparator5;
+    private javax.swing.JTextField limcre;
+    private javax.swing.JMenuBar menu;
+    private javax.swing.JLabel nece1;
+    private javax.swing.JLabel nece2;
+    private javax.swing.JLabel nece3;
+    private javax.swing.JTextField nombre;
+    private javax.swing.JTextField razon;
+    private javax.swing.JTextField ruc;
+    private javax.swing.JComboBox sexocombo;
+    private javax.swing.JTextField telefono;
+    // End of variables declaration//GEN-END:variables
+}
