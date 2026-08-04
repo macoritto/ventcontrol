@@ -199,10 +199,8 @@ public class menu extends javax.swing.JFrame {
         jMenuItem24 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/macocar.png"))); // NOI18N
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1260, 80, 600, 500));
 
         jButton1.setBackground(new java.awt.Color(0, 102, 153));
         jButton1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -214,7 +212,6 @@ public class menu extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 330, 280, 110));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 153));
         jButton2.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -226,7 +223,6 @@ public class menu extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 280, 100));
 
         jButton3.setBackground(new java.awt.Color(0, 102, 153));
         jButton3.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -238,7 +234,6 @@ public class menu extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, 280, 110));
 
         jButton4.setBackground(new java.awt.Color(0, 102, 153));
         jButton4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -250,7 +245,6 @@ public class menu extends javax.swing.JFrame {
                 jButton4ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 280, 100));
 
         jButton5.setBackground(new java.awt.Color(0, 102, 153));
         jButton5.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -262,7 +256,6 @@ public class menu extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, 280, 110));
 
         jButton6.setBackground(new java.awt.Color(0, 102, 153));
         jButton6.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -274,7 +267,6 @@ public class menu extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 550, 280, 110));
 
         jButton7.setBackground(new java.awt.Color(0, 102, 153));
         jButton7.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -285,7 +277,6 @@ public class menu extends javax.swing.JFrame {
                 jButton7ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(1720, 710, 70, 60));
 
         jButton8.setBackground(new java.awt.Color(0, 102, 153));
         jButton8.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -297,16 +288,13 @@ public class menu extends javax.swing.JFrame {
                 jButton8ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 660, 280, 110));
 
         nom.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
         nom.setForeground(new java.awt.Color(240, 240, 240));
-        getContentPane().add(nom, new org.netbeans.lib.awtextra.AbsoluteConstraints(1680, 820, 120, 30));
 
         usu.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
         usu.setForeground(new java.awt.Color(240, 240, 240));
         usu.setText("BIENVENIDO. ");
-        getContentPane().add(usu, new org.netbeans.lib.awtextra.AbsoluteConstraints(1580, 820, -1, 30));
 
         jButton9.setBackground(new java.awt.Color(0, 102, 153));
         jButton9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
@@ -318,21 +306,16 @@ public class menu extends javax.swing.JFrame {
                 jButton9ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 770, 280, 110));
 
         horas.setFont(new java.awt.Font("Trebuchet MS", 1, 18)); // NOI18N
         horas.setForeground(new java.awt.Color(240, 240, 240));
-        getContentPane().add(horas, new org.netbeans.lib.awtextra.AbsoluteConstraints(1480, 10, 150, 40));
 
         fecha.setFont(new java.awt.Font("Trebuchet MS", 1, 18)); // NOI18N
         fecha.setForeground(new java.awt.Color(240, 240, 240));
-        getContentPane().add(fecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(1330, 10, 180, 40));
 
         fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-50, -40, 500, 1030));
 
         fondo1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
-        getContentPane().add(fondo1, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, -40, 1640, 1030));
 
         menusys.setBackground(java.awt.Color.GREEN);
         menusys.setBorder(null);
@@ -828,6 +811,84 @@ public class menu extends javax.swing.JFrame {
         jMenu9.add(jMenuItem24);
 
         menusys.add(jMenu9);
+
+        // Diseño dinámico con GroupLayout (reemplaza el AbsoluteLayout de resolución fija).
+        // La franja de botones (izquierda) mantiene un ancho fijo cómodo para los íconos+texto,
+        // pero su alto se adapta (con un mínimo razonable) según el alto disponible de la ventana.
+        // El área derecha (fondo1, logo, reloj/fecha, usuario y botón de salir) es completamente
+        // flexible y se reacomoda con cualquier tamaño o resolución de pantalla.
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fondo, 300, 300, 300)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton4, 280, 280, 280)
+                            .addComponent(jButton2, 280, 280, 280)
+                            .addComponent(jButton3, 280, 280, 280)
+                            .addComponent(jButton1, 280, 280, 280)
+                            .addComponent(jButton5, 280, 280, 280)
+                            .addComponent(jButton6, 280, 280, 280)
+                            .addComponent(jButton8, 280, 280, 280)
+                            .addComponent(jButton9, 280, 280, 280))
+                        .addGap(10, 10, 10)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fondo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(fecha, 180, 180, 180)
+                                .addGap(10, 10, 10)
+                                .addComponent(horas, 150, 150, 150))
+                            .addComponent(jButton7)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(usu)
+                                .addGap(10, 10, 10)
+                                .addComponent(nom, 120, 120, 120)))
+                        .addGap(20, 20, 20)))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(fondo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(fondo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(15, 15, 15)
+                    .addComponent(jButton4, 70, 100, 140)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton2, 70, 100, 140)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton3, 75, 110, 150)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton1, 75, 110, 150)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton5, 75, 110, 150)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton6, 75, 110, 150)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton8, 75, 110, 150)
+                    .addGap(8, 10, 20)
+                    .addComponent(jButton9, 75, 110, 150)
+                    .addGap(15, 15, 15))
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(10, 10, 10)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(fecha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(horas, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jLabel3)
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jButton7)
+                    .addGap(10, 10, 10)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(usu)
+                        .addComponent(nom, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10))
+        );
 
         setJMenuBar(menusys);
 
