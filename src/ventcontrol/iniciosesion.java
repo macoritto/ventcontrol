@@ -23,8 +23,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
-import org.jvnet.substance.skin.SubstanceDustLookAndFeel;
-import org.jvnet.substance.skin.SubstanceTwilightLookAndFeel;
 /**
  *
  * @author Usuario
@@ -36,17 +34,17 @@ public class iniciosesion extends javax.swing.JFrame {
     public Integer idusuario;
     JMenuBar menusys1;
     JMenu sistema, Registros;
-    JMenuItem Adminusu,exit;  
+    JMenuItem Adminusu,exit;
     public iniciosesion() {
 //        menusys1 = new JMenuBar();
 //        menusys1.setForeground(Color.BLUE);
 //        menusys1.setBackground(Color.yellow);
-        initComponents();        
+        initComponents();
         this.setLocationRelativeTo(null);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/ms.png")).getImage());
         ingresotext.setDocument(new solomayusculas());
         ingresopassword.setDocument(new solomayusculas());
-    }    
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -56,48 +54,96 @@ public class iniciosesion extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
+        jLabelSubtitle = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         ingresotext = new javax.swing.JTextField();
         ingresopassword = new javax.swing.JPasswordField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        fondo = new javax.swing.JLabel();
+        jButton1 = new RoundedButton("INGRESAR", 10, new java.awt.Color(0, 102, 153), new java.awt.Color(0, 84, 128));
+        jButton2 = new javax.swing.JButton("Cancelar");
+        brandPanel = new BrandPanel("VentControl", "Sistema de Gestión Comercial");
+        formPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(0, 102, 204));
-        setForeground(new java.awt.Color(51, 51, 51));
         setUndecorated(true);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setResizable(false);
+        setSize(900, 520);
 
-        jLabel1.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel1.setText("INICIAR SESION");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 180, 128, 31));
+        // Diseño visual modernizado: ventana dividida en un panel de marca (izquierda,
+        // con degradado y logo dibujados por código) y un panel de formulario (derecha,
+        // claro, con campos de borde redondeado y un botón principal plano). Reemplaza
+        // el fondo con imagen JPG y los íconos antiguos por un look plano/actual.
+        java.awt.Container root = getContentPane();
+        root.setLayout(null);
+        ((javax.swing.JComponent) root).setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(190, 196, 204), 1));
 
-        jLabel2.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel2.setText("USUARIO:");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, -1, 20));
+        brandPanel.setBounds(0, 0, 340, 520);
+        root.add(brandPanel);
 
-        jLabel3.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel3.setText("PASSWORD:");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, -1, -1));
+        // Permite arrastrar la ventana (al no tener barra de título del sistema)
+        // tomando el panel de marca como "manija".
+        final java.awt.Point[] dragOrigin = new java.awt.Point[1];
+        brandPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                dragOrigin[0] = e.getPoint();
+            }
+        });
+        brandPanel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent e) {
+                java.awt.Point p = getLocation();
+                setLocation(p.x + e.getX() - dragOrigin[0].x, p.y + e.getY() - dragOrigin[0].y);
+            }
+        });
 
-        ingresotext.setBackground(new java.awt.Color(240, 240, 240));
+        formPanel.setLayout(null);
+        formPanel.setBackground(java.awt.Color.WHITE);
+        formPanel.setBounds(340, 0, 560, 520);
+        root.add(formPanel);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 26));
+        jLabel1.setForeground(new java.awt.Color(33, 37, 41));
+        jLabel1.setText("Iniciar sesión");
+        jLabel1.setBounds(70, 108, 420, 36);
+        formPanel.add(jLabel1);
+
+        jLabelSubtitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        jLabelSubtitle.setForeground(new java.awt.Color(120, 128, 138));
+        jLabelSubtitle.setText("Ingresá tus credenciales para continuar");
+        jLabelSubtitle.setBounds(70, 148, 420, 20);
+        formPanel.add(jLabelSubtitle);
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 11));
+        jLabel2.setForeground(new java.awt.Color(120, 128, 138));
+        jLabel2.setText("USUARIO");
+        jLabel2.setBounds(70, 204, 200, 16);
+        formPanel.add(jLabel2);
+
+        ingresotext.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
+        ingresotext.setForeground(new java.awt.Color(33, 37, 41));
+        ingresotext.setBackground(new java.awt.Color(247, 248, 250));
         ingresotext.setCaretColor(new java.awt.Color(0, 102, 153));
+        ingresotext.setBorder(new RoundedBorder(10, new java.awt.Color(210, 214, 220)));
+        ingresotext.setBounds(70, 224, 420, 46);
         ingresotext.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ingresotextActionPerformed(evt);
             }
         });
-        getContentPane().add(ingresotext, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 220, 250, 43));
+        formPanel.add(ingresotext);
 
+        jLabel3.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 11));
+        jLabel3.setForeground(new java.awt.Color(120, 128, 138));
+        jLabel3.setText("CONTRASEÑA");
+        jLabel3.setBounds(70, 286, 200, 16);
+        formPanel.add(jLabel3);
+
+        ingresopassword.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
+        ingresopassword.setForeground(new java.awt.Color(33, 37, 41));
+        ingresopassword.setBackground(new java.awt.Color(247, 248, 250));
+        ingresopassword.setCaretColor(new java.awt.Color(0, 102, 153));
+        ingresopassword.setBorder(new RoundedBorder(10, new java.awt.Color(210, 214, 220)));
+        ingresopassword.setBounds(70, 306, 420, 46);
         ingresopassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ingresopasswordActionPerformed(evt);
@@ -108,13 +154,10 @@ public class iniciosesion extends javax.swing.JFrame {
                 ingresopasswordKeyPressed(evt);
             }
         });
-        getContentPane().add(ingresopassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 280, 250, 43));
+        formPanel.add(ingresopassword);
 
-        jButton1.setBackground(new java.awt.Color(0, 102, 153));
-        jButton1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(240, 240, 240));
-        jButton1.setText("INGRESAR");
-        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+        jButton1.setBounds(70, 376, 420, 48);
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton1MouseClicked(evt);
@@ -125,29 +168,21 @@ public class iniciosesion extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 360, 135, 40));
+        formPanel.add(jButton1);
 
-        jButton2.setBackground(new java.awt.Color(0, 102, 153));
-        jButton2.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(240, 240, 240));
-        jButton2.setText("CERRAR");
+        jButton2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
+        jButton2.setForeground(new java.awt.Color(130, 136, 145));
+        jButton2.setContentAreaFilled(false);
+        jButton2.setBorderPainted(false);
+        jButton2.setFocusPainted(false);
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton2.setBounds(70, 436, 420, 24);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 360, 133, 40));
-
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/letras.png"))); // NOI18N
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 410, 100, 70));
-
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/1496628980_lock.png"))); // NOI18N
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 50, -1, -1));
-
-        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul.jpg"))); // NOI18N
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 390, 490));
-
-        pack();
+        formPanel.add(jButton2);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -155,7 +190,7 @@ public class iniciosesion extends javax.swing.JFrame {
         String usuario = ingresotext.getText();
         String pass = new String (ingresopassword.getPassword());
         if(usuario.equals("")){
-            JOptionPane.showMessageDialog(this, "Ingrese Usuario");            
+            JOptionPane.showMessageDialog(this, "Ingrese Usuario");
         }else{
             acceder(usuario, pass);
         }
@@ -167,15 +202,15 @@ public class iniciosesion extends javax.swing.JFrame {
         String rol ="";
         conectar cc = new conectar();
         Connection cn = cc.conexion();
-        try {            
+        try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(sql);                                    
+            ResultSet rs = st.executeQuery(sql);
             while(rs.next()){
                 Usuario =rs.getString("usuario");
-                Pass = rs.getString("clave");   
+                Pass = rs.getString("clave");
                 rol = rs.getString("rol_id");
                 idusuario = Integer.parseInt(rs.getString("id"));
-            }            
+            }
             if(Usuario.equals(usuario) && Pass.equals(pass)){
                 if(rol.equals("0")){
                     System.out.print(Usuario);
@@ -185,20 +220,20 @@ public class iniciosesion extends javax.swing.JFrame {
                     menu m = new menu(idusuario);
                     m.setVisible(true);
                     m.setTitle("Menú Principal.");
-                    dispose();                
+                    dispose();
                 }else{
                     System.out.print(Usuario);
                     System.out.print(rol);
                     menu2 m = new menu2(idusuario);
                     m.setVisible(true);
                     m.setTitle("Menú Principal.");
-                    dispose(); 
+                    dispose();
                 }
             }else{
                 JOptionPane.showMessageDialog(this, "Usuario Incorrecto");
                 ingresopassword.requestFocus();
                 ingresopassword.selectAll();
-            }            
+            }
             cn.close();
         } catch (SQLException ex) {
             Logger.getLogger(iniciosesion.class.getName()).log(Level.SEVERE, null, ex);
@@ -209,7 +244,7 @@ public class iniciosesion extends javax.swing.JFrame {
     }//GEN-LAST:event_ingresopasswordActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-                                    
+
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void ingresotextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ingresotextActionPerformed
@@ -225,12 +260,145 @@ public class iniciosesion extends javax.swing.JFrame {
             String usuario = ingresotext.getText();
             String pass = new String (ingresopassword.getPassword());
             if(usuario.equals("")){
-                JOptionPane.showMessageDialog(this, "Ingrese Usuario");            
+                JOptionPane.showMessageDialog(this, "Ingrese Usuario");
             }else{
                 acceder(usuario, pass);
             }
-        }    
+        }
     }//GEN-LAST:event_ingresopasswordKeyPressed
+
+    /**
+     * Panel de marca (lado izquierdo del login): degradado + insignia + título + leyenda,
+     * dibujados directamente para no depender de imágenes rasterizadas antiguas.
+     */
+    private static class BrandPanel extends javax.swing.JPanel {
+        private final String title;
+        private final String subtitle;
+
+        BrandPanel(String title, String subtitle) {
+            this.title = title;
+            this.subtitle = subtitle;
+            setOpaque(true);
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            int w = getWidth();
+            int h = getHeight();
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            java.awt.GradientPaint gp = new java.awt.GradientPaint(
+                    0, 0, new java.awt.Color(12, 38, 66),
+                    0, h, new java.awt.Color(0, 102, 153));
+            g2.setPaint(gp);
+            g2.fillRect(0, 0, w, h);
+
+            int d = 92;
+            int bx = (w - d) / 2;
+            int by = 140;
+            g2.setColor(java.awt.Color.WHITE);
+            g2.fillOval(bx, by, d, d);
+            g2.setColor(new java.awt.Color(0, 102, 153));
+            g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 30));
+            java.awt.FontMetrics fmBadge = g2.getFontMetrics();
+            String initials = "VC";
+            g2.drawString(initials,
+                    bx + (d - fmBadge.stringWidth(initials)) / 2,
+                    by + (d + fmBadge.getAscent() - fmBadge.getDescent()) / 2);
+
+            int titleY = by + d + 46;
+            g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 24));
+            g2.setColor(java.awt.Color.WHITE);
+            java.awt.FontMetrics fmTitle = g2.getFontMetrics();
+            g2.drawString(title, (w - fmTitle.stringWidth(title)) / 2, titleY);
+
+            g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+            g2.setColor(new java.awt.Color(220, 232, 240));
+            java.awt.FontMetrics fmSub = g2.getFontMetrics();
+            g2.drawString(subtitle, (w - fmSub.stringWidth(subtitle)) / 2, titleY + 26);
+
+            String footer = "© " + java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) + " VentControl";
+            g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 11));
+            g2.setColor(new java.awt.Color(255, 255, 255, 140));
+            java.awt.FontMetrics fmFooter = g2.getFontMetrics();
+            g2.drawString(footer, (w - fmFooter.stringWidth(footer)) / 2, h - 24);
+
+            g2.dispose();
+        }
+    }
+
+    /** Borde redondeado plano usado en los campos de texto. */
+    private static class RoundedBorder implements javax.swing.border.Border {
+        private final int radius;
+        private final java.awt.Color color;
+
+        RoundedBorder(int radius, java.awt.Color color) {
+            this.radius = radius;
+            this.color = color;
+        }
+
+        public java.awt.Insets getBorderInsets(java.awt.Component c) {
+            return new java.awt.Insets(10, 14, 10, 14);
+        }
+
+        public boolean isBorderOpaque() {
+            return false;
+        }
+
+        public void paintBorder(java.awt.Component c, java.awt.Graphics g, int x, int y, int w, int h) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new java.awt.BasicStroke(1.4f));
+            g2.drawRoundRect(x, y, w - 1, h - 1, radius, radius);
+            g2.dispose();
+        }
+    }
+
+    /** Botón plano con esquinas redondeadas y un leve efecto "hover". */
+    private static class RoundedButton extends javax.swing.JButton {
+        private final int radius;
+        private final java.awt.Color base;
+        private final java.awt.Color hover;
+        private boolean isHover = false;
+
+        RoundedButton(String text, int radius, java.awt.Color base, java.awt.Color hover) {
+            super(text);
+            this.radius = radius;
+            this.base = base;
+            this.hover = hover;
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setForeground(java.awt.Color.WHITE);
+            setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent e) {
+                    isHover = true;
+                    repaint();
+                }
+
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    isHover = false;
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(isHover ? hover : base);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -239,7 +407,7 @@ public class iniciosesion extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -250,8 +418,6 @@ public class iniciosesion extends javax.swing.JFrame {
                     javax.swing.UIManager.getLookAndFeelDefaults().put(
                     "JMenuBar[Enabled].textForeground", Color.RED);
                     javax.swing.UIManager.put("MenuBarUI.background", Color.GREEN);
-//                    UIManager.setLookAndFeel(new SubstanceTwilightLookAndFeel());
-//                    UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceTwilightLookAndFeel");
                     break;
                 }
             }
@@ -275,17 +441,16 @@ public class iniciosesion extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JLabel fondo;
+    private BrandPanel brandPanel;
+    private javax.swing.JPanel formPanel;
     private javax.swing.JPasswordField ingresopassword;
     private javax.swing.JTextField ingresotext;
-    private javax.swing.JButton jButton1;
+    private RoundedButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabelSubtitle;
     // End of variables declaration//GEN-END:variables
-    
+
 }
