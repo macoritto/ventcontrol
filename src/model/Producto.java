@@ -39,6 +39,7 @@ public class Producto  implements java.io.Serializable {
      private double iva;
      private String estante;
      private double descuento;
+     private String imagen;
      private Set detventas = new HashSet(0);
      private Set salidaPros = new HashSet(0);
      private Set detcompras = new HashSet(0);
@@ -238,6 +239,14 @@ public class Producto  implements java.io.Serializable {
     
     public void setDescuento(double descuento) {
         this.descuento = descuento;
+    }
+    @Column(name="imagen", length=255)
+    public String getImagen() {
+        return this.imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 @OneToMany(fetch=FetchType.LAZY, mappedBy="producto")
     public Set getDetventas() {

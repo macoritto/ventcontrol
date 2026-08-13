@@ -6,6 +6,8 @@
 package ventcontrol;
 
 import claseConectar.conectar;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,6 +44,8 @@ import model.Tipo;
     Boolean tipoprodu;
     String id_droga, id_marca;
     Date fecha = new Date();
+    private File imagenSeleccionada = null;
+    private String nombreImagenActual = null;
     public updateprodu(menu menuprincipal, boolean modal, Integer band, String codigo) {
         
         super(menuprincipal, modal);
@@ -145,6 +149,15 @@ import model.Tipo;
                     marstring=rs.getString("marca");
                     medida.setSelectedItem(rs.getString("unidad_medida"));
                     iddroga=rs.getString("id_droga");
+                    nombreImagenActual=rs.getString("imagen");
+                    javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniatura(nombreImagenActual, 110, 100);
+                    if(miniatura!=null){
+                        imgProducto.setIcon(miniatura);
+                        imgProducto.setText("");
+                    }else{
+                        imgProducto.setIcon(null);
+                        imgProducto.setText("Sin imagen");
+                    }
                     if(rs.getString("unidad_medida").equals("Metro") || rs.getString("unidad_medida").equals("Metro")){
                         tipoprodu=true;
                     }else{
@@ -371,9 +384,10 @@ import model.Tipo;
         kgmt.setEnabled(false);
         laboratorio.setEnabled(false);
         selectlaboratorio.setEnabled(false);
-        //limcre.setText("");        
+        btnImagen.setEnabled(false);
+        //limcre.setText("");
     }
-   void desbloquear(){        
+   void desbloquear(){
         nombre.setEnabled(true);
         nombre1.setEnabled(true);
         costo.setEnabled(true);
@@ -399,7 +413,8 @@ import model.Tipo;
         }
         laboratorio.setEnabled(true);
         selectlaboratorio.setEnabled(true);
-        //limcre.setText("");        
+        btnImagen.setEnabled(true);
+        //limcre.setText("");
     }
     void limpiar(){
         nombre.setText("");
@@ -454,6 +469,9 @@ import model.Tipo;
         jLabel22 = new javax.swing.JLabel();
         laboratorio = new javax.swing.JTextField();
         selectlaboratorio = new javax.swing.JButton();
+        jLabelImagen = new javax.swing.JLabel();
+        imgProducto = new javax.swing.JLabel();
+        btnImagen = new javax.swing.JButton();
         jLayeredPane2 = new javax.swing.JLayeredPane();
         preciom = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
@@ -717,6 +735,33 @@ import model.Tipo;
         });
         jLayeredPane3.add(selectlaboratorio);
         selectlaboratorio.setBounds(250, 90, 40, 30);
+
+        jLabelImagen.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabelImagen.setForeground(new java.awt.Color(240, 240, 240));
+        jLabelImagen.setText("IMAGEN:");
+        jLayeredPane3.add(jLabelImagen);
+        jLabelImagen.setBounds(10, 170, 90, 20);
+
+        imgProducto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        imgProducto.setText("Sin imagen");
+        imgProducto.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        imgProducto.setOpaque(true);
+        imgProducto.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPane3.add(imgProducto);
+        imgProducto.setBounds(10, 195, 120, 100);
+
+        btnImagen.setBackground(new java.awt.Color(0, 102, 153));
+        btnImagen.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnImagen.setForeground(new java.awt.Color(240, 240, 240));
+        btnImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconsearch.png"))); // NOI18N
+        btnImagen.setText("Cargar Imagen");
+        btnImagen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImagenActionPerformed(evt);
+            }
+        });
+        jLayeredPane3.add(btnImagen);
+        btnImagen.setBounds(140, 225, 160, 30);
 
         getContentPane().add(jLayeredPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 310, 310));
 
@@ -982,7 +1027,15 @@ import model.Tipo;
                                             Integer a =1;
                                             Double b =1.0;
                                             Integer tipo=1;
-                                            sql ="UPDATE producto SET nomprodu='"+nombre.getText()+"', costo='"+preciocompra.toString()+"', venta='"+precioventa.toString()+"', venta_m='"+preciomayo.toString()+"', stock='"+stock.getText()+"', promocion='0', historial='"+descuento.getText()+"', venta_c='"+preciocredito.toString()+"', por_ven='0', tipo_id='"+codtipo.toString()+"', unidad_medida='"+medida.getSelectedItem()+"', cant_paquete='"+canpaq.getText()+"', iva='"+iva+"', estante='"+estante.getText()+"', descuento='"+des+"', marca='"+id_marca+"', descrip='"+nombre1.getText()+"', vencimiento='"+fecha+"', id_droga='1'  where codprodu='"+cod.getText()+"'";
+                                            String nombreImagenFinal = nombreImagenActual==null ? "" : nombreImagenActual;
+                                            if(imagenSeleccionada!=null){
+                                                try{
+                                                    nombreImagenFinal = ImagenProductoUtil.copiarImagen(imagenSeleccionada, cod.getText());
+                                                }catch(IOException iox){
+                                                    JOptionPane.showMessageDialog(null, "No se pudo copiar la imagen: "+iox.getMessage());
+                                                }
+                                            }
+                                            sql ="UPDATE producto SET nomprodu='"+nombre.getText()+"', costo='"+preciocompra.toString()+"', venta='"+precioventa.toString()+"', venta_m='"+preciomayo.toString()+"', stock='"+stock.getText()+"', promocion='0', historial='"+descuento.getText()+"', venta_c='"+preciocredito.toString()+"', por_ven='0', tipo_id='"+codtipo.toString()+"', unidad_medida='"+medida.getSelectedItem()+"', cant_paquete='"+canpaq.getText()+"', iva='"+iva+"', estante='"+estante.getText()+"', descuento='"+des+"', marca='"+id_marca+"', descrip='"+nombre1.getText()+"', vencimiento='"+fecha+"', id_droga='1', imagen='"+nombreImagenFinal+"'  where codprodu='"+cod.getText()+"'";
                                             PreparedStatement st = cn.prepareStatement(sql);                             
                                             System.out.print(sql);
                                             System.out.print(st);     
@@ -1072,6 +1125,18 @@ import model.Tipo;
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosed
+
+    private void btnImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImagenActionPerformed
+        File archivo = ImagenProductoUtil.elegirImagen(this);
+        if (archivo != null) {
+            imagenSeleccionada = archivo;
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 110, 100);
+            if (miniatura != null) {
+                imgProducto.setIcon(miniatura);
+                imgProducto.setText("");
+            }
+        }
+    }//GEN-LAST:event_btnImagenActionPerformed
 
     private void stockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stockActionPerformed
         // TODO add your handling code here:
@@ -1422,6 +1487,9 @@ import model.Tipo;
     private javax.swing.JTextField estante;
     private javax.swing.JLabel fondo;
     private javax.swing.JButton generar;
+    private javax.swing.JButton btnImagen;
+    private javax.swing.JLabel imgProducto;
+    private javax.swing.JLabel jLabelImagen;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

@@ -8,6 +8,8 @@ package ventcontrol;
 import claseConectar.conectar;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,8 +43,9 @@ import model.Tipo;
     DefaultTableModel modeloRefresca;
     Integer banlim=0;
     Integer bandescu=0, sventa=0, scompra=0, contador=0;
-    String id_droga, id_marca, codid, descrippro, unidad, preuni, preciopro, stockauxx;       
+    String id_droga, id_marca, codid, descrippro, unidad, preuni, preciopro, stockauxx;
     Date fecha= new Date();
+    private File imagenSeleccionada = null;
     public cargarprodu(menu menuprincipal, boolean modal, Integer band, String codigo) {
         
         super(menuprincipal, modal);
@@ -193,7 +196,10 @@ import model.Tipo;
         estante.setText("");
         kgmt.setText("0");
         autonumerar();
-        estante.requestFocus();  
+        imagenSeleccionada = null;
+        imgProducto.setIcon(null);
+        imgProducto.setText("Sin imagen");
+        estante.requestFocus();
         estante.selectAll();
     }
     public void setModel(DefaultTableModel modelo){
@@ -239,6 +245,9 @@ import model.Tipo;
         jLabel17 = new javax.swing.JLabel();
         necesa4 = new javax.swing.JLabel();
         necesa8 = new javax.swing.JLabel();
+        jLabelImagen = new javax.swing.JLabel();
+        imgProducto = new javax.swing.JLabel();
+        btnImagen = new javax.swing.JButton();
         jLayeredPane2 = new javax.swing.JLayeredPane();
         jLabel10 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -631,6 +640,33 @@ import model.Tipo;
         jLayeredPane3.add(necesa8);
         necesa8.setBounds(60, 130, 20, 30);
 
+        jLabelImagen.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jLabelImagen.setForeground(new java.awt.Color(240, 240, 240));
+        jLabelImagen.setText("IMAGEN:");
+        jLayeredPane3.add(jLabelImagen);
+        jLabelImagen.setBounds(10, 170, 90, 20);
+
+        imgProducto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        imgProducto.setText("Sin imagen");
+        imgProducto.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        imgProducto.setOpaque(true);
+        imgProducto.setBackground(new java.awt.Color(255, 255, 255));
+        jLayeredPane3.add(imgProducto);
+        imgProducto.setBounds(10, 195, 120, 110);
+
+        btnImagen.setBackground(new java.awt.Color(0, 102, 153));
+        btnImagen.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnImagen.setForeground(new java.awt.Color(240, 240, 240));
+        btnImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconsearch.png"))); // NOI18N
+        btnImagen.setText("Cargar Imagen");
+        btnImagen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImagenActionPerformed(evt);
+            }
+        });
+        jLayeredPane3.add(btnImagen);
+        btnImagen.setBounds(140, 230, 160, 30);
+
         getContentPane().add(jLayeredPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 160, 310, 320));
 
         jLayeredPane2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -1008,8 +1044,16 @@ import model.Tipo;
                                                     Integer a =1;
                                                     Double b =1.0;
                                                     Integer tipo=1;
-                                                    sql ="INSERT INTO producto (codprodu, nomprodu, costo, venta, venta_m, stock, promocion, historial, venta_c, por_ven, tipo_id, unidad_medida, cant_paquete, iva, estante, descuento,marca, descrip, vencimiento, id_droga) VALUES ('"+cod.getText()+"','" +nombre1.getText().toUpperCase()+ "','" +preciocompra.toString()+"','" +precioventa.toString()+ "','"+preciomayo.toString()+"','"+stock.getText()+"','0','"+descuento.getText()+"','"+preciocredito.toString()+"','0','"+codtipo.toString()+"','"+medida1.getSelectedItem()+"','"+canpaq.getText()+"','"+iva+"','"+estante.getText()+"','"+des+"','"+id_marca+"','"+nombre.getText()+"','"+fecha+"','1')";                                                        
-                                                    PreparedStatement st1 = cn.prepareStatement(sql);                             
+                                                    String nombreImagen="";
+                                                    if(imagenSeleccionada!=null){
+                                                        try{
+                                                            nombreImagen = ImagenProductoUtil.copiarImagen(imagenSeleccionada, cod.getText());
+                                                        }catch(IOException iox){
+                                                            JOptionPane.showMessageDialog(null, "No se pudo copiar la imagen: "+iox.getMessage());
+                                                        }
+                                                    }
+                                                    sql ="INSERT INTO producto (codprodu, nomprodu, costo, venta, venta_m, stock, promocion, historial, venta_c, por_ven, tipo_id, unidad_medida, cant_paquete, iva, estante, descuento,marca, descrip, vencimiento, id_droga, imagen) VALUES ('"+cod.getText()+"','" +nombre1.getText().toUpperCase()+ "','" +preciocompra.toString()+"','" +precioventa.toString()+ "','"+preciomayo.toString()+"','"+stock.getText()+"','0','"+descuento.getText()+"','"+preciocredito.toString()+"','0','"+codtipo.toString()+"','"+medida1.getSelectedItem()+"','"+canpaq.getText()+"','"+iva+"','"+estante.getText()+"','"+des+"','"+id_marca+"','"+nombre.getText()+"','"+fecha+"','1','"+nombreImagen+"')";
+                                                    PreparedStatement st1 = cn.prepareStatement(sql);
                                                     System.out.print(sql);
                                                     System.out.print(st1);                                                          
                                                     String valor="";                                                                     
@@ -1641,6 +1685,18 @@ import model.Tipo;
         // TODO add your handling code here:
     }//GEN-LAST:event_generarFocusLost
 
+    private void btnImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImagenActionPerformed
+        File archivo = ImagenProductoUtil.elegirImagen(this);
+        if (archivo != null) {
+            imagenSeleccionada = archivo;
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 110, 100);
+            if (miniatura != null) {
+                imgProducto.setIcon(miniatura);
+                imgProducto.setText("");
+            }
+        }
+    }//GEN-LAST:event_btnImagenActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1688,6 +1744,9 @@ import model.Tipo;
     private javax.swing.JTextField estante;
     private javax.swing.JLabel fondo;
     private javax.swing.JButton generar;
+    private javax.swing.JButton btnImagen;
+    private javax.swing.JLabel imgProducto;
+    private javax.swing.JLabel jLabelImagen;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
