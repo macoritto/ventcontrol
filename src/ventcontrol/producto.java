@@ -670,9 +670,19 @@ public class producto extends JDialog {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         getContentPane().setBackground(new java.awt.Color(247, 248, 250));
 
-        tablacliente.setBackground(new java.awt.Color(0, 102, 153));
-        tablacliente.setFont(new java.awt.Font("Khmer UI", 1, 11)); // NOI18N
-        tablacliente.setForeground(new java.awt.Color(240, 240, 240));
+        fondo.setOpaque(true);
+        fondo.setBackground(new java.awt.Color(16, 44, 72));
+        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 600));
+
+        tablacliente.setBackground(new java.awt.Color(255, 255, 255));
+        tablacliente.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        tablacliente.setForeground(new java.awt.Color(33, 37, 41));
+        tablacliente.setRowHeight(26);
+        tablacliente.setGridColor(new java.awt.Color(230, 232, 236));
+        tablacliente.setSelectionForeground(new java.awt.Color(33, 37, 41));
+        tablacliente.getTableHeader().setBackground(new java.awt.Color(16, 44, 72));
+        tablacliente.getTableHeader().setForeground(java.awt.Color.WHITE);
+        tablacliente.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         tablacliente.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
@@ -684,13 +694,14 @@ public class producto extends JDialog {
 
             }
         ));
-        tablacliente.setSelectionBackground(new java.awt.Color(0, 0, 0));
+        tablacliente.setSelectionBackground(new java.awt.Color(210, 231, 240));
         tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tablaclienteMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tablacliente);
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(222, 226, 231)));
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 1090, 430));
 
@@ -706,13 +717,13 @@ public class producto extends JDialog {
         });
         getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 30, 220, 40));
 
-        jLabel1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(60, 68, 78));
         jLabel1.setText("POR TIPO");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 10, -1, -1));
 
         nuevo.setBackground(new java.awt.Color(0, 102, 153));
-        nuevo.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        nuevo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         nuevo.setForeground(new java.awt.Color(240, 240, 240));
         nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         nuevo.setText("   Nuevo");
@@ -724,7 +735,7 @@ public class producto extends JDialog {
         getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 160, 60));
 
         delete.setBackground(new java.awt.Color(0, 102, 153));
-        delete.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        delete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         delete.setForeground(new java.awt.Color(240, 240, 240));
         delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
         delete.setText("  Eliminar");
@@ -736,7 +747,7 @@ public class producto extends JDialog {
         getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 160, 60));
 
         view.setBackground(new java.awt.Color(0, 102, 153));
-        view.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        view.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         view.setForeground(new java.awt.Color(240, 240, 240));
         view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
         view.setText(" Visualizar");
@@ -750,7 +761,7 @@ public class producto extends JDialog {
         iconproveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PRODU2.png"))); // NOI18N
         getContentPane().add(iconproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 430, 150, 150));
 
-        jLabel2.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(240, 240, 240));
         jLabel2.setText("PRODUCTOS");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 570, -1, -1));
@@ -770,13 +781,13 @@ public class producto extends JDialog {
         });
         getContentPane().add(buscartxt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 270, 40));
 
-        jLabel3.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(60, 68, 78));
         jLabel3.setText("BUSCAR");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, -1, -1));
 
-        jLabel4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(60, 68, 78));
         jLabel4.setText("POR NOMBRE");
         getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
 
@@ -792,13 +803,13 @@ public class producto extends JDialog {
         });
         getContentPane().add(buscarcod, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 30, 220, 40));
 
-        jLabel5.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(60, 68, 78));
         jLabel5.setText("POR MARCA");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 10, -1, -1));
 
         btnprinter.setBackground(new java.awt.Color(0, 102, 153));
-        btnprinter.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        btnprinter.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnprinter.setForeground(new java.awt.Color(240, 240, 240));
         btnprinter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/pdf.png"))); // NOI18N
         btnprinter.setText("Generar");
@@ -810,7 +821,7 @@ public class producto extends JDialog {
         getContentPane().add(btnprinter, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 550, 130, 40));
 
         ntipo.setBackground(new java.awt.Color(0, 102, 153));
-        ntipo.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        ntipo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         ntipo.setForeground(new java.awt.Color(240, 240, 240));
         ntipo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         ntipo.setText("        Tipos");
@@ -822,7 +833,7 @@ public class producto extends JDialog {
         getContentPane().add(ntipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 160, 60));
 
         nmarca.setBackground(new java.awt.Color(0, 102, 153));
-        nmarca.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        nmarca.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         nmarca.setForeground(new java.awt.Color(240, 240, 240));
         nmarca.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         nmarca.setText("Marcas");
@@ -833,35 +844,35 @@ public class producto extends JDialog {
         });
         getContentPane().add(nmarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 160, 60));
 
-        jLabel6.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(60, 68, 78));
         jLabel6.setText("IMPORTE EN COMPRA:");
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 520, -1, 30));
 
-        montocompra.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        montocompra.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         montocompra.setForeground(new java.awt.Color(255, 51, 0));
         getContentPane().add(montocompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 520, 110, 30));
 
-        jLabel7.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(60, 68, 78));
         jLabel7.setText("IMPORTE EN VENTA:");
         getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 520, -1, 30));
 
-        montoventa.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        montoventa.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         montoventa.setForeground(new java.awt.Color(255, 51, 0));
         getContentPane().add(montoventa, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 520, 110, 30));
 
-        jLabel8.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(60, 68, 78));
         jLabel8.setText("N° DE ITEMS:");
         getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 520, -1, 30));
 
-        nroproductos.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        nroproductos.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         nroproductos.setForeground(new java.awt.Color(255, 51, 0));
         getContentPane().add(nroproductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 520, 80, 30));
 
         cambio.setBackground(new java.awt.Color(0, 102, 153));
-        cambio.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        cambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         cambio.setForeground(new java.awt.Color(240, 240, 240));
         cambio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/exchange.png"))); // NOI18N
         cambio.setText("   Drogas");
@@ -873,7 +884,7 @@ public class producto extends JDialog {
         getContentPane().add(cambio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, 160, 60));
 
         btnprinter1.setBackground(new java.awt.Color(0, 102, 153));
-        btnprinter1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        btnprinter1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnprinter1.setForeground(new java.awt.Color(240, 240, 240));
         btnprinter1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/printer.png"))); // NOI18N
         btnprinter1.setText("Imprimir");
@@ -895,12 +906,10 @@ public class producto extends JDialog {
             }
         });
         getContentPane().add(buscardroga, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 30, 200, 40));
-        // Fondo con imagen fijo eliminado: ahora el color de fondo se aplica directo
-        // al content pane (arriba), que se adapta a cualquier tamaño de ventana.
 
         jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
         jMenu1.setText("Acciones");
-        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu1ActionPerformed(evt);
@@ -908,7 +917,7 @@ public class producto extends JDialog {
         });
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
         jMenuItem1.setText("Nuevo Producto.");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -920,7 +929,7 @@ public class producto extends JDialog {
         jMenu1.add(jSeparator5);
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
         jMenuItem4.setText("Salir");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
@@ -936,7 +945,88 @@ public class producto extends JDialog {
         setJMenuBar(menu);
 
         pack();
+
+        getContentPane().addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                relayoutProducto();
+            }
+        });
+        relayoutProducto();
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Recalcula el tamaño de la tabla y la posición de los elementos pegados a un
+     * borde (buscador de drogas, franja de totales) según el tamaño actual de la
+     * ventana, para que todo el contenido aproveche el espacio disponible en vez
+     * de quedar con el tamaño fijo del diseño original.
+     */
+    private void relayoutProducto() {
+        int w = getContentPane().getWidth();
+        int h = getContentPane().getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        int sidebarW = 190;
+        int rightMargin = 30;
+
+        fondo.setBounds(0, 0, sidebarW, h);
+        jScrollPane1.setBounds(sidebarW, 80, Math.max(300, w - sidebarW - rightMargin), Math.max(200, h - 80 - 90));
+        buscardroga.setLocation(w - rightMargin - buscardroga.getWidth(), buscardroga.getY());
+
+        int filaTotales = h - 80;
+        jLabel6.setLocation(jLabel6.getX(), filaTotales);
+        montocompra.setLocation(montocompra.getX(), filaTotales);
+        jLabel7.setLocation(jLabel7.getX(), filaTotales);
+        montoventa.setLocation(montoventa.getX(), filaTotales);
+        jLabel8.setLocation(jLabel8.getX(), filaTotales);
+        nroproductos.setLocation(nroproductos.getX(), filaTotales);
+
+        int filaBotones = h - 50;
+        btnprinter.setLocation(btnprinter.getX(), filaBotones);
+        btnprinter1.setLocation(btnprinter1.getX(), filaBotones);
+    }
+
+    /** Estilo plano para los botones de acciones de la barra lateral oscura. */
+    private void estilizarBotonLateral(final javax.swing.JButton b) {
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
+        b.setBackground(new java.awt.Color(31, 68, 102));
+        b.setForeground(java.awt.Color.WHITE);
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        b.setIconTextGap(10);
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(0, 102, 153));
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(31, 68, 102));
+            }
+        });
+    }
+
+    /** Estilo plano para los botones de acción principal (generar/imprimir) sobre fondo claro. */
+    private void estilizarBotonPrimario(final javax.swing.JButton b) {
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
+        b.setBackground(new java.awt.Color(0, 102, 153));
+        b.setForeground(java.awt.Color.WHITE);
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(0, 84, 128));
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(0, 102, 153));
+            }
+        });
+    }
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
         
