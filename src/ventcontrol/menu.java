@@ -855,6 +855,7 @@ public class menu extends javax.swing.JFrame {
 
     /** Aplica el estilo plano de navegación (barra lateral) a un botón del menú. */
     private void estilizarBotonNav(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         b.setOpaque(true);
         b.setContentAreaFilled(true);
         b.setBackground(NAV_BASE);
@@ -894,6 +895,7 @@ public class menu extends javax.swing.JFrame {
 
     /** Aplica el estilo "fantasma" (solo ícono, resalta al pasar el mouse) al botón de salir. */
     private void estilizarBotonSalir(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         b.setOpaque(false);
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);

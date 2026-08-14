@@ -972,6 +972,7 @@ public class producto extends JDialog {
 
     /** Estilo plano para los botones de acciones de la barra lateral oscura. */
     private void estilizarBotonLateral(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         b.setOpaque(true);
         b.setContentAreaFilled(true);
         b.setBackground(new java.awt.Color(31, 68, 102));
@@ -994,6 +995,7 @@ public class producto extends JDialog {
 
     /** Estilo plano para los botones de acción principal (generar/imprimir) sobre fondo claro. */
     private void estilizarBotonPrimario(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         b.setOpaque(true);
         b.setContentAreaFilled(true);
         b.setBackground(new java.awt.Color(0, 102, 153));
