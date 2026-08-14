@@ -122,8 +122,8 @@ public class menu extends javax.swing.JFrame {
         jButton9 = new javax.swing.JButton();
         horas = new javax.swing.JLabel();
         fecha = new javax.swing.JLabel();
-        fondo = new javax.swing.JLabel();
-        fondo1 = new javax.swing.JLabel();
+        fondo = new javax.swing.JPanel();
+        fondo1 = new javax.swing.JPanel();
         menusys = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -200,11 +200,6 @@ public class menu extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/macocar.png"))); // NOI18N
-
-        jButton1.setBackground(new java.awt.Color(0, 102, 153));
-        jButton1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(240, 240, 240));
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/presupuesto.png"))); // NOI18N
         jButton1.setText("PRESUPUESTOS");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -212,10 +207,8 @@ public class menu extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton1);
 
-        jButton2.setBackground(new java.awt.Color(0, 102, 153));
-        jButton2.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(240, 240, 240));
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/proveedoricon.png"))); // NOI18N
         jButton2.setText(" PROVEEDORES");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -223,10 +216,8 @@ public class menu extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton2);
 
-        jButton3.setBackground(new java.awt.Color(0, 102, 153));
-        jButton3.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(240, 240, 240));
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/clienticon.png"))); // NOI18N
         jButton3.setText("        CLIENTES");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -234,10 +225,8 @@ public class menu extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton3);
 
-        jButton4.setBackground(new java.awt.Color(0, 102, 153));
-        jButton4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(240, 240, 240));
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/provicon.png"))); // NOI18N
         jButton4.setText("   PRODUCTOS");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -245,10 +234,8 @@ public class menu extends javax.swing.JFrame {
                 jButton4ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton4);
 
-        jButton5.setBackground(new java.awt.Color(0, 102, 153));
-        jButton5.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(240, 240, 240));
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconventa.png"))); // NOI18N
         jButton5.setText("       VENTAS    ");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -256,10 +243,8 @@ public class menu extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton5);
 
-        jButton6.setBackground(new java.awt.Color(0, 102, 153));
-        jButton6.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton6.setForeground(new java.awt.Color(240, 240, 240));
         jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconcompra.png"))); // NOI18N
         jButton6.setText("     COMPRAS   ");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -267,20 +252,17 @@ public class menu extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton6);
 
-        jButton7.setBackground(new java.awt.Color(0, 102, 153));
-        jButton7.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton7.setForeground(new java.awt.Color(240, 240, 240));
         jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/log-out.png"))); // NOI18N
+        jButton7.setToolTipText("Salir");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
             }
         });
+        estilizarBotonSalir(jButton7);
 
-        jButton8.setBackground(new java.awt.Color(0, 102, 153));
-        jButton8.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton8.setForeground(new java.awt.Color(240, 240, 240));
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cajaarqueo.png"))); // NOI18N
         jButton8.setText("  ARQUEO CAJA");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
@@ -288,17 +270,8 @@ public class menu extends javax.swing.JFrame {
                 jButton8ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton8);
 
-        nom.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        nom.setForeground(new java.awt.Color(240, 240, 240));
-
-        usu.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        usu.setForeground(new java.awt.Color(240, 240, 240));
-        usu.setText("BIENVENIDO. ");
-
-        jButton9.setBackground(new java.awt.Color(0, 102, 153));
-        jButton9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jButton9.setForeground(new java.awt.Color(240, 240, 240));
         jButton9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/payment.png"))); // NOI18N
         jButton9.setText("     EXTRACTOS");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
@@ -306,16 +279,31 @@ public class menu extends javax.swing.JFrame {
                 jButton9ActionPerformed(evt);
             }
         });
+        estilizarBotonNav(jButton9);
 
-        horas.setFont(new java.awt.Font("Trebuchet MS", 1, 18)); // NOI18N
-        horas.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/macocar.png"))); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setVerticalAlignment(javax.swing.SwingConstants.CENTER);
 
-        fecha.setFont(new java.awt.Font("Trebuchet MS", 1, 18)); // NOI18N
-        fecha.setForeground(new java.awt.Color(240, 240, 240));
+        nom.setFont(new java.awt.Font("Segoe UI", 1, 13));
+        nom.setForeground(new java.awt.Color(33, 37, 41));
 
-        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
+        usu.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        usu.setForeground(new java.awt.Color(120, 128, 138));
+        usu.setText("BIENVENIDO,");
+        usu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
-        fondo1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
+        horas.setFont(new java.awt.Font("Segoe UI", 1, 13));
+        horas.setForeground(new java.awt.Color(60, 68, 78));
+        horas.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
+        fecha.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        fecha.setForeground(new java.awt.Color(120, 128, 138));
+        fecha.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
+        fondo.setBackground(SIDEBAR_BG);
+
+        fondo1.setBackground(CONTENT_BG);
 
         menusys.setBackground(java.awt.Color.GREEN);
         menusys.setBorder(null);
@@ -323,9 +311,9 @@ public class menu extends javax.swing.JFrame {
 
         jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
         jMenu1.setText("Sistema    ");
-        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
-        jMenuItem1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuusers.png"))); // NOI18N
         jMenuItem1.setText("Administrar Usuarios.");
         jMenuItem1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -341,7 +329,7 @@ public class menu extends javax.swing.JFrame {
         jMenu1.add(jMenuItem1);
         jMenu1.add(jSeparator1);
 
-        jMenuItem34.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem34.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuusers.png"))); // NOI18N
         jMenuItem34.setText("Impresoras");
         jMenuItem34.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -358,7 +346,7 @@ public class menu extends javax.swing.JFrame {
         jMenu1.add(jSeparator23);
 
         jMenuItem2.setBackground(new java.awt.Color(0, 0, 0));
-        jMenuItem2.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuexit.png"))); // NOI18N
         jMenuItem2.setText("Salir");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -374,10 +362,10 @@ public class menu extends javax.swing.JFrame {
         jMenu2.setForeground(null);
         jMenu2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuregistros.png"))); // NOI18N
         jMenu2.setText("Registros    ");
-        jMenu2.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
         jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem3.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucliente.png"))); // NOI18N
         jMenuItem3.setText("Registro de Clientes");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -389,7 +377,7 @@ public class menu extends javax.swing.JFrame {
         jMenu2.add(jSeparator2);
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproveedor.png"))); // NOI18N
         jMenuItem4.setText("Registro de Proveedores");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
@@ -401,7 +389,7 @@ public class menu extends javax.swing.JFrame {
         jMenu2.add(jSeparator3);
 
         jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem5.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem5.setText("Registro de Productos");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
@@ -413,7 +401,7 @@ public class menu extends javax.swing.JFrame {
         jMenu2.add(jSeparator4);
 
         jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem6.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuuser.png"))); // NOI18N
         jMenuItem6.setText("Registro de Vendedores");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
@@ -429,9 +417,9 @@ public class menu extends javax.swing.JFrame {
         jMenu11.setForeground(null);
         jMenu11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenu11.setText(" Inventarios");
-        jMenu11.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu11.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
-        jMenuItem19.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem19.setText(" Inventarios");
         jMenuItem19.addActionListener(new java.awt.event.ActionListener() {
@@ -442,7 +430,7 @@ public class menu extends javax.swing.JFrame {
         jMenu11.add(jMenuItem19);
         jMenu11.add(jSeparator11);
 
-        jMenuItem27.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem27.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem27.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucliente.png"))); // NOI18N
         jMenuItem27.setText("Devoluciones");
         jMenuItem27.addActionListener(new java.awt.event.ActionListener() {
@@ -453,7 +441,7 @@ public class menu extends javax.swing.JFrame {
         jMenu11.add(jMenuItem27);
         jMenu11.add(jSeparator12);
 
-        jMenuItem32.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem32.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem32.setText("Cambio de Mercadería");
         jMenuItem32.addActionListener(new java.awt.event.ActionListener() {
@@ -464,7 +452,7 @@ public class menu extends javax.swing.JFrame {
         jMenu11.add(jMenuItem32);
         jMenu11.add(jSeparator22);
 
-        jMenuItem33.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem33.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem33.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem33.setText("Reajuste de Stock");
         jMenuItem33.addActionListener(new java.awt.event.ActionListener() {
@@ -478,9 +466,9 @@ public class menu extends javax.swing.JFrame {
 
         jMenu3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuinfo.png"))); // NOI18N
         jMenu3.setText("Informaciones    ");
-        jMenu3.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
-        jMenuItem13.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuventas.png"))); // NOI18N
         jMenuItem13.setText("Venta del Día.");
         jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
@@ -493,14 +481,14 @@ public class menu extends javax.swing.JFrame {
 
         jMenu13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenu13.setText("Ventas por Tipo.");
-        jMenu13.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenu13.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu13ActionPerformed(evt);
             }
         });
 
-        jMenuItem14.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem14.setText("Ventas por Producto.");
         jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
@@ -511,7 +499,7 @@ public class menu extends javax.swing.JFrame {
         jMenu13.add(jMenuItem14);
         jMenu13.add(jSeparator18);
 
-        jMenuItem30.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem30.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem30.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem30.setText("Ventas por Marca.");
         jMenuItem30.addActionListener(new java.awt.event.ActionListener() {
@@ -522,7 +510,7 @@ public class menu extends javax.swing.JFrame {
         jMenu13.add(jMenuItem30);
         jMenu13.add(jSeparator21);
 
-        jMenuItem31.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem31.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem31.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem31.setText("Ventas por Tipo.");
         jMenuItem31.addActionListener(new java.awt.event.ActionListener() {
@@ -535,7 +523,7 @@ public class menu extends javax.swing.JFrame {
         jMenu3.add(jMenu13);
         jMenu3.add(jSeparator24);
 
-        jMenuItem17.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuusers.png"))); // NOI18N
         jMenuItem17.setText("Ventas por Cliente.");
         jMenuItem17.addActionListener(new java.awt.event.ActionListener() {
@@ -546,7 +534,7 @@ public class menu extends javax.swing.JFrame {
         jMenu3.add(jMenuItem17);
         jMenu3.add(jSeparator8);
 
-        jMenuItem15.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem15.setText("Mejores Productos.");
         jMenuItem15.addActionListener(new java.awt.event.ActionListener() {
@@ -559,14 +547,14 @@ public class menu extends javax.swing.JFrame {
 
         jMenu8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/report1.png"))); // NOI18N
         jMenu8.setText("Listados.");
-        jMenu8.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenu8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu8ActionPerformed(evt);
             }
         });
 
-        jMenuItem16.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem16.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucliente.png"))); // NOI18N
         jMenuItem16.setText("Listado de Clientes.");
         jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
@@ -577,7 +565,7 @@ public class menu extends javax.swing.JFrame {
         jMenu8.add(jMenuItem16);
         jMenu8.add(jSeparator10);
 
-        jMenuItem20.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem20.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproveedor.png"))); // NOI18N
         jMenuItem20.setText("Listado de Proveedores.");
         jMenuItem20.addActionListener(new java.awt.event.ActionListener() {
@@ -588,7 +576,7 @@ public class menu extends javax.swing.JFrame {
         jMenu8.add(jMenuItem20);
         jMenu8.add(jSeparator9);
 
-        jMenuItem21.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem21.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem21.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuusers.png"))); // NOI18N
         jMenuItem21.setText("Listado de Vendedores.");
         jMenuItem21.addActionListener(new java.awt.event.ActionListener() {
@@ -601,14 +589,14 @@ public class menu extends javax.swing.JFrame {
 
         jMenu10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenu10.setText("Productos");
-        jMenu10.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenu10.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu10ActionPerformed(evt);
             }
         });
 
-        jMenuItem28.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem28.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem28.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem28.setText("Listado de Productos.");
         jMenuItem28.addActionListener(new java.awt.event.ActionListener() {
@@ -619,7 +607,7 @@ public class menu extends javax.swing.JFrame {
         jMenu10.add(jMenuItem28);
         jMenu10.add(jSeparator19);
 
-        jMenuItem29.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem29.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem29.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem29.setText("Productos en Falta.");
         jMenuItem29.addActionListener(new java.awt.event.ActionListener() {
@@ -629,7 +617,7 @@ public class menu extends javax.swing.JFrame {
         });
         jMenu10.add(jMenuItem29);
 
-        jMenuItem35.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem35.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuproducto.png"))); // NOI18N
         jMenuItem35.setText("Productos a Vencer.");
         jMenuItem35.addActionListener(new java.awt.event.ActionListener() {
@@ -647,10 +635,10 @@ public class menu extends javax.swing.JFrame {
 
         jMenu4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
         jMenu4.setText("Compras   ");
-        jMenu4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
         jMenuItem7.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0));
-        jMenuItem7.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
         jMenuItem7.setText("Efectuar Compra");
         jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
@@ -661,7 +649,7 @@ public class menu extends javax.swing.JFrame {
         jMenu4.add(jMenuItem7);
         jMenu4.add(jSeparator5);
 
-        jMenuItem8.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
         jMenuItem8.setText("Compras Realizadas");
         jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
@@ -675,7 +663,7 @@ public class menu extends javax.swing.JFrame {
 
         jMenu5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuventas.png"))); // NOI18N
         jMenu5.setText("Ventas   ");
-        jMenu5.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenu5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu5ActionPerformed(evt);
@@ -683,7 +671,7 @@ public class menu extends javax.swing.JFrame {
         });
 
         jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuventas.png"))); // NOI18N
         jMenuItem9.setText("Efectuar Venta");
         jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
@@ -694,7 +682,7 @@ public class menu extends javax.swing.JFrame {
         jMenu5.add(jMenuItem9);
         jMenu5.add(jSeparator6);
 
-        jMenuItem10.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem10.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menuventas.png"))); // NOI18N
         jMenuItem10.setText("Ventas Realizadas");
         jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
@@ -708,10 +696,10 @@ public class menu extends javax.swing.JFrame {
 
         jMenu7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/report.png"))); // NOI18N
         jMenu7.setText("Presupuestos   ");
-        jMenu7.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
         jMenuItem18.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, 0));
-        jMenuItem18.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem18.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem18.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/report.png"))); // NOI18N
         jMenuItem18.setText("Efectuar Presupuesto.");
         jMenuItem18.addActionListener(new java.awt.event.ActionListener() {
@@ -722,7 +710,7 @@ public class menu extends javax.swing.JFrame {
         jMenu7.add(jMenuItem18);
         jMenu7.add(jSeparator25);
 
-        jMenuItem22.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem22.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem22.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/report.png"))); // NOI18N
         jMenuItem22.setText("Presupuestos.");
         jMenuItem22.addActionListener(new java.awt.event.ActionListener() {
@@ -736,10 +724,10 @@ public class menu extends javax.swing.JFrame {
 
         jMenu6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/manucaja.png"))); // NOI18N
         jMenu6.setText("Caja  ");
-        jMenu6.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
         jMenuItem25.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F8, 0));
-        jMenuItem25.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem25.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem25.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money.png"))); // NOI18N
         jMenuItem25.setText("Registrar ingreso a la caja.");
         jMenuItem25.addActionListener(new java.awt.event.ActionListener() {
@@ -751,7 +739,7 @@ public class menu extends javax.swing.JFrame {
         jMenu6.add(jSeparator7);
 
         jMenuItem11.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F3, 0));
-        jMenuItem11.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem11.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money.png"))); // NOI18N
         jMenuItem11.setText("Retiro de Dinero.");
         jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
@@ -762,7 +750,7 @@ public class menu extends javax.swing.JFrame {
         jMenu6.add(jMenuItem11);
         jMenu6.add(jSeparator16);
 
-        jMenuItem26.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem26.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem26.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money.png"))); // NOI18N
         jMenuItem26.setText("Ver Retiros del Día.");
         jMenuItem26.addActionListener(new java.awt.event.ActionListener() {
@@ -773,7 +761,7 @@ public class menu extends javax.swing.JFrame {
         jMenu6.add(jMenuItem26);
         jMenu6.add(jSeparator17);
 
-        jMenuItem12.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem12.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/manucaja.png"))); // NOI18N
         jMenuItem12.setText("Arqueo y Cierre de Caja.");
         jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
@@ -787,9 +775,9 @@ public class menu extends javax.swing.JFrame {
 
         jMenu9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/balance.png"))); // NOI18N
         jMenu9.setText("Balance");
-        jMenu9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenu9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
-        jMenuItem23.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem23.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money.png"))); // NOI18N
         jMenuItem23.setText("Registrar Gastos.");
         jMenuItem23.addActionListener(new java.awt.event.ActionListener() {
@@ -800,7 +788,7 @@ public class menu extends javax.swing.JFrame {
         jMenu9.add(jMenuItem23);
         jMenu9.add(jSeparator15);
 
-        jMenuItem24.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
+        jMenuItem24.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jMenuItem24.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/balance.png"))); // NOI18N
         jMenuItem24.setText("Realizar balance por mes.");
         jMenuItem24.addActionListener(new java.awt.event.ActionListener() {
@@ -812,88 +800,127 @@ public class menu extends javax.swing.JFrame {
 
         menusys.add(jMenu9);
 
-        // Diseño dinámico con GroupLayout (reemplaza el AbsoluteLayout de resolución fija).
-        // La franja de botones (izquierda) mantiene un ancho fijo cómodo para los íconos+texto,
-        // pero su alto se adapta (con un mínimo razonable) según el alto disponible de la ventana.
-        // El área derecha (fondo1, logo, reloj/fecha, usuario y botón de salir) es completamente
-        // flexible y se reacomoda con cualquier tamaño o resolución de pantalla.
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fondo, 300, 300, 300)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton4, 280, 280, 280)
-                            .addComponent(jButton2, 280, 280, 280)
-                            .addComponent(jButton3, 280, 280, 280)
-                            .addComponent(jButton1, 280, 280, 280)
-                            .addComponent(jButton5, 280, 280, 280)
-                            .addComponent(jButton6, 280, 280, 280)
-                            .addComponent(jButton8, 280, 280, 280)
-                            .addComponent(jButton9, 280, 280, 280))
-                        .addGap(10, 10, 10)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fondo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(fecha, 180, 180, 180)
-                                .addGap(10, 10, 10)
-                                .addComponent(horas, 150, 150, 150))
-                            .addComponent(jButton7)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(usu)
-                                .addGap(10, 10, 10)
-                                .addComponent(nom, 120, 120, 120)))
-                        .addGap(20, 20, 20)))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(fondo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(fondo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(15, 15, 15)
-                    .addComponent(jButton4, 70, 100, 140)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton2, 70, 100, 140)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton3, 75, 110, 150)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton1, 75, 110, 150)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton5, 75, 110, 150)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton6, 75, 110, 150)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton8, 75, 110, 150)
-                    .addGap(8, 10, 20)
-                    .addComponent(jButton9, 75, 110, 150)
-                    .addGap(15, 15, 15))
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(10, 10, 10)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(fecha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(horas, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel3)
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jButton7)
-                    .addGap(10, 10, 10)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(usu)
-                        .addComponent(nom, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(10, 10, 10))
-        );
+        // Diseño manual con posicionamiento absoluto + reajuste dinámico en cada resize.
+        // Reemplaza el GroupLayout anterior (que había quedado desincronizado con el .form
+        // y terminaba tapando/ocultando los botones) por un layout nulo explícito: cada
+        // componente se agrega en el orden correcto (fondo -> botones -> fondo1 -> encabezado)
+        // para que el apilado visual (z-order) sea siempre el esperado, y un listener de
+        // resize recalcula tamaños/posiciones para adaptarse a cualquier resolución de pantalla.
+        java.awt.Container raiz = getContentPane();
+        raiz.setLayout(null);
+
+        raiz.add(fondo);
+        raiz.add(jButton4);
+        raiz.add(jButton2);
+        raiz.add(jButton3);
+        raiz.add(jButton1);
+        raiz.add(jButton5);
+        raiz.add(jButton6);
+        raiz.add(jButton8);
+        raiz.add(jButton9);
+        raiz.add(fondo1);
+        raiz.add(jLabel3);
+        raiz.add(fecha);
+        raiz.add(horas);
+        raiz.add(usu);
+        raiz.add(nom);
+        raiz.add(jButton7);
+
+        int bx = 20, bw = 220, bh = 52, bgap = 12, by = 30;
+        jButton4.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton2.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton3.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton1.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton5.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton6.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton8.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton9.setBounds(bx, by, bw, bh);
+
+        setMinimumSize(new java.awt.Dimension(1024, 640));
+
+        raiz.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                relayoutDashboard();
+            }
+        });
+        relayoutDashboard();
 
         setJMenuBar(menusys);
-
-        pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private static final java.awt.Color SIDEBAR_BG = new java.awt.Color(16, 44, 72);
+    private static final java.awt.Color NAV_HOVER = new java.awt.Color(0, 102, 153);
+    private static final java.awt.Color CONTENT_BG = new java.awt.Color(247, 248, 250);
+
+    /** Aplica el estilo plano de navegación (barra lateral) a un botón del menú. */
+    private void estilizarBotonNav(final javax.swing.JButton b) {
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
+        b.setBackground(SIDEBAR_BG);
+        b.setForeground(java.awt.Color.WHITE);
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        b.setIconTextGap(14);
+        b.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 18, 0, 6));
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(NAV_HOVER);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(SIDEBAR_BG);
+            }
+        });
+    }
+
+    /** Aplica el estilo "fantasma" (solo ícono, resalta al pasar el mouse) al botón de salir. */
+    private void estilizarBotonSalir(final javax.swing.JButton b) {
+        b.setOpaque(false);
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setBorder(javax.swing.BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setOpaque(true);
+                b.setContentAreaFilled(true);
+                b.setBackground(new java.awt.Color(230, 233, 237));
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setOpaque(false);
+                b.setContentAreaFilled(false);
+            }
+        });
+    }
+
+    /** Recalcula tamaños y posiciones del sidebar y el encabezado según el tamaño actual de la ventana. */
+    private void relayoutDashboard() {
+        int w = getContentPane().getWidth();
+        int h = getContentPane().getHeight();
+        if (w <= 0 || h <= 0) {
+            java.awt.Dimension scr = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+            w = scr.width;
+            h = scr.height;
+        }
+        int sidebarW = 260;
+        fondo.setBounds(0, 0, sidebarW, h);
+        fondo1.setBounds(sidebarW, 0, Math.max(0, w - sidebarW), h);
+
+        int logoutSize = 40;
+        int margin = 24;
+        jButton7.setBounds(w - margin - logoutSize, 18, logoutSize, logoutSize);
+
+        int rightEdge = jButton7.getX() - 16;
+        horas.setBounds(rightEdge - 100, 14, 100, 20);
+        fecha.setBounds(horas.getX() - 8 - 140, 14, 140, 20);
+        nom.setBounds(rightEdge - 120, 40, 120, 20);
+        usu.setBounds(nom.getX() - 8 - 100, 40, 100, 20);
+
+        jLabel3.setBounds(sidebarW + 30, 90, 220, 100);
+    }
     private void usuario() {
         String sql = "SELECT * FROM usuario WHERE id='" + usuarioactu + "'";
         System.out.print(" el usuario es ");
@@ -1381,8 +1408,8 @@ public class menu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel fecha;
-    private javax.swing.JLabel fondo;
-    private javax.swing.JLabel fondo1;
+    private javax.swing.JPanel fondo;
+    private javax.swing.JPanel fondo1;
     private javax.swing.JLabel horas;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

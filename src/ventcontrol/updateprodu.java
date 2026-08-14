@@ -150,7 +150,7 @@ import model.Tipo;
                     medida.setSelectedItem(rs.getString("unidad_medida"));
                     iddroga=rs.getString("id_droga");
                     nombreImagenActual=rs.getString("imagen");
-                    javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniatura(nombreImagenActual, 110, 100);
+                    javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniatura(nombreImagenActual, 158, 110);
                     if(miniatura!=null){
                         imgProducto.setIcon(miniatura);
                         imgProducto.setText("");
@@ -748,10 +748,10 @@ import model.Tipo;
         imgProducto.setOpaque(true);
         imgProducto.setBackground(new java.awt.Color(255, 255, 255));
         jLayeredPane3.add(imgProducto);
-        imgProducto.setBounds(10, 195, 120, 100);
+        imgProducto.setBounds(10, 188, 160, 112);
 
         btnImagen.setBackground(new java.awt.Color(0, 102, 153));
-        btnImagen.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnImagen.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnImagen.setForeground(new java.awt.Color(240, 240, 240));
         btnImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconsearch.png"))); // NOI18N
         btnImagen.setText("Cargar Imagen");
@@ -761,7 +761,7 @@ import model.Tipo;
             }
         });
         jLayeredPane3.add(btnImagen);
-        btnImagen.setBounds(140, 225, 160, 30);
+        btnImagen.setBounds(180, 228, 120, 32);
 
         getContentPane().add(jLayeredPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 310, 310));
 
@@ -1130,7 +1130,7 @@ import model.Tipo;
         File archivo = ImagenProductoUtil.elegirImagen(this);
         if (archivo != null) {
             imagenSeleccionada = archivo;
-            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 110, 100);
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 158, 110);
             if (miniatura != null) {
                 imgProducto.setIcon(miniatura);
                 imgProducto.setText("");

@@ -652,10 +652,10 @@ import model.Tipo;
         imgProducto.setOpaque(true);
         imgProducto.setBackground(new java.awt.Color(255, 255, 255));
         jLayeredPane3.add(imgProducto);
-        imgProducto.setBounds(10, 195, 120, 110);
+        imgProducto.setBounds(10, 188, 160, 122);
 
         btnImagen.setBackground(new java.awt.Color(0, 102, 153));
-        btnImagen.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        btnImagen.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnImagen.setForeground(new java.awt.Color(240, 240, 240));
         btnImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconsearch.png"))); // NOI18N
         btnImagen.setText("Cargar Imagen");
@@ -665,7 +665,7 @@ import model.Tipo;
             }
         });
         jLayeredPane3.add(btnImagen);
-        btnImagen.setBounds(140, 230, 160, 30);
+        btnImagen.setBounds(180, 234, 120, 32);
 
         getContentPane().add(jLayeredPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 160, 310, 320));
 
@@ -1689,7 +1689,7 @@ import model.Tipo;
         File archivo = ImagenProductoUtil.elegirImagen(this);
         if (archivo != null) {
             imagenSeleccionada = archivo;
-            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 110, 100);
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 158, 120);
             if (miniatura != null) {
                 imgProducto.setIcon(miniatura);
                 imgProducto.setText("");
