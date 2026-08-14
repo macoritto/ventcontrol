@@ -826,7 +826,7 @@ public class menu extends javax.swing.JFrame {
         raiz.add(nom);
         raiz.add(jButton7);
 
-        int bx = 20, bw = 220, bh = 52, bgap = 12, by = 30;
+        int bx = 16, bw = 228, bh = 60, bgap = 14, by = 26;
         jButton4.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton2.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton3.setBounds(bx, by, bw, bh); by += bh + bgap;
@@ -836,7 +836,7 @@ public class menu extends javax.swing.JFrame {
         jButton8.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton9.setBounds(bx, by, bw, bh);
 
-        setMinimumSize(new java.awt.Dimension(1024, 640));
+        setMinimumSize(new java.awt.Dimension(1100, 760));
 
         raiz.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -849,6 +849,7 @@ public class menu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private static final java.awt.Color SIDEBAR_BG = new java.awt.Color(16, 44, 72);
+    private static final java.awt.Color NAV_BASE = new java.awt.Color(31, 68, 102);
     private static final java.awt.Color NAV_HOVER = new java.awt.Color(0, 102, 153);
     private static final java.awt.Color CONTENT_BG = new java.awt.Color(247, 248, 250);
 
@@ -856,9 +857,9 @@ public class menu extends javax.swing.JFrame {
     private void estilizarBotonNav(final javax.swing.JButton b) {
         b.setOpaque(true);
         b.setContentAreaFilled(true);
-        b.setBackground(SIDEBAR_BG);
+        b.setBackground(NAV_BASE);
         b.setForeground(java.awt.Color.WHITE);
-        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
         b.setBorderPainted(false);
         b.setFocusPainted(false);
         b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -870,9 +871,25 @@ public class menu extends javax.swing.JFrame {
                 b.setBackground(NAV_HOVER);
             }
             public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(SIDEBAR_BG);
+                b.setBackground(NAV_BASE);
             }
         });
+    }
+
+    /**
+     * Ubica una ventana (formulario o visor de reportes) a la derecha del panel
+     * de navegación, para que el dashboard con los botones quede siempre visible
+     * a la izquierda en vez de quedar tapado por la ventana que se abre.
+     */
+    private void posicionarDerecha(java.awt.Component w) {
+        java.awt.Dimension scr = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        int sidebarW = 260;
+        int margin = 16;
+        int x = sidebarW + margin;
+        int y = 50;
+        int width = Math.max(500, scr.width - x - margin);
+        int height = Math.max(400, scr.height - y - 70);
+        w.setBounds(x, y, width, height);
     }
 
     /** Aplica el estilo "fantasma" (solo ícono, resalta al pasar el mouse) al botón de salir. */
@@ -949,6 +966,7 @@ public class menu extends javax.swing.JFrame {
         JasperPrint imp = JasperFillManager.fillReport(reporte, null, cbd.getConexion());
         JasperViewer ver = new JasperViewer(imp);
         ver.setTitle("Producto");
+        posicionarDerecha(ver);
         ver.setVisible(true);
     }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -956,6 +974,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         u = new presupuesto(mimenu, true, usuarioactu);
+        posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -965,6 +984,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         p = new proveedor(mimenu, true);
+        posicionarDerecha(p);
         p.setVisible(true);
 //        menu m = new menu();
 //        m.setEnabled(false);
@@ -976,6 +996,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         pro = new producto(mimenu, true, usuarioactu);
+        posicionarDerecha(pro);
         pro.setVisible(true);
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -984,6 +1005,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         c = new cliente(mimenu, true);
+        posicionarDerecha(c);
         c.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -996,6 +1018,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         com = new compra(mimenu, true, usuarioactu);
+        posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -1004,6 +1027,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         u = new usuario(mimenu, true);
+        posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
@@ -1020,6 +1044,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         c = new cliente(mimenu, true);
+        posicionarDerecha(c);
         c.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
@@ -1028,6 +1053,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         p = new proveedor(mimenu, true);
+        posicionarDerecha(p);
         p.setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
@@ -1036,6 +1062,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         pro = new producto(mimenu, true, usuarioactu);
+        posicionarDerecha(pro);
         pro.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
@@ -1044,6 +1071,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         v = new vendedor(mimenu, true);
+        posicionarDerecha(v);
         v.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
@@ -1052,6 +1080,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         com = new compra(mimenu, true, usuarioactu);
+        posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
@@ -1060,6 +1089,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         com = new compras(mimenu, true, usuarioactu);
+        posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
@@ -1068,6 +1098,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         vent = new venta(mimenu, true, usuarioactu);
+        posicionarDerecha(vent);
         vent.setVisible(true);
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -1076,6 +1107,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         ven = new venta(mimenu, true, usuarioactu);
+        posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
@@ -1084,6 +1116,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         ven = new venta(mimenu, true, usuarioactu);
+        posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenu5ActionPerformed
 
@@ -1092,6 +1125,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         ven = new ventas(mimenu, true, usuarioactu);
+        posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
@@ -1100,6 +1134,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         arqueo = new arqueocaja(mimenu, true);
+        posicionarDerecha(arqueo);
         arqueo.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
@@ -1108,6 +1143,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         caja = new retirocaja(mimenu, true, usuarioactu);
+        posicionarDerecha(caja);
         caja.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
@@ -1116,6 +1152,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         dia = new ventadia(mimenu, true);
+        posicionarDerecha(dia);
         dia.setVisible(true);
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
@@ -1124,6 +1161,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new mproducto(mimenu, true);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
@@ -1132,6 +1170,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new mproducto2(mimenu, true);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
@@ -1142,6 +1181,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Clientes.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -1161,6 +1201,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Proveedores.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -1176,6 +1217,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Vendedores.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -1187,6 +1229,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new ventaprodu(mimenu, true, usuarioactu);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
@@ -1195,6 +1238,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         arqueo = new arqueocaja(mimenu, true);
+        posicionarDerecha(arqueo);
         arqueo.setVisible(true);
     }//GEN-LAST:event_jButton8ActionPerformed
 
@@ -1203,6 +1247,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         sali = new presupuesto(mimenu, true, usuarioactu);
+        posicionarDerecha(sali);
         sali.setVisible(true);
     }//GEN-LAST:event_jMenuItem18ActionPerformed
 
@@ -1211,6 +1256,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         sali = new presupuestos(mimenu, true, usuarioactu);
+        posicionarDerecha(sali);
         sali.setVisible(true);
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
@@ -1219,6 +1265,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         caja = new gastos(mimenu, true, usuarioactu);
+        posicionarDerecha(caja);
         caja.setVisible(true);
         //cargar("");
     }//GEN-LAST:event_jMenuItem23ActionPerformed
@@ -1228,6 +1275,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         balance = new balance(mimenu, true);
+        posicionarDerecha(balance);
         balance.setVisible(true);
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
@@ -1236,6 +1284,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         cj = new saldo(mimenu, true);
+        posicionarDerecha(cj);
         cj.setVisible(true);
     }//GEN-LAST:event_jMenuItem25ActionPerformed
 
@@ -1244,6 +1293,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         retiros = new retiros(mimenu, true, usuarioactu);
+        posicionarDerecha(retiros);
         retiros.setVisible(true);
     }//GEN-LAST:event_jMenuItem26ActionPerformed
 
@@ -1260,6 +1310,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Productos.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -1273,6 +1324,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Productos en Falta.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -1284,6 +1336,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new devolucion(mimenu, true, usuarioactu);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem27ActionPerformed
 
@@ -1292,6 +1345,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new inventario(mimenu, true, usuarioactu);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem19ActionPerformed
 
@@ -1304,6 +1358,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new mpormarca(mimenu, true);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem30ActionPerformed
 
@@ -1312,6 +1367,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new mportipo(mimenu, true);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem31ActionPerformed
 
@@ -1320,6 +1376,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new mcambio(mimenu, true, usuarioactu);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem32ActionPerformed
 
@@ -1328,6 +1385,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         mp = new reajuste(mimenu, true, usuarioactu);
+        posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem33ActionPerformed
 
@@ -1340,6 +1398,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         u = new cargarreporte(mimenu, true);
+        posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jMenuItem34ActionPerformed
 
@@ -1348,6 +1407,7 @@ public class menu extends javax.swing.JFrame {
         menu mimenu;
         mimenu = new menu(usuarioactu);
         com = new extracto1(mimenu, true, usuarioactu);
+        posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jButton9ActionPerformed
 
@@ -1361,6 +1421,7 @@ public class menu extends javax.swing.JFrame {
             JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
             JasperViewer viewer = new JasperViewer(jp, false);
             viewer.setTitle("Productos por Vencer.");
+            posicionarDerecha(viewer);
             viewer.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
