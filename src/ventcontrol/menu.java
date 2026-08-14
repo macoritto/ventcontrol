@@ -806,7 +806,7 @@ public class menu extends javax.swing.JFrame {
         // componente se agrega en el orden correcto (fondo -> botones -> fondo1 -> encabezado)
         // para que el apilado visual (z-order) sea siempre el esperado, y un listener de
         // resize recalcula tamaños/posiciones para adaptarse a cualquier resolución de pantalla.
-        java.awt.Container raiz = getContentPane();
+        final java.awt.Container raiz = getContentPane();
         raiz.setLayout(null);
 
         raiz.add(fondo);

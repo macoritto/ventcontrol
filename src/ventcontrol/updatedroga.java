@@ -187,6 +187,21 @@ public class updatedroga extends JDialog {
         setJMenuBar(menu);
 
         pack();
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                // Forzamos un repintado apenas la ventana termina de abrirse: en algunos
+                // entornos (drivers de video/D3D en Windows) el primer pintado de los
+                // componentes estilizados no se completa hasta que ocurre un repintado
+                // adicional, y esto evita depender de que el usuario pase el mouse encima.
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        getContentPane().revalidate();
+                        getContentPane().repaint();
+                    }
+                });
+            }
+        });
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void codActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codActionPerformed
