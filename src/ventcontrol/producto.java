@@ -668,7 +668,6 @@ public class producto extends JDialog {
                 // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        getContentPane().revalidate();
                         getContentPane().repaint();
                     }
                 });

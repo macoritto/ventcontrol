@@ -853,7 +853,6 @@ public class menu extends javax.swing.JFrame {
                 // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        raiz.revalidate();
                         raiz.repaint();
                     }
                 });

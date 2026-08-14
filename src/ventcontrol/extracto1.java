@@ -371,7 +371,6 @@ public class extracto1 extends JDialog {
                 // adicional, y esto evita depender de que el usuario pase el mouse encima.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        getContentPane().revalidate();
                         getContentPane().repaint();
                     }
                 });
