@@ -668,7 +668,7 @@ public class producto extends JDialog {
             }
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().setBackground(new java.awt.Color(247, 248, 250));
+        getContentPane().setBackground(new java.awt.Color(225, 230, 237));
 
         fondo.setOpaque(true);
         fondo.setBackground(new java.awt.Color(16, 44, 72));
@@ -722,9 +722,7 @@ public class producto extends JDialog {
         jLabel1.setText("POR TIPO");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 10, -1, -1));
 
-        nuevo.setBackground(new java.awt.Color(0, 102, 153));
-        nuevo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        nuevo.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(nuevo);
         nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         nuevo.setText("   Nuevo");
         nuevo.addActionListener(new java.awt.event.ActionListener() {
@@ -734,9 +732,7 @@ public class producto extends JDialog {
         });
         getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 160, 60));
 
-        delete.setBackground(new java.awt.Color(0, 102, 153));
-        delete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        delete.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(delete);
         delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
         delete.setText("  Eliminar");
         delete.addActionListener(new java.awt.event.ActionListener() {
@@ -746,9 +742,7 @@ public class producto extends JDialog {
         });
         getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 160, 60));
 
-        view.setBackground(new java.awt.Color(0, 102, 153));
-        view.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        view.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(view);
         view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
         view.setText(" Visualizar");
         view.addActionListener(new java.awt.event.ActionListener() {
@@ -808,9 +802,7 @@ public class producto extends JDialog {
         jLabel5.setText("POR MARCA");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 10, -1, -1));
 
-        btnprinter.setBackground(new java.awt.Color(0, 102, 153));
-        btnprinter.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnprinter.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonPrimario(btnprinter);
         btnprinter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/pdf.png"))); // NOI18N
         btnprinter.setText("Generar");
         btnprinter.addActionListener(new java.awt.event.ActionListener() {
@@ -820,9 +812,7 @@ public class producto extends JDialog {
         });
         getContentPane().add(btnprinter, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 550, 130, 40));
 
-        ntipo.setBackground(new java.awt.Color(0, 102, 153));
-        ntipo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        ntipo.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(ntipo);
         ntipo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         ntipo.setText("        Tipos");
         ntipo.addActionListener(new java.awt.event.ActionListener() {
@@ -832,9 +822,7 @@ public class producto extends JDialog {
         });
         getContentPane().add(ntipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 160, 60));
 
-        nmarca.setBackground(new java.awt.Color(0, 102, 153));
-        nmarca.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        nmarca.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(nmarca);
         nmarca.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         nmarca.setText("Marcas");
         nmarca.addActionListener(new java.awt.event.ActionListener() {
@@ -871,9 +859,7 @@ public class producto extends JDialog {
         nroproductos.setForeground(new java.awt.Color(255, 51, 0));
         getContentPane().add(nroproductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 520, 80, 30));
 
-        cambio.setBackground(new java.awt.Color(0, 102, 153));
-        cambio.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        cambio.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(cambio);
         cambio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/exchange.png"))); // NOI18N
         cambio.setText("   Drogas");
         cambio.addActionListener(new java.awt.event.ActionListener() {
@@ -883,9 +869,7 @@ public class producto extends JDialog {
         });
         getContentPane().add(cambio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, 160, 60));
 
-        btnprinter1.setBackground(new java.awt.Color(0, 102, 153));
-        btnprinter1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnprinter1.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonPrimario(btnprinter1);
         btnprinter1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/printer.png"))); // NOI18N
         btnprinter1.setText("Imprimir");
         btnprinter1.addActionListener(new java.awt.event.ActionListener() {
