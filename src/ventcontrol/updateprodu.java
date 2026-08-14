@@ -501,6 +501,7 @@ import model.Tipo;
             }
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setBackground(new java.awt.Color(247, 248, 250));
 
         cod.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -893,9 +894,8 @@ import model.Tipo;
         jLabel8.setForeground(new java.awt.Color(240, 240, 240));
         jLabel8.setText("PRECIO DE COSTO:");
         getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, 130, -1));
-
-        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul.jpg"))); // NOI18N
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 730, 550));
+        // Fondo con imagen fijo eliminado: ahora el color de fondo se aplica directo
+        // al content pane (arriba), que se adapta a cualquier tamaño de ventana.
 
         jLabel9.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(240, 240, 240));

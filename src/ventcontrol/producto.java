@@ -668,6 +668,7 @@ public class producto extends JDialog {
             }
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setBackground(new java.awt.Color(247, 248, 250));
 
         tablacliente.setBackground(new java.awt.Color(0, 102, 153));
         tablacliente.setFont(new java.awt.Font("Khmer UI", 1, 11)); // NOI18N
@@ -894,9 +895,8 @@ public class producto extends JDialog {
             }
         });
         getContentPane().add(buscardroga, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 30, 200, 40));
-
-        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul2.jpg"))); // NOI18N
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1310, 600));
+        // Fondo con imagen fijo eliminado: ahora el color de fondo se aplica directo
+        // al content pane (arriba), que se adapta a cualquier tamaño de ventana.
 
         jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
         jMenu1.setText("Acciones");
