@@ -661,6 +661,18 @@ public class producto extends JDialog {
             public void windowIconified(java.awt.event.WindowEvent evt) {
                 formWindowIconified(evt);
             }
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                // Algunos entornos (drivers de video/D3D en Windows) no completan el
+                // primer pintado de los botones estilizados hasta que ocurre un repintado
+                // adicional; forzamos uno apenas la ventana termina de abrirse para que
+                // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        getContentPane().revalidate();
+                        getContentPane().repaint();
+                    }
+                });
+            }
         });
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentHidden(java.awt.event.ComponentEvent evt) {

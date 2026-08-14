@@ -845,6 +845,21 @@ public class menu extends javax.swing.JFrame {
         });
         relayoutDashboard();
 
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                // Algunos entornos (drivers de video/D3D en Windows) no completan el
+                // primer pintado de los botones estilizados hasta que ocurre un repintado
+                // adicional; forzamos uno apenas la ventana termina de abrirse para que
+                // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        raiz.revalidate();
+                        raiz.repaint();
+                    }
+                });
+            }
+        });
+
         setJMenuBar(menusys);
     }// </editor-fold>//GEN-END:initComponents
 
