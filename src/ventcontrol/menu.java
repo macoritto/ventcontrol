@@ -1048,9 +1048,7 @@ public class menu extends javax.swing.JFrame {
     }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         presupuesto u;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        u = new presupuesto(mimenu, true, usuarioactu);
+        u = new presupuesto(this, true, usuarioactu);
         posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -1058,9 +1056,7 @@ public class menu extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 
         proveedor p;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        p = new proveedor(mimenu, true);
+        p = new proveedor(this, true);
         posicionarDerecha(p);
         p.setVisible(true);
 //        menu m = new menu();
@@ -1070,18 +1066,14 @@ public class menu extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         producto pro;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        pro = new producto(mimenu, true, usuarioactu);
+        pro = new producto(this, true, usuarioactu);
         posicionarDerecha(pro);
         pro.setVisible(true);
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         cliente c;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        c = new cliente(mimenu, true);
+        c = new cliente(this, true);
         posicionarDerecha(c);
         c.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -1092,18 +1084,14 @@ public class menu extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         compra com;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        com = new compra(mimenu, true, usuarioactu);
+        com = new compra(this, true, usuarioactu);
         posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         usuario u;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        u = new usuario(mimenu, true);
+        u = new usuario(this, true);
         posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
@@ -1118,135 +1106,105 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         cliente c;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        c = new cliente(mimenu, true);
+        c = new cliente(this, true);
         posicionarDerecha(c);
         c.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         proveedor p;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        p = new proveedor(mimenu, true);
+        p = new proveedor(this, true);
         posicionarDerecha(p);
         p.setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         producto pro;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        pro = new producto(mimenu, true, usuarioactu);
+        pro = new producto(this, true, usuarioactu);
         posicionarDerecha(pro);
         pro.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         vendedor v;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        v = new vendedor(mimenu, true);
+        v = new vendedor(this, true);
         posicionarDerecha(v);
         v.setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         compra com;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        com = new compra(mimenu, true, usuarioactu);
+        com = new compra(this, true, usuarioactu);
         posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         compras com;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        com = new compras(mimenu, true, usuarioactu);
+        com = new compras(this, true, usuarioactu);
         posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         venta vent;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        vent = new venta(mimenu, true, usuarioactu);
+        vent = new venta(this, true, usuarioactu);
         posicionarDerecha(vent);
         vent.setVisible(true);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
         venta ven;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        ven = new venta(mimenu, true, usuarioactu);
+        ven = new venta(this, true, usuarioactu);
         posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenu5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu5ActionPerformed
         venta ven;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        ven = new venta(mimenu, true, usuarioactu);
+        ven = new venta(this, true, usuarioactu);
         posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenu5ActionPerformed
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
         ventas ven;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        ven = new ventas(mimenu, true, usuarioactu);
+        ven = new ventas(this, true, usuarioactu);
         posicionarDerecha(ven);
         ven.setVisible(true);
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
         arqueocaja arqueo;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        arqueo = new arqueocaja(mimenu, true);
+        arqueo = new arqueocaja(this, true);
         posicionarDerecha(arqueo);
         arqueo.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
         retirocaja caja;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        caja = new retirocaja(mimenu, true, usuarioactu);
+        caja = new retirocaja(this, true, usuarioactu);
         posicionarDerecha(caja);
         caja.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
         ventadia dia;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        dia = new ventadia(mimenu, true);
+        dia = new ventadia(this, true);
         posicionarDerecha(dia);
         dia.setVisible(true);
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
         mproducto mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new mproducto(mimenu, true);
+        mp = new mproducto(this, true);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
         mproducto2 mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new mproducto2(mimenu, true);
+        mp = new mproducto2(this, true);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem15ActionPerformed
@@ -1303,45 +1261,35 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
         ventaprodu mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new ventaprodu(mimenu, true, usuarioactu);
+        mp = new ventaprodu(this, true, usuarioactu);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         arqueocaja arqueo;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        arqueo = new arqueocaja(mimenu, true);
+        arqueo = new arqueocaja(this, true);
         posicionarDerecha(arqueo);
         arqueo.setVisible(true);
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
         presupuesto sali;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        sali = new presupuesto(mimenu, true, usuarioactu);
+        sali = new presupuesto(this, true, usuarioactu);
         posicionarDerecha(sali);
         sali.setVisible(true);
     }//GEN-LAST:event_jMenuItem18ActionPerformed
 
     private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
         presupuestos sali;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        sali = new presupuestos(mimenu, true, usuarioactu);
+        sali = new presupuestos(this, true, usuarioactu);
         posicionarDerecha(sali);
         sali.setVisible(true);
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
         gastos caja;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        caja = new gastos(mimenu, true, usuarioactu);
+        caja = new gastos(this, true, usuarioactu);
         posicionarDerecha(caja);
         caja.setVisible(true);
         //cargar("");
@@ -1349,27 +1297,21 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
         balance balance;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        balance = new balance(mimenu, true);
+        balance = new balance(this, true);
         posicionarDerecha(balance);
         balance.setVisible(true);
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
         saldo cj;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        cj = new saldo(mimenu, true);
+        cj = new saldo(this, true);
         posicionarDerecha(cj);
         cj.setVisible(true);
     }//GEN-LAST:event_jMenuItem25ActionPerformed
 
     private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
         retiros retiros;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        retiros = new retiros(mimenu, true, usuarioactu);
+        retiros = new retiros(this, true, usuarioactu);
         posicionarDerecha(retiros);
         retiros.setVisible(true);
     }//GEN-LAST:event_jMenuItem26ActionPerformed
@@ -1410,18 +1352,14 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem27ActionPerformed
         devolucion mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new devolucion(mimenu, true, usuarioactu);
+        mp = new devolucion(this, true, usuarioactu);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem27ActionPerformed
 
     private void jMenuItem19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem19ActionPerformed
         inventario mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new inventario(mimenu, true, usuarioactu);
+        mp = new inventario(this, true, usuarioactu);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem19ActionPerformed
@@ -1432,36 +1370,28 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem30ActionPerformed
         mpormarca mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new mpormarca(mimenu, true);
+        mp = new mpormarca(this, true);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem30ActionPerformed
 
     private void jMenuItem31ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem31ActionPerformed
         mportipo mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new mportipo(mimenu, true);
+        mp = new mportipo(this, true);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem31ActionPerformed
 
     private void jMenuItem32ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem32ActionPerformed
         mcambio mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new mcambio(mimenu, true, usuarioactu);
+        mp = new mcambio(this, true, usuarioactu);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem32ActionPerformed
 
     private void jMenuItem33ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem33ActionPerformed
         reajuste mp;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        mp = new reajuste(mimenu, true, usuarioactu);
+        mp = new reajuste(this, true, usuarioactu);
         posicionarDerecha(mp);
         mp.setVisible(true);
     }//GEN-LAST:event_jMenuItem33ActionPerformed
@@ -1472,18 +1402,14 @@ public class menu extends javax.swing.JFrame {
 
     private void jMenuItem34ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem34ActionPerformed
         cargarreporte u;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        u = new cargarreporte(mimenu, true);
+        u = new cargarreporte(this, true);
         posicionarDerecha(u);
         u.setVisible(true);
     }//GEN-LAST:event_jMenuItem34ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
         extracto1 com;
-        menu mimenu;
-        mimenu = new menu(usuarioactu);
-        com = new extracto1(mimenu, true, usuarioactu);
+        com = new extracto1(this, true, usuarioactu);
         posicionarDerecha(com);
         com.setVisible(true);
     }//GEN-LAST:event_jButton9ActionPerformed
