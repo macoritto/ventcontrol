@@ -868,6 +868,7 @@ public class menu extends javax.swing.JFrame {
                     public void run() {
                         raiz.revalidate();
                         raiz.repaint();
+                        nudgeResize();
                     }
                 });
                 // Refuerzo adicional: en una ventana MAXIMIZADA (superficie grande) algunos
@@ -879,6 +880,7 @@ public class menu extends javax.swing.JFrame {
                     public void actionPerformed(ActionEvent e) {
                         raiz.revalidate();
                         raiz.repaint();
+                        nudgeResize();
                     }
                 });
                 repintadoDemorado.setRepeats(false);
@@ -981,6 +983,32 @@ public class menu extends javax.swing.JFrame {
 
         jLabel3.setBounds(sidebarW + 30, 90, 220, 100);
     }
+
+    /**
+     * Fuerza un cambio de tamaño real (1 pixel de ida y de vuelta) en vez de confiar
+     * solo en repaint()/revalidate(). En algunos entornos de Windows con aceleración
+     * por Direct3D, el contenido de una ventana recién maximizada queda dibujado en el
+     * buffer fuera de pantalla pero no se refleja en el buffer visible hasta que el
+     * sistema operativo invalida esa región por su cuenta (lo cual, por casualidad,
+     * es exactamente lo que pasa cuando el mouse se mueve sobre la ventana). Un resize
+     * real, aunque sea de 1 pixel, obliga a esa misma invalidación/recomposición nativa
+     * sin depender de que el usuario mueva el mouse.
+     */
+    private void nudgeResize() {
+        final java.awt.Dimension tam = getSize();
+        if (tam.width <= 0 || tam.height <= 0) {
+            return;
+        }
+        setSize(tam.width + 1, tam.height + 1);
+        javax.swing.Timer volver = new javax.swing.Timer(50, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setSize(tam.width, tam.height);
+            }
+        });
+        volver.setRepeats(false);
+        volver.start();
+    }
+
     private void usuario() {
         String sql = "SELECT * FROM usuario WHERE id='" + usuarioactu + "'";
         System.out.print(" el usuario es ");
