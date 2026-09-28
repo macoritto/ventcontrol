@@ -662,15 +662,28 @@ public class producto extends JDialog {
                 formWindowIconified(evt);
             }
             public void windowOpened(java.awt.event.WindowEvent evt) {
-                // Algunos entornos (drivers de video/D3D en Windows) no completan el
+                // Algunos entornos (drivers de video en Windows) no completan el
                 // primer pintado de los botones estilizados hasta que ocurre un repintado
                 // adicional; forzamos uno apenas la ventana termina de abrirse para que
                 // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
+                // Toolkit.sync() le pide directamente al sistema de ventanas que vuelque a
+                // pantalla cualquier operación de dibujo pendiente en su buffer.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         getContentPane().repaint();
+                        java.awt.Toolkit.getDefaultToolkit().sync();
                     }
                 });
+                // Refuerzo adicional con una pequeña demora, por si el primer intento
+                // ocurre antes de que el buffer de video esté listo.
+                javax.swing.Timer repintadoDemorado = new javax.swing.Timer(300, new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        getContentPane().repaint();
+                        java.awt.Toolkit.getDefaultToolkit().sync();
+                    }
+                });
+                repintadoDemorado.setRepeats(false);
+                repintadoDemorado.start();
             }
         });
         addComponentListener(new java.awt.event.ComponentAdapter() {

@@ -869,18 +869,24 @@ public class menu extends javax.swing.JFrame {
                         raiz.revalidate();
                         raiz.repaint();
                         nudgeResize();
+                        // Toolkit.sync() le pide directamente al sistema de ventanas que
+                        // vuelque a pantalla cualquier operación de dibujo pendiente en su
+                        // buffer, en vez de confiar en que Swing/el driver de video lo haga
+                        // por su cuenta. Es la forma "oficial" de forzar ese flush.
+                        java.awt.Toolkit.getDefaultToolkit().sync();
                     }
                 });
                 // Refuerzo adicional: en una ventana MAXIMIZADA (superficie grande) algunos
-                // entornos con aceleración por Direct3D en Windows todavía no terminaron de
-                // preparar el buffer de video en el instante en que se dispara windowOpened,
-                // y un repintado tan temprano no llega a reflejarse en pantalla. Reintentamos
-                // una vez más con una pequeña demora para cubrir ese caso.
+                // entornos de Windows todavía no terminaron de preparar el buffer de video
+                // en el instante en que se dispara windowOpened, y un repintado tan temprano
+                // no llega a reflejarse en pantalla. Reintentamos una vez más con una pequeña
+                // demora para cubrir ese caso.
                 javax.swing.Timer repintadoDemorado = new javax.swing.Timer(300, new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         raiz.revalidate();
                         raiz.repaint();
                         nudgeResize();
+                        java.awt.Toolkit.getDefaultToolkit().sync();
                     }
                 });
                 repintadoDemorado.setRepeats(false);
