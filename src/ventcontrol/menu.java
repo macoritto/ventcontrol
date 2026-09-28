@@ -861,11 +861,28 @@ public class menu extends javax.swing.JFrame {
                 // primer pintado de los botones estilizados hasta que ocurre un repintado
                 // adicional; forzamos uno apenas la ventana termina de abrirse para que
                 // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
+                // revalidate() es seguro acá (a diferencia de los formularios con
+                // AbsoluteLayout) porque este panel usa layout null: no hay layout
+                // manager que reacomode los componentes a sus posiciones de diseño.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
+                        raiz.revalidate();
                         raiz.repaint();
                     }
                 });
+                // Refuerzo adicional: en una ventana MAXIMIZADA (superficie grande) algunos
+                // entornos con aceleración por Direct3D en Windows todavía no terminaron de
+                // preparar el buffer de video en el instante en que se dispara windowOpened,
+                // y un repintado tan temprano no llega a reflejarse en pantalla. Reintentamos
+                // una vez más con una pequeña demora para cubrir ese caso.
+                javax.swing.Timer repintadoDemorado = new javax.swing.Timer(300, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        raiz.revalidate();
+                        raiz.repaint();
+                    }
+                });
+                repintadoDemorado.setRepeats(false);
+                repintadoDemorado.start();
             }
         });
 
