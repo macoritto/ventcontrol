@@ -172,10 +172,17 @@ public class proveedor extends JDialog {
             }
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setBackground(new java.awt.Color(225, 230, 237));
 
-        tablaproveedor.setBackground(new java.awt.Color(0, 102, 153));
-        tablaproveedor.setFont(new java.awt.Font("Khmer UI", 1, 11)); // NOI18N
-        tablaproveedor.setForeground(new java.awt.Color(240, 240, 240));
+        tablaproveedor.setBackground(new java.awt.Color(255, 255, 255));
+        tablaproveedor.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        tablaproveedor.setForeground(new java.awt.Color(33, 37, 41));
+        tablaproveedor.setRowHeight(26);
+        tablaproveedor.setGridColor(new java.awt.Color(230, 232, 236));
+        tablaproveedor.setSelectionForeground(new java.awt.Color(33, 37, 41));
+        tablaproveedor.getTableHeader().setBackground(new java.awt.Color(16, 44, 72));
+        tablaproveedor.getTableHeader().setForeground(java.awt.Color.WHITE);
+        tablaproveedor.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         tablaproveedor.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
@@ -187,13 +194,14 @@ public class proveedor extends JDialog {
 
             }
         ));
-        tablaproveedor.setSelectionBackground(new java.awt.Color(0, 0, 0));
+        tablaproveedor.setSelectionBackground(new java.awt.Color(210, 231, 240));
         tablaproveedor.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tablaproveedorMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tablaproveedor);
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(222, 226, 231)));
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, 720, 390));
 
@@ -209,14 +217,12 @@ public class proveedor extends JDialog {
         });
         getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 430, 40));
 
-        jLabel1.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(240, 240, 240));
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(60, 68, 78));
         jLabel1.setText("BUSCAR");
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, -1, -1));
 
-        nuevo.setBackground(new java.awt.Color(0, 102, 153));
-        nuevo.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        nuevo.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(nuevo);
         nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
         nuevo.setText("   Nuevo");
         nuevo.addActionListener(new java.awt.event.ActionListener() {
@@ -226,9 +232,7 @@ public class proveedor extends JDialog {
         });
         getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 160, 60));
 
-        delete.setBackground(new java.awt.Color(0, 102, 153));
-        delete.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        delete.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(delete);
         delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
         delete.setText("  Eliminar");
         delete.addActionListener(new java.awt.event.ActionListener() {
@@ -238,9 +242,7 @@ public class proveedor extends JDialog {
         });
         getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 160, 60));
 
-        view.setBackground(new java.awt.Color(0, 102, 153));
-        view.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        view.setForeground(new java.awt.Color(240, 240, 240));
+        estilizarBotonLateral(view);
         view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
         view.setText(" Visualizar");
         view.addActionListener(new java.awt.event.ActionListener() {
@@ -253,7 +255,7 @@ public class proveedor extends JDialog {
         iconproveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/provadd.png"))); // NOI18N
         getContentPane().add(iconproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 150, 150));
 
-        jLabel2.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(240, 240, 240));
         jLabel2.setText("PROVEEDORES");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 410, -1, -1));
@@ -261,12 +263,13 @@ public class proveedor extends JDialog {
         search.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/research.png"))); // NOI18N
         getContentPane().add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 20, 40, 40));
 
-        fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul.jpg"))); // NOI18N
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 970, 490));
+        fondo.setOpaque(true);
+        fondo.setBackground(new java.awt.Color(16, 44, 72));
+        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 490));
 
         jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
         jMenu1.setText("Acciones");
-        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu1ActionPerformed(evt);
@@ -274,7 +277,7 @@ public class proveedor extends JDialog {
         });
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
         jMenuItem1.setText("Nuevo Proveedor.");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -286,7 +289,7 @@ public class proveedor extends JDialog {
         jMenu1.add(jSeparator5);
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
+        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
         jMenuItem4.setText("Salir");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
@@ -301,10 +304,58 @@ public class proveedor extends JDialog {
         setJMenuBar(menu);
 
         pack();
+
+        getContentPane().addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                relayoutProveedor();
+            }
+        });
+        relayoutProveedor();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Recalcula el tamaño de la barra lateral y de la tabla según el tamaño
+     * actual de la ventana, para que el contenido aproveche el espacio
+     * disponible en vez de quedar con el tamaño fijo del diseño original.
+     */
+    private void relayoutProveedor() {
+        int w = getContentPane().getWidth();
+        int h = getContentPane().getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        int sidebarW = 190;
+        int rightMargin = 30;
+
+        fondo.setBounds(0, 0, sidebarW, h);
+        jScrollPane1.setBounds(sidebarW + 20, 70, Math.max(300, w - sidebarW - 20 - rightMargin), Math.max(200, h - 70 - 30));
+    }
+
+    /** Estilo plano para los botones de acciones de la barra lateral oscura. */
+    private void estilizarBotonLateral(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
+        b.setBackground(new java.awt.Color(31, 68, 102));
+        b.setForeground(java.awt.Color.WHITE);
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        b.setIconTextGap(10);
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(0, 102, 153));
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(31, 68, 102));
+            }
+        });
+    }
+
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        
+
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing

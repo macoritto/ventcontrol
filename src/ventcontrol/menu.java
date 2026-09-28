@@ -67,7 +67,9 @@ public class menu extends javax.swing.JFrame {
         usuarioactu = usuarioid;
         usuario();
 
-        this.setExtendedState(MAXIMIZED_BOTH);
+        // La maximización se aplica ahora en windowOpened (ver initComponents), una vez
+        // que la ventana ya está visible, en vez de acá antes de mostrarla: ver el
+        // comentario en windowOpened para el motivo (bug de primer pintado en Windows).
         Color b = new Color(0, 102, 153);
 
 //         menusys = new JMenuBar();
@@ -847,6 +849,14 @@ public class menu extends javax.swing.JFrame {
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
+                // Esta ventana arranca maximizada. Si el estado MAXIMIZED_BOTH se aplica
+                // ANTES de mostrar la ventana (como se hacía antes, en el constructor),
+                // en algunos entornos de Windows el cambio a pantalla completa no dispara
+                // el ciclo normal de layout/pintado de Swing y el contenido queda a medio
+                // pintar (los botones no se ven hasta pasar el mouse por encima). Por eso
+                // ahora maximizamos recién acá, una vez que la ventana ya está visible,
+                // para que sea un resize "real" y dispare repintado como corresponde.
+                setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
                 // Algunos entornos (drivers de video/D3D en Windows) no completan el
                 // primer pintado de los botones estilizados hasta que ocurre un repintado
                 // adicional; forzamos uno apenas la ventana termina de abrirse para que
