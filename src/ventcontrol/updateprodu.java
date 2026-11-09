@@ -50,6 +50,7 @@ import model.Tipo;
         
         super(menuprincipal, modal);
         initComponents();
+        disenoModerno();
         this.setLocationRelativeTo(null);
         //cod.setEnabled(false);
         bloquear();
@@ -150,7 +151,7 @@ import model.Tipo;
                     medida.setSelectedItem(rs.getString("unidad_medida"));
                     iddroga=rs.getString("id_droga");
                     nombreImagenActual=rs.getString("imagen");
-                    javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniatura(nombreImagenActual, 158, 110);
+                    javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniatura(nombreImagenActual, 268, 232);
                     if(miniatura!=null){
                         imgProducto.setIcon(miniatura);
                         imgProducto.setText("");
@@ -433,6 +434,22 @@ import model.Tipo;
     public void setModel(DefaultTableModel modelo){
         modelo = modeloRefresca;
     }
+    /** Acomoda los componentes del formulario en el diseño moderno (ver FormProductoUI). */
+    private void disenoModerno() {
+        FormProductoUI.Spec s = new FormProductoUI.Spec();
+        s.dlg = this;
+        s.titulo = "Producto";
+        s.subtitulo = "Revisá los datos. Presioná «Modificar» para poder editarlos.";
+        s.cod = cod; s.estante = estante; s.nombreProd = nombre; s.observ = nombre1;
+        s.laboratorio = laboratorio; s.costo = costo; s.preciov = preciov; s.preciom = preciom;
+        s.precioc = precioc; s.stock = stock; s.minimo = descuento; s.canpaq = canpaq;
+        s.generar = generar; s.selectLab = selectlaboratorio;
+        s.btnImagen = btnImagen; s.guardar = btnguardar; s.modificar = btnmodificar;
+        s.tipo = combotipo; s.unidad = medida; s.iva = comboiva;
+        s.img = imgProducto; s.mensaje = nece1;
+        FormProductoUI.armar(s);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1141,7 +1158,7 @@ import model.Tipo;
         File archivo = ImagenProductoUtil.elegirImagen(this);
         if (archivo != null) {
             imagenSeleccionada = archivo;
-            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 158, 110);
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 268, 232);
             if (miniatura != null) {
                 imgProducto.setIcon(miniatura);
                 imgProducto.setText("");
@@ -1416,8 +1433,7 @@ import model.Tipo;
 
     private void selectlaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectlaboratorioActionPerformed
         buscarmarca cm;
-        menu mimenu;
-        mimenu = new menu(0);
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         Integer band=1;
         cm = new buscarmarca(mimenu, true);
         cm.setVisible(true);

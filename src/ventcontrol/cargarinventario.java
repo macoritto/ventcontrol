@@ -26,7 +26,10 @@ import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +53,9 @@ public class cargarinventario extends JDialog {
     Date dia = new Date();
     Integer usuarioactu;
     Integer detinv;
+    String alcance = "";
+    JLabel lblResumen;
+    JButton planilla;
     public cargarinventario(menu menuprincipal, boolean modal, Integer usuario) {
         super(menuprincipal, modal);
         initComponents();        
@@ -69,6 +75,8 @@ public class cargarinventario extends JDialog {
         guardar.setEnabled(false);
         descrip.setDocument(new solomayusculas());
         filtro.setEnabled(false);
+        InventarioDb.asegurarEsquema();
+        disenoConteo();
 //        view.setEnabled(false);            
     }
 
@@ -235,21 +243,62 @@ public class cargarinventario extends JDialog {
                         JOptionPane.showMessageDialog(null, "");
         }        
     }
+/** Más ancho para la tabla con el conteo, y una línea de resumen abajo. */
+private void disenoConteo() {
+    final int W = 1280, H = 630;
+    java.awt.Container cp = getContentPane();
+    ModeloInventario.colocar(cp, descrip, 600, 30, 500, 30);
+    ModeloInventario.colocar(cp, nuevo, 1120, 30, 120, 30);
+    ModeloInventario.colocar(cp, jLabel4, 950, 90, 70, 30);
+    ModeloInventario.colocar(cp, filtro, 1030, 90, 210, 30);
+    ModeloInventario.colocar(cp, jScrollPane1, 40, 130, 1200, 420);
+    ModeloInventario.colocar(cp, view1, 910, 560, 160, 60);
+    ModeloInventario.colocar(cp, guardar, 1080, 560, 160, 60);
+    // botón para imprimir la planilla de conteo (se cuenta a mano y después se cargan las cantidades)
+    planilla = new JButton("  Planilla de conteo");
+    planilla.setBackground(guardar.getBackground());
+    planilla.setForeground(guardar.getForeground());
+    planilla.setFont(guardar.getFont());
+    planilla.setToolTipText("Imprime la lista de productos con casillas en blanco para contar a mano");
+    planilla.setEnabled(false);
+    planilla.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            imprimirPlanilla();
+        }
+    });
+    cp.add(planilla, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 560, 170, 60), 0);
+    lblResumen = new JLabel("Escriba lo contado en la columna amarilla \"Contado\"; el resto se calcula solo.");
+    lblResumen.setFont(new Font("Khmer UI", Font.BOLD, 13));
+    lblResumen.setForeground(new Color(240, 240, 240));
+    lblResumen.setVerticalAlignment(SwingConstants.TOP);
+    cp.add(lblResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 560, 850, 60), 0);
+    ModeloInventario.ampliarFondo(cp, fondo, W, H);
+    tablacliente.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+    pack();
+    setLocationRelativeTo(getOwner());
+}
+
 void abrirproveedor(){
     buscarprodu3 p;
         menu mimenu;
-        mimenu = new menu(0);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu3(mimenu, true, fechaini.getDate(), fechafin.getDate());
         p.setVisible(true);        
         if(p.model1!=null){
             tablacliente.setModel(p.model1);
-            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(40);
-            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(250);
-            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(40);
-            tablacliente.getColumnModel().getColumn(4).setPreferredWidth(40);
-            tablacliente.getColumnModel().getColumn(5).setPreferredWidth(40);
+            ModeloInventario.estilizar(tablacliente);
+            p.model1.addTableModelListener(new javax.swing.event.TableModelListener() {
+                public void tableChanged(javax.swing.event.TableModelEvent e) {
+                    lblResumen.setText(ModeloInventario.resumen(tablacliente.getModel()));
+                }
+            });
+            lblResumen.setText("Escriba lo contado en la columna amarilla \"Contado\"; el resto se calcula solo.");
+            alcance = p.alcance;
+            if (descrip.getText().trim().isEmpty()) {
+                descrip.setText(("INVENTARIO " + alcance).toUpperCase());
+            }
             guardar.setEnabled(true);
+            planilla.setEnabled(true);
             fechaini.setDate(p.fechaini);
             filtro.setEnabled(true);
             filtro.setEditable(true);
@@ -583,56 +632,166 @@ void cargarprov(String valor){
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
-//                    filtro.setText("");
-//                    filtro.requestFocus();
-//                   filtro();
-                    try{
-                    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    Date date = new Date();
-                    System.out.println("Hora actual: " + dateFormat.format(date));
-                    Integer ban=0;
-                    conectar cc = new conectar();
-                    Connection cn = cc.conexion();
-                    String sql ="INSERT INTO inventario(id_inv, fecha, fechaini, fechafin, descripcion, usuario, hora) VALUES ('"+cod.getText()+"','" +fechain.getDate()+ "','" +fechaini.getDate()+"','"+fechafin.getDate()+"','"+descrip.getText()+"','"+usuarioactu+"','"+dateFormat.format(date)+"')";                                                         
-                    PreparedStatement st = cn.prepareStatement(sql);
-                    if(st.executeUpdate()>0){                               
-                        st.close();
-                    for(int i=0; i<tablacliente.getRowCount(); i++){  
-                        Double vendido=0.0, comprado=0.0, entregado=0.0, stockaux, stockini=0.0 ,reapo=0.0, reane=0.0;
-                        autonumerardet();
-                        Integer codproduaux;
-                        stockini=Double.parseDouble(tablacliente.getValueAt(i, 2).toString());
-                        vendido =Double.parseDouble(tablacliente.getValueAt(i, 4).toString());
-                        comprado=Double.parseDouble(tablacliente.getValueAt(i, 3).toString());
-                        entregado=Double.parseDouble(tablacliente.getValueAt(i, 5).toString());
-                        codproduaux=Integer.parseInt(tablacliente.getValueAt(i, 0).toString());                        
-                        reapo=Double.parseDouble(tablacliente.getValueAt(i, 6).toString());
-                        reane=Double.parseDouble(tablacliente.getValueAt(i, 7).toString());
-                        stockaux=Double.parseDouble(tablacliente.getValueAt(i, 8).toString());
-                        String sql1 ="INSERT INTO detinv (id_inv, stock, vendido, comprado, entregado, descripcion, producto, inventario, stockini, repo, rene) VALUES ('"+this.detinv+"','" +stockaux+ "','"+vendido+"','"+comprado+"','"+entregado+"','aa','"+codproduaux+"','"+cod.getText()+"','"+stockini+"','"+reapo+"','"+reane+"')";                                                         
-                        PreparedStatement st1 = cn.prepareStatement(sql1);                                    
-                        if(st1.executeUpdate()>0){
-                            ban=0;
-                        }else{
-                            ban=1;
-                        }
-                        st1.close();
-                    }                        
-                    }else{
-                            ban=1;
+        if (tablacliente.isEditing()) {
+            tablacliente.getCellEditor().stopCellEditing();
+        }
+        // Siempre sobre el modelo (no la vista): si hay un filtro de nombre aplicado se guardan todas las filas.
+        TableModel m = tablacliente.getModel();
+        if (m.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(null, "Primero cargue los productos del inventario.");
+            return;
+        }
+        boolean hayConteo = m.getColumnCount() > ModeloInventario.COL_VALOR;
+        int contados = 0, conDif = 0;
+        for (int i = 0; hayConteo && i < m.getRowCount(); i++) {
+            if (!celda(m, i, ModeloInventario.COL_CONTADO).isEmpty()) {
+                contados++;
+                if (ModeloInventario.num(m.getValueAt(i, ModeloInventario.COL_DIF)).signum() != 0) {
+                    conDif++;
+                }
+            }
+        }
+        boolean ajustar = false;
+        if (contados == 0) {
+            int r = JOptionPane.showConfirmDialog(this, "No cargó ningún conteo (columna Contado).\n"
+                    + "Se guardará solo la conciliación de movimientos, sin ajustar el stock.\n\n¿Continuar?",
+                    "Guardar inventario", JOptionPane.YES_NO_OPTION);
+            if (r != JOptionPane.YES_OPTION) {
+                return;
+            }
+        } else if (conDif > 0) {
+            Object[] op = {"Guardar y ajustar el stock", "Guardar solo el conteo", "Cancelar"};
+            int r = JOptionPane.showOptionDialog(this, "Hay " + contados + " productos contados, " + conDif
+                    + " con diferencia respecto al sistema.\n\n"
+                    + "Guardar y ajustar: el stock del sistema pasa a ser lo contado y se registran los reajustes (Suma/Resta).\n"
+                    + "Guardar solo el conteo: se guarda el conteo pero NO se modifica el stock.",
+                    "Guardar inventario", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, op, op[1]);
+            if (r != 0 && r != 1) {
+                return;
+            }
+            ajustar = (r == 0);
+        }
+        Connection cn = null;
+        try {
+            cn = new conectar().conexion();
+            cn.setAutoCommit(false);
+            Statement st = cn.createStatement();
+            // Se bloquean las tablas para que dos terminales no tomen el mismo número.
+            st.execute("LOCK TABLE inventario, detinv, reajuste IN SHARE ROW EXCLUSIVE MODE");
+            String idInv = siguiente(st, "inventario", "id_inv");
+            int idDet = Integer.parseInt(siguiente(st, "detinv", "id_inv"));
+            int idRea = Integer.parseInt(siguiente(st, "reajuste", "id"));
+            SimpleDateFormat dia = new SimpleDateFormat("yyyy-MM-dd");
+            String hoy = dia.format(fechain.getDate());
+            String hora = new SimpleDateFormat("HH:mm:ss").format(new Date());
+            String alc = alcance == null ? "" : (alcance.length() > 150 ? alcance.substring(0, 150) : alcance);
+            st.executeUpdate("INSERT INTO inventario(id_inv, fecha, fechaini, fechafin, descripcion, usuario, hora, alcance, ajustado) VALUES ('"
+                    + idInv + "','" + hoy + "','" + dia.format(fechaini.getDate()) + "','" + dia.format(fechafin.getDate()) + "','"
+                    + lit(descrip.getText()) + "','" + usuarioactu + "','" + hora + "','" + lit(alc) + "','" + (ajustar ? 1 : 0) + "')");
+            int ajustados = 0;
+            for (int i = 0; i < m.getRowCount(); i++) {
+                String codigo = m.getValueAt(i, 0).toString();
+                // Movimientos tal cual los calculó buscarprodu3 (compras y reajuste + con signo +, ventas y reajuste - con signo -).
+                String stockini = numero(m, i, 2), comprado = numero(m, i, 3), vendido = numero(m, i, 4), entregado = numero(m, i, 5),
+                        reapo = numero(m, i, 6), reane = numero(m, i, 7);
+                String contadoTxt = hayConteo ? celda(m, i, ModeloInventario.COL_CONTADO) : "";
+                BigDecimal contado = contadoTxt.isEmpty() ? null : new BigDecimal(contadoTxt);
+                // Stock y costo AL GUARDAR (no los que se vieron al calcular), con el producto bloqueado si se va a ajustar.
+                ResultSet r = st.executeQuery("SELECT stock, costo FROM producto WHERE codprodu='" + lit(codigo) + "'"
+                        + (ajustar && contado != null ? " FOR UPDATE" : ""));
+                BigDecimal sistema, costo;
+                if (r.next() && r.getString(1) != null) {
+                    sistema = new BigDecimal(r.getString(1).trim());
+                    costo = r.getString(2) == null || r.getString(2).trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(r.getString(2).trim());
+                } else {
+                    sistema = new BigDecimal(numero(m, i, ModeloInventario.COL_ACTUAL));
+                    costo = hayConteo ? ModeloInventario.num(m.getValueAt(i, ModeloInventario.COL_COSTO)) : BigDecimal.ZERO;
+                }
+                r.close();
+                BigDecimal stockFinal = sistema;
+                if (ajustar && contado != null) {
+                    BigDecimal dif = contado.subtract(sistema);
+                    if (dif.signum() != 0) {
+                        st.executeUpdate("UPDATE producto SET stock='" + Double.toString(contado.doubleValue()) + "' WHERE codprodu='"
+                                + lit(codigo) + "'");
+                        st.executeUpdate("INSERT INTO reajuste (id, fecha, descripcion, producto_codprodu, estado, total, usuario, cantidad, hora) VALUES ('"
+                                + (idRea++) + "','" + hoy + "','INVENTARIO N° " + idInv + "','" + lit(codigo) + "','" + (dif.signum() > 0 ? "Suma" : "Resta")
+                                + "','0','" + usuarioactu + "','" + dif.abs().toPlainString() + "','" + hora + "')");
+                        stockFinal = contado;
+                        ajustados++;
                     }
-                    if(ban==0){
-                        JOptionPane.showMessageDialog(null, "Se creo exitosamente el registro.");
-                        cargarinv("");
-                    }else{
-                        JOptionPane.showMessageDialog(null, "Problemas con los datos ingresados.");
-                    }
-                    this.dispose();
+                }
+                st.executeUpdate("INSERT INTO detinv (id_inv, stock, vendido, comprado, entregado, descripcion, producto, inventario, stockini, repo, rene, contado, stock_sistema, costo) VALUES ('"
+                        + (idDet++) + "','" + stockFinal.toPlainString() + "','" + vendido + "','" + comprado + "','" + entregado + "','aa','"
+                        + lit(codigo) + "','" + idInv + "','" + stockini + "','" + reapo + "','" + reane + "',"
+                        + (contado == null ? "NULL" : "'" + contado.toPlainString() + "'") + ",'" + sistema.toPlainString() + "','"
+                        + costo.toPlainString() + "')");
+            }
+            cn.commit();
+            st.close();
+            cod.setText(idInv);
+            JOptionPane.showMessageDialog(null, "Se creó el inventario N° " + idInv + "."
+                    + (ajustar ? "\nStock ajustado en " + ajustados + " producto(s)." : (contados > 0 ? "\nEl stock no se modificó." : "")));
+            cargarinv("");
+            this.dispose();
+        } catch (SQLException ex) {
+            deshacer(cn);
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el inventario (no se guardó ni se ajustó nada):\n" + ex.getMessage()
+                    + InventarioDb.ayuda());
+        } catch (NumberFormatException ex) {
+            deshacer(cn);
+            JOptionPane.showMessageDialog(null, "Hay un valor que no es numérico (en la tabla o en el stock de un producto).\n"
+                    + "No se guardó ni se ajustó nada.\n" + ex.getMessage());
+        } finally {
+            if (cn != null) {
+                try {
                     cn.close();
-                    }catch(SQLException ex){    
-                        JOptionPane.showMessageDialog(null, "WARNING BASE2");
-                    }                
+                } catch (SQLException ignorada) {
+                }
+            }
+        }
     }//GEN-LAST:event_guardarActionPerformed
+
+    /** Imprime la planilla de conteo con los productos que se ven en la tabla (respeta el filtro y el orden). */
+    private void imprimirPlanilla() {
+        List<String[]> filas = new ArrayList<String[]>();
+        for (int i = 0; i < tablacliente.getRowCount(); i++) {
+            filas.add(new String[]{String.valueOf(tablacliente.getValueAt(i, 0)), String.valueOf(tablacliente.getValueAt(i, 1)),
+                String.valueOf(tablacliente.getValueAt(i, ModeloInventario.COL_ACTUAL))});
+        }
+        InventarioReporte.preguntarYGenerarPlanilla(this, filas, alcance, usuarioactu);
+    }
+
+    private static String siguiente(Statement st, String tabla, String col) throws SQLException {
+        ResultSet r = st.executeQuery("SELECT coalesce(max(" + col + "),0)+1 AS n FROM " + tabla);
+        r.next();
+        String n = r.getString("n");
+        r.close();
+        return n;
+    }
+
+    private static String celda(TableModel m, int fila, int col) {
+        Object o = m.getValueAt(fila, col);
+        return o == null ? "" : o.toString().trim();
+    }
+
+    private static String lit(String s) {
+        return s == null ? "" : s.replace("'", "''");
+    }
+
+    private static void deshacer(Connection cn) {
+        if (cn != null) {
+            try {
+                cn.rollback();
+            } catch (SQLException ignorada) {
+            }
+        }
+    }
+
+    /** Valor numérico de una celda ("+5", "-3.5"), sin perder decimales; lanza NumberFormatException si no es número. */
+    private static String numero(TableModel m, int fila, int col) {
+        return new BigDecimal(celda(m, fila, col).replace(",", "")).toPlainString();
+    }
 
     private void view1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_view1ActionPerformed
         this.dispose();

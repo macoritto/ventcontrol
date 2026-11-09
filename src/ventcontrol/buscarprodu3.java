@@ -28,6 +28,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
@@ -46,7 +51,7 @@ public class buscarprodu3 extends JDialog {
     String codid;
     String stockactu;
     String codp, nomp, telep, rucp, direccionp;
-    Date fechaini, fechafin, horainv, horasis;
+    Date fechaini, fechafin;
     Integer cod_inv;    
 
     public buscarprodu3(menu menuprincipal, boolean modal, Date fecha1, Date fecha2) {
@@ -62,14 +67,15 @@ public class buscarprodu3 extends JDialog {
         });
         fechaini = fecha1;
         fechafin = fecha2;
-        this.setLocation(300, 50);
         int contador = 0;
         this.setTitle("Productos.");
         buscartxt.setDocument(new solomayusculas());
         buscartxt1.setDocument(new solomayusculas());
         buscartxt2.setDocument(new solomayusculas());
         cargar("", "", "");
-        delete1.setVisible(false);
+        prepararSeleccion();
+        pack();
+        setLocationRelativeTo(getOwner());
         
         //tablaproveedor.setDefaultRenderer(Object.class, new MiRender());
     }
@@ -307,63 +313,248 @@ public class buscarprodu3 extends JDialog {
         }
     }
 
-    private void ultimoinv() {
-        String sql = "SELECT coalesce (max(id_inv+1),1) as newid from inventario";
-        conectar cc = new conectar();
-        Connection cn = cc.conexion();
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-            rs.next();
-            cod_inv = Integer.parseInt(rs.getString("newid")) - 1;
-            cn.close();
-            st.close();
-            rs.close();
-        } catch (SQLException ex) {
+    /** Qué se está inventariando (filtros usados), se guarda en el inventario. */
+    String alcance = "";
 
+    private static void cerrar(Connection cn) {
+        if (cn != null) {
+            try {
+                cn.close();
+            } catch (SQLException ignorada) {
+            }
         }
     }
 
-    private void cargarhora() {
-        String sql = "SELECT fecha, hora from inventario where id_inv='" + cod_inv + "'";
-        conectar cc = new conectar();
-        Connection cn = cc.conexion();
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-            String aux = "", aux1 = "", aux2, aux3;
-            while (rs.next()) {
-                aux = rs.getString("fecha");
-                aux1 = rs.getString("hora");
-            }
-            aux3 = fechafin.toString();
-            Date date = new Date();
-            DateFormat formatter = new SimpleDateFormat("yyyy-M-d");
-            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-            aux2 = dateFormat.format(date);
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.HOUR_OF_DAY, 0);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            //fechafin=c.getTime();
-            if (aux != "" && aux1 != "") {
-                try {
-                    fechaini = formatter.parse(aux);
-                    System.out.println("   ESTA ES LA HORA EN CARGAR HORA  ");
-                    System.out.println(fechaini);
-                    //fechafin = formatter.parse(aux3);
-                    horainv = dateFormat.parse(aux1);
-                    horasis = dateFormat.parse(aux2);
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                fechaini = new Date();
-            }
-
-        } catch (SQLException ex) {
-
+    /** Clave de producto: "007" y "7" son el mismo código. */
+    private static String clave(String s) {
+        if (s == null) {
+            return "";
         }
+        s = s.trim();
+        if (s.matches("\\d+")) {
+            return new BigDecimal(s).toBigInteger().toString();
+        }
+        return s;
+    }
+
+    private static BigDecimal num(String s) {
+        if (s == null) {
+            return BigDecimal.ZERO;
+        }
+        try {
+            return new BigDecimal(s.trim());
+        } catch (NumberFormatException ex) {
+            return BigDecimal.ZERO;
+        }
+    }
+
+    private static String fmt(BigDecimal b) {
+        return ModeloInventario.plano(b);
+    }
+
+    private static String dia(String f) {
+        return (f != null && f.length() > 10) ? f.substring(0, 10) : (f == null ? "" : f);
+    }
+
+    private static Date horaDe(String h) {
+        if (h == null || h.trim().length() < 8) {
+            return null;
+        }
+        try {
+            return new SimpleDateFormat("HH:mm:ss").parse(h.trim().substring(0, 8));
+        } catch (ParseException ex) {
+            return null;
+        }
+    }
+
+    private static void sumar(Map<String, BigDecimal> m, String cod, BigDecimal v) {
+        BigDecimal a = m.get(cod);
+        m.put(cod, a == null ? v : a.add(v));
+    }
+
+    /**
+     * Última foto guardada de CADA producto (en el inventario más reciente donde estuvo):
+     * clave -> {stock, día, hora}. Así se puede inventariar por partes (una marca o un tipo por
+     * vez) y cada producto arranca desde su propia foto.
+     */
+    private Map<String, String[]> bases(Connection cn) throws SQLException {
+        Map<String, String[]> m = new HashMap<String, String[]>();
+        Statement st = cn.createStatement();
+        ResultSet rs = st.executeQuery("SELECT DISTINCT ON (d.producto::text) d.producto::text AS p, d.stock AS s, i.fecha AS f, i.hora AS h "
+                + "FROM detinv d INNER JOIN inventario i ON i.id_inv::text=d.inventario::text "
+                + "ORDER BY d.producto::text, i.fecha DESC, i.hora DESC, i.id_inv DESC");
+        while (rs.next()) {
+            m.put(clave(rs.getString("p")), new String[]{rs.getString("s"), dia(rs.getString("f")), rs.getString("h")});
+        }
+        rs.close();
+        st.close();
+        return m;
+    }
+
+    /**
+     * Recorre UNA consulta (fecha, hora, producto, cantidad[, estado]) y suma por producto. Cada
+     * producto cuenta solo los movimientos posteriores a su última foto (el mismo día, los hechos
+     * después de la hora de esa foto); si nunca se inventarió, los desde diaIni.
+     * Con colEstado, "Suma" va a accA y lo demás a accB.
+     */
+    private void acumular(Connection cn, String sql, String colEstado, Map<String, BigDecimal> accA,
+            Map<String, BigDecimal> accB, Map<String, String[]> base, String diaIni) throws SQLException {
+        Statement st = cn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        while (rs.next()) {
+            String cod = clave(rs.getString("p"));
+            String f = dia(rs.getString("f"));
+            String[] b = base.get(cod);
+            if (b != null) {
+                int cmp = f.compareTo(b[1]);
+                if (cmp < 0) {
+                    continue;
+                }
+                if (cmp == 0) {
+                    Date h = horaDe(rs.getString("h"));
+                    Date hb = horaDe(b[2]);
+                    if (h != null && hb != null && h.compareTo(hb) <= 0) {
+                        continue;
+                    }
+                }
+            } else if (f.compareTo(diaIni) < 0) {
+                continue;
+            }
+            BigDecimal c = num(rs.getString("c"));
+            if (colEstado != null && !"Suma".equals(rs.getString(colEstado))) {
+                sumar(accB, cod, c);
+            } else {
+                sumar(accA, cod, c);
+            }
+        }
+        rs.close();
+        st.close();
+    }
+
+    private String alcanceActual(boolean seleccion, int cantidad) {
+        List<String> partes = new ArrayList<String>();
+        if (!buscartxt2.getText().trim().isEmpty()) {
+            partes.add("Marca: " + buscartxt2.getText().trim());
+        }
+        if (!buscartxt1.getText().trim().isEmpty()) {
+            partes.add("Tipo: " + buscartxt1.getText().trim());
+        }
+        if (!buscartxt.getText().trim().isEmpty()) {
+            partes.add("Producto: " + buscartxt.getText().trim());
+        }
+        String s;
+        if (partes.isEmpty()) {
+            s = seleccion ? "Selección de " + cantidad + (cantidad == 1 ? " producto" : " productos") : "Todos los productos";
+        } else {
+            s = partes.toString().replace("[", "").replace("]", "").replace(", ", " · ");
+            if (seleccion) {
+                s += " (selección de " + cantidad + ")";
+            }
+        }
+        return s.length() > 150 ? s.substring(0, 150) : s;
+    }
+
+    /**
+     * Arma la tabla del inventario para las filas indicadas: Stock Ini (última foto del producto) +
+     * Comprado - Vendido + Devuelto + Reajuste(+) - Reajuste(-) = Stock Teórico, comparado con el
+     * Stock Actual real. Después se carga el conteo físico en la columna Contado. Es un solo
+     * recorrido por tabla (antes era una consulta por producto y por venta).
+     */
+    private boolean calcular(int[] filas, boolean seleccion) {
+        ModeloInventario modelo = new ModeloInventario();
+        SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd");
+        String diaIni = iso.format(fechaini);
+        String diaFin = iso.format(fechafin);
+        Map<String, BigDecimal> vend = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> comp = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> devo = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> reaMas = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> reaMenos = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> actual = new HashMap<String, BigDecimal>();
+        Map<String, BigDecimal> costos = new HashMap<String, BigDecimal>();
+        Map<String, String[]> base;
+        String desde = diaIni;
+        Connection cn = null;
+        try {
+            cn = new conectar().conexion();
+            base = bases(cn);
+            for (int i = 0; i < filas.length; i++) {
+                String[] b = base.get(clave((String) tablaproveedor.getValueAt(filas[i], 0)));
+                if (b != null && b[1].compareTo(desde) < 0) {
+                    desde = b[1];
+                }
+            }
+            String rango = " BETWEEN '" + desde + "' AND '" + diaFin + "'";
+            acumular(cn, "SELECT v.fecha AS f, v.entregado AS h, d.producto_codprodu AS p, d.cantidad AS c "
+                    + "FROM venta v INNER JOIN detventa d ON d.venta_codventa::text=v.codventa::text WHERE v.fecha" + rango,
+                    null, vend, null, base, diaIni);
+            acumular(cn, "SELECT v.fecha AS f, v.hora AS h, d.producto_codprodu AS p, d.cantidad AS c "
+                    + "FROM compra v INNER JOIN detcompra d ON d.compra_codcompra::text=v.codcompra::text WHERE v.fecha" + rango,
+                    null, comp, null, base, diaIni);
+            acumular(cn, "SELECT v.fecha AS f, v.hora AS h, d.producto AS p, d.cantidad AS c "
+                    + "FROM devolucion v INNER JOIN detdevo d ON d.devolucion::text=v.id_devo::text WHERE v.fecha" + rango,
+                    null, devo, null, base, diaIni);
+            acumular(cn, "SELECT fecha AS f, hora AS h, producto_codprodu AS p, cantidad AS c, estado AS e "
+                    + "FROM reajuste WHERE fecha" + rango, "e", reaMas, reaMenos, base, diaIni);
+            Statement st2 = cn.createStatement();
+            ResultSet rs2 = st2.executeQuery("SELECT codprodu, stock, costo FROM producto");
+            while (rs2.next()) {
+                String k = clave(rs2.getString("codprodu"));
+                actual.put(k, num(rs2.getString("stock")));
+                costos.put(k, num(rs2.getString("costo")));
+            }
+            rs2.close();
+            st2.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo calcular el inventario:\n" + ex.getMessage());
+            return false;
+        } finally {
+            cerrar(cn);
+        }
+        BigDecimal cero = BigDecimal.ZERO;
+        for (int i = 0; i < filas.length; i++) {
+            String codigo = (String) tablaproveedor.getValueAt(filas[i], 0);
+            String k = clave(codigo);
+            String[] b = base.get(k);
+            boolean hayBase = b != null;
+            BigDecimal bIni = hayBase ? num(b[0]) : cero;
+            BigDecimal bComp = comp.containsKey(k) ? comp.get(k) : cero;
+            BigDecimal bVend = vend.containsKey(k) ? vend.get(k) : cero;
+            BigDecimal bDevo = devo.containsKey(k) ? devo.get(k) : cero;
+            BigDecimal bMas = reaMas.containsKey(k) ? reaMas.get(k) : cero;
+            BigDecimal bMenos = reaMenos.containsKey(k) ? reaMenos.get(k) : cero;
+            BigDecimal bAct = actual.containsKey(k) ? actual.get(k) : num(String.valueOf(tablaproveedor.getValueAt(filas[i], 4)).replace(",", ""));
+            BigDecimal teorico = bIni.add(bComp).subtract(bVend).add(bDevo).add(bMas).subtract(bMenos);
+            String[] r = new String[15];
+            r[0] = codigo;
+            r[1] = (String) tablaproveedor.getValueAt(filas[i], 1);
+            r[2] = fmt(bIni);
+            r[3] = "+" + fmt(bComp);
+            r[4] = "-" + fmt(bVend);
+            r[5] = "+" + fmt(bDevo);
+            r[6] = "+" + fmt(bMas);
+            r[7] = "-" + fmt(bMenos);
+            r[8] = fmt(bAct);
+            // Sin foto anterior no hay desde dónde conciliar: se deja en blanco en vez de mostrar un número engañoso.
+            r[9] = hayBase ? fmt(teorico) : "";
+            r[10] = hayBase ? fmt(bAct.subtract(teorico)) : "";
+            r[11] = "";
+            r[12] = "";
+            r[13] = fmt(costos.containsKey(k) ? costos.get(k) : cero);
+            r[14] = "";
+            modelo.addRow(r);
+        }
+        try {
+            fechaini = iso.parse(desde);
+        } catch (ParseException ignorada) {
+        }
+        alcance = alcanceActual(seleccion, filas.length);
+        model1 = modelo;
+        if (diaFin.compareTo(iso.format(new Date())) < 0) {
+            JOptionPane.showMessageDialog(null, "La fecha fin es anterior a hoy: el Stock Actual incluye movimientos\n"
+                    + "posteriores a esa fecha, por eso la columna Diferencia puede no ser real.");
+        }
+        return true;
     }
 
     void buscarmarca(String valor, String nombre, String tipo) {
@@ -627,25 +818,25 @@ public class buscarprodu3 extends JDialog {
         delete1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
         delete1.setForeground(new java.awt.Color(240, 240, 240));
         delete1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/exchange.png"))); // NOI18N
-        delete1.setText("Seleccionar.");
+        delete1.setText("Inventariar seleccionados");
         delete1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 delete1ActionPerformed(evt);
             }
         });
-        getContentPane().add(delete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 530, 160, 40));
+        getContentPane().add(delete1, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 530, 250, 40));
 
         view.setBackground(new java.awt.Color(0, 102, 153));
         view.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
         view.setForeground(new java.awt.Color(240, 240, 240));
         view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/lista.png"))); // NOI18N
-        view.setText("Select. Todos");
+        view.setText("Inventariar todos");
         view.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewActionPerformed(evt);
             }
         });
-        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 530, 230, 40));
+        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 530, 220, 40));
 
         fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/azul.jpg"))); // NOI18N
         getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 780, 580));
@@ -736,356 +927,51 @@ public class buscarprodu3 extends JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
+    /**
+     * Selección múltiple de productos: "Inventariar seleccionados" solo con filas marcadas
+     * (clic, Ctrl+clic o Shift+clic); "Inventariar todos" usa todo lo que muestra la lista.
+     */
+    private void prepararSeleccion() {
+        tablaproveedor.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        javax.swing.JLabel ayuda = new javax.swing.JLabel("<html>Marque varios con Ctrl o Shift + clic.<br>Se inventaria solo lo marcado.</html>");
+        ayuda.setFont(new java.awt.Font("Segoe UI", 0, 11));
+        ayuda.setForeground(new java.awt.Color(240, 240, 240));
+        getContentPane().add(ayuda, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 528, 235, 44), 0);
+        tablaproveedor.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    actualizarSeleccion();
+                }
+            }
+        });
+        actualizarSeleccion();
+    }
+
+    private void actualizarSeleccion() {
+        int n = tablaproveedor.getSelectedRowCount();
+        delete1.setEnabled(n > 0);
+        delete1.setText(n > 0 ? "Inventariar seleccionados (" + n + ")" : "Inventariar seleccionados");
+    }
+
     private void delete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete1ActionPerformed
         int[] filaselect = tablaproveedor.getSelectedRows();
-        String[] titulos = {"Cod", "Nombre", "Comprado", "Vendido", "Devuelto", "Stock Actual"};
-        String[] registros = new String[6];
-        model1 = new DefaultTableModel(null, titulos);
-        for (int i = 0; i < filaselect.length; i++) {
-            System.out.print("    ESTE ES EL CODIGO   ");
-            String id = (String) tablaproveedor.getValueAt((filaselect[i]), 0);
-            registros[0] = id;
-            registros[1] = (String) tablaproveedor.getValueAt((filaselect[i]), 1);
-            registros[5] = (String) tablaproveedor.getValueAt((filaselect[i]), 4);
-            try {
-                String sqlaux = "SELECT * FROM venta where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                conectar cc = new conectar();
-                Connection cn = cc.conexion();
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sqlaux);
-                System.out.print(sqlaux);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                String comparacion = "";
-                Double cventa = 0.0, ccompra = 0.0, cdevo = 0.0;
-                while (rs.next()) {
-                    String sqlaux1 = "SELECT * FROM detventa where venta_codventa='" + rs.getString("codventa") + "'";
-                    Statement st1 = cn.createStatement();
-                    ResultSet rs1 = st1.executeQuery(sqlaux1);
-                    while (rs1.next()) {
-                        System.out.print("   ACA COMPARA   ");
-                        System.out.print(rs1.getString("cantidad"));
-                        System.out.print("   Estos son los id   ");
-                        System.out.print(rs1.getString("producto_codprodu"));
-                        System.out.print(id);
-                        if (id.equals(rs1.getString("producto_codprodu"))) {
-                            cventa = cventa + Double.parseDouble(rs1.getString("cantidad"));
-                            System.out.print("   ACA DEBERIA DE ENTRAR   ");
-                            System.out.print(cventa);
-                        }
-                    }
-                }
-                registros[3] = cventa.toString();
-                String sqlaux2 = "SELECT * FROM compra where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement staux = cn.createStatement();
-                ResultSet rsaux = staux.executeQuery(sqlaux2);
-                System.out.print(sqlaux2);
-                while (rsaux.next()) {
-                    String sqlaux3 = "SELECT * FROM detcompra where compra_codcompra='" + rsaux.getString("codcompra") + "'";
-                    Statement staux1 = cn.createStatement();
-                    ResultSet rsaux1 = staux1.executeQuery(sqlaux3);
-                    while (rsaux1.next()) {
-                        if (id.equals(rsaux1.getString("producto_codprodu"))) {
-                            ccompra = ccompra + Double.parseDouble(rsaux1.getString("cantidad"));
-                        }
-                    }
-                }
-                registros[2] = ccompra.toString();
-                String sqlaux3 = "SELECT * FROM devolucion where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement staux3 = cn.createStatement();
-                ResultSet rsaux3 = staux3.executeQuery(sqlaux3);
-                System.out.print(sqlaux3);
-                while (rsaux3.next()) {
-                    String sqlaux4 = "SELECT * FROM detdevo where producto='" + rsaux3.getString("id_devo") + "'";
-                    Statement staux4 = cn.createStatement();
-                    ResultSet rsaux4 = staux4.executeQuery(sqlaux4);
-                    while (rsaux4.next()) {
-                        if (id.equals(rsaux4.getString("producto"))) {
-                            cdevo = cdevo + Double.parseDouble(rsaux4.getString("cantidad"));
-                        }
-                    }
-                }
-                registros[4] = cdevo.toString();
-                model1.addRow(registros);
-                model1.fireTableDataChanged();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "");
-            }
+        if (filaselect.length == 0) {
+            JOptionPane.showMessageDialog(null, "Seleccione al menos un producto.");
+            return;
         }
-
-        this.dispose();
+        if (calcular(filaselect, true)) {
+            this.dispose();
+        }
     }//GEN-LAST:event_delete1ActionPerformed
 
     private void viewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewActionPerformed
-        JOptionPane.showMessageDialog(null, "Este podría tardar algunos minutos, Por favor espere.");
-        String[] titulos = {"Cod", "Nombre", "Stock Ini", "Comprado", "Vendido", "Devuelto","Reajuste Mas","Reajuste Menos", "Stock Actual"};
-        String[] registros = new String[9];
-        model1 = new DefaultTableModel(null, titulos);
-        conectar cc = new conectar();
-        Connection cn = cc.conexion();
-        Integer bandera = 0;
-        Integer compara = 0;
-        ultimoinv();
-        cargarhora();
-        DateFormat formatter = new SimpleDateFormat("yyyy-M-d");
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        for (int i = 0; i < tablaproveedor.getRowCount(); i++) {
-            System.out.print("    ESTE ES EL CODIGO   ");
-            String id = (String) tablaproveedor.getValueAt(i, 0);
-            registros[0] = id;
-            registros[1] = (String) tablaproveedor.getValueAt(i, 1);
-            registros[8] = (String) tablaproveedor.getValueAt(i, 4);
-            try {
-                String sqlaux = "SELECT * FROM venta where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sqlaux);
-                System.out.print(sqlaux);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                String comparacion = "";
-                Double cventa = 0.0, ccompra = 0.0, cdevo = 0.0, cini = 0.0, cpo=0.0, cne=0.0;
-                Date fechaventa = new Date(), horaventa = new Date();
-                while (rs.next()) {
-                    try {
-                        fechaventa = formatter.parse(rs.getString("fecha"));
-                        horaventa = dateFormat.parse(rs.getString("entregado"));
-                    } catch (ParseException ex) {
-                        Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if (fechaventa.equals(fechaini)) {
-                        if (horaventa.compareTo(horainv) > 0) {
-                            String sqlaux1 = "SELECT * FROM detventa where venta_codventa='" + rs.getString("codventa") + "'";
-                            Statement st1 = cn.createStatement();
-                            ResultSet rs1 = st1.executeQuery(sqlaux1);
-                            while (rs1.next()) {
-            //                                  System.out.print("   ACA COMPARA CUANDO   ");
-                                //                                  System.out.print(rs1.getString("cantidad"));
-                                //                                  System.out.print("   Estos son los id   ");
-                                //                                  System.out.print(rs1.getString("producto_codprodu"));
-                                //                                  System.out.print(id);
-                                if (id.equals(rs1.getString("producto_codprodu"))) {
-                                    cventa = cventa + Double.parseDouble(rs1.getString("cantidad"));
-            //                                  System.out.print("   ACA DEBERIA DE ENTRAR   ");
-                                    //                                  System.out.print(cventa);
-                                }
-                            }
-                            st1.close();
-                            rs1.close();
-                        }
-                    } else {
-                        String sqlaux1 = "SELECT * FROM detventa where venta_codventa='" + rs.getString("codventa") + "'";
-                        Statement st1 = cn.createStatement();
-                        ResultSet rs1 = st1.executeQuery(sqlaux1);
-                        while (rs1.next()) {
-            //                                  System.out.print("   ACA COMPARA CUANDO   ");
-                            //                                  System.out.print(rs1.getString("cantidad"));
-                            //                                  System.out.print("   Estos son los id   ");
-                            //                                  System.out.print(rs1.getString("producto_codprodu"));
-                            //                                  System.out.print(id);
-                            if (id.equals(rs1.getString("producto_codprodu"))) {
-                                cventa = cventa + Double.parseDouble(rs1.getString("cantidad"));
-            //                                  System.out.print("   ACA DEBERIA DE ENTRAR   ");
-                                //                                  System.out.print(cventa);
-                            }
-                        }
-                        st1.close();
-                        rs1.close();
-                    }
-                }
-                st.close();
-                rs.close();
-                registros[4] = "-".concat(cventa.toString());
-                Date fechacompra = new Date(), horacompra = new Date();
-                String sqlaux2 = "SELECT * FROM compra where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement staux = cn.createStatement();
-                ResultSet rsaux = staux.executeQuery(sqlaux2);
-                System.out.print(sqlaux2);
-                while (rsaux.next()) {
-                    try {
-                        fechacompra = formatter.parse(rsaux.getString("fecha"));
-                        horacompra = dateFormat.parse(rsaux.getString("hora"));
-                    } catch (ParseException ex) {
-                        Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if (fechacompra.equals(fechaini)) {
-                        if (horacompra.compareTo(horainv) > 0) {
-                            String sqlaux3 = "SELECT * FROM detcompra where compra_codcompra='" + rsaux.getString("codcompra") + "'";
-                            Statement staux1 = cn.createStatement();
-                            ResultSet rsaux1 = staux1.executeQuery(sqlaux3);
-                            while (rsaux1.next()) {
-                                if (id.equals(rsaux1.getString("producto_codprodu"))) {
-                                    ccompra = ccompra + Double.parseDouble(rsaux1.getString("cantidad"));
-                                }
-                            }
-                            staux1.close();
-                            rsaux1.close();
-                        }
-                    } else {
-                        String sqlaux3 = "SELECT * FROM detcompra where compra_codcompra='" + rsaux.getString("codcompra") + "'";
-                        Statement staux1 = cn.createStatement();
-                        ResultSet rsaux1 = staux1.executeQuery(sqlaux3);
-                        while (rsaux1.next()) {
-                            if (id.equals(rsaux1.getString("producto_codprodu"))) {
-                                ccompra = ccompra + Double.parseDouble(rsaux1.getString("cantidad"));
-                            }
-                        }
-                        staux1.close();
-                        rsaux1.close();
-                    }
-                }
-                registros[3] = "+".concat(ccompra.toString());
-                Date fechadevo = new Date(), horadevo = new Date();
-                String sqlaux3 = "SELECT * FROM devolucion where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement staux3 = cn.createStatement();
-                ResultSet rsaux3 = staux3.executeQuery(sqlaux3);
-                System.out.print(sqlaux3);
-                while (rsaux3.next()) {
-                    try {
-                        fechadevo = formatter.parse(rsaux3.getString("fecha"));
-                        horadevo = dateFormat.parse(rsaux3.getString("hora"));
-                    } catch (ParseException ex) {
-                        Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if (fechadevo.equals(fechaini)) {
-                        if (horadevo.compareTo(horainv) > 0) {
-                            String sqlaux4 = "SELECT * FROM detdevo where devolucion='" + rsaux3.getString("id_devo") + "'";
-                            Statement staux4 = cn.createStatement();
-                            ResultSet rsaux4 = staux4.executeQuery(sqlaux4);
-                            while (rsaux4.next()) {
-                                if (id.equals(rsaux4.getString("producto"))) {
-                                    cdevo = cdevo + Double.parseDouble(rsaux4.getString("cantidad"));
-                                }
-                            }
-                            staux4.close();
-                            rsaux4.close();
-                        }
-                    } else {
-                        String sqlaux4 = "SELECT * FROM detdevo where devolucion='" + rsaux3.getString("id_devo") + "'";
-                        Statement staux4 = cn.createStatement();
-                        ResultSet rsaux4 = staux4.executeQuery(sqlaux4);
-                        while (rsaux4.next()) {
-                            if (id.equals(rsaux4.getString("producto"))) {
-                                cdevo = cdevo + Double.parseDouble(rsaux4.getString("cantidad"));
-                            }
-                        }
-                        staux4.close();
-                        rsaux4.close();
-                    }
-                }
-                staux3.close();
-                rsaux3.close();
-                registros[5] = "+".concat(cdevo.toString());
-                System.out.println("    ESTE ES EL CODIGO DEL INVENTARIO   ");
-                System.out.println(cod_inv);
-                Date fecharea = new Date(), horarea = new Date();
-                //String sqlaux6="";
-                String sqlaux6 = "SELECT * FROM reajuste where fecha BETWEEN '" + fechaini + "' and '" + fechafin + "'";
-                Statement staux6 = cn.createStatement();
-                ResultSet rsaux6 = staux6.executeQuery(sqlaux6);
-                while (rsaux6.next()) {
-                    try {
-                        fecharea = formatter.parse(rsaux6.getString("fecha"));
-                        horarea = dateFormat.parse(rsaux6.getString("hora"));
-                    } catch (ParseException ex) {
-                        Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                     if (fecharea.equals(fechaini)) {
-                        if (horarea.compareTo(horainv) > 0) {
-                            if (Integer.parseInt(id) == Integer.parseInt(rsaux6.getString("producto_codprodu"))) {
-                                if (rsaux6.getString("estado").equals("Suma")) {
-                                    cpo =cpo + Double.parseDouble(rsaux6.getString("cantidad"));
-                                    System.out.println("    EL VALOR DEL CPO ES    ");
-                                    System.out.print(cpo);
-                                } else {
-                                    cne = cne + Double.parseDouble(rsaux6.getString("cantidad"));
-                                    System.out.println("    EL VALOR DEL CNE ES    ");
-                                    System.out.print(cne);
-                                }
-                            }
-                        }
-                     }else{
-                         if (rsaux6.getString("estado").equals("Suma")) {
-                             cpo = cpo + Double.parseDouble(rsaux6.getString("cantidad"));
-                             System.out.println("    EL VALOR DEL CPO ES    ");
-                             System.out.print(cpo);
-                         } else {
-                             cne = cne + Double.parseDouble(rsaux6.getString("cantidad"));
-                             System.out.println("    EL VALOR DEL CNE ES    ");
-                             System.out.print(cne);
-                         }
-                     }
-                }
-                staux6.close();                
-                rsaux6.close();
-                registros[6] = "+".concat(cpo.toString());
-                registros[7] = "-".concat(cne.toString());
-                if (cod_inv == 0) {
-                    cini = 0.0;
-                    registros[2] = cini.toString();
-                } else {
-                    String sqlaux5 = "SELECT * FROM detinv where inventario='" + cod_inv + "'";
-                    Statement staux5 = cn.createStatement();
-                    ResultSet rsaux5 = staux5.executeQuery(sqlaux5);
-                    while (rsaux5.next()) {
-                        System.out.print(" EL ID DE LA TABLA    ");
-                        System.out.print(id);
-                        System.out.print(" EL ID DE DETALLE    ");
-                        System.out.print(rsaux5.getString("producto"));
-                        if (Integer.parseInt(id) == Integer.parseInt(rsaux5.getString("producto"))) {
-                            compara = compara + 1;
-                            System.out.print(" ENTRA EN EL IF DE COMPARACION    ");
-                            System.out.print(id);
-                            System.out.print("  ESTE ES EL STOCK QUE DEBE CARGAR    ");
-                            System.out.print(rsaux5.getString("stock"));
-                            cini = Double.parseDouble(rsaux5.getString("stock"));
-                            System.out.print("  ESTE ES EL STOCK QUE CARGA    ");
-                            System.out.print(cini);
-                            registros[2] = cini.toString();
-                            bandera = 1;
-                        }
-                    }
-                    if (bandera == 1) {
-                        registros[2] = cini.toString();
-                    } else {
-                        cini = 0.0;
-                        registros[2] = cini.toString();
-                    }
-                    System.out.println("      ESTAS SON LAS VECES QUE ENTRA    ");
-                    System.out.println(compara);
-                    staux5.close();
-                    rsaux5.close();
-                    compara = 0;
-                }
-                System.out.print("  ESTE ES EL STOCK QUE CARGA AL FINAL    ");
-                System.out.print(cini);
-                //System.out.print(sqlaux3);   
-                model1.addRow(registros);
-                model1.fireTableDataChanged();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "");
-            }
-            try {
-                super.finalize();
-            } catch (Throwable ex) {
-                Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        };
-//        String horaini="17:35:30";
-//        String horafin="17:35:30";
-//        //DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-//        Date horaI = null;
-//        Date horaF = null;
-//        try {
-//            horaI= dateFormat.parse(horaini);
-//            horaF= dateFormat.parse(horafin);
-//        } catch (ParseException ex) {
-//            Logger.getLogger(buscarprodu3.class.getName()).log(Level.SEVERE, null, ex);
-//        }     
-//        if(horaF.compareTo(horaI)==0){
-//            System.out.println("   ESTE ES EL VALOR DE LA HORA  ");
-//            System.out.print(horaF.compareTo(horaI));
-//        }
-        //System.out.println("Hora actual: " + dateFormat.format(date));
-
-        this.dispose();
+        int[] todas = new int[tablaproveedor.getRowCount()];
+        for (int i = 0; i < todas.length; i++) {
+            todas[i] = i;
+        }
+        if (calcular(todas, false)) {
+            this.dispose();
+        }
     }//GEN-LAST:event_viewActionPerformed
 
     /**

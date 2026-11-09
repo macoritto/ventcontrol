@@ -38,9 +38,11 @@ public class saldo extends JDialog {
     DefaultTableModel model;
     DefaultComboBoxModel modeloRol;
     Integer band=0;
+    Integer usuarioactu;
     public saldo(menu menuprincipal, boolean modal) {
         super(menuprincipal, modal);
-        initComponents();        
+        initComponents();
+        usuarioactu = menuprincipal.usuarioactu;        
         this.setLocation(500, 150);
         Date fecha= new Date();
         calendar.setDate(fecha);
@@ -273,6 +275,10 @@ public class saldo extends JDialog {
     }//GEN-LAST:event_guardarActionPerformed
 
     private void guardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardar1ActionPerformed
+        TurnoCaja.Turno turnoActual = TurnoCaja.requerir(this, usuarioactu);
+        if (turnoActual == null) {
+            return;
+        }
         DecimalFormat formateador = new DecimalFormat("###,###");
         String aux3; 
         Integer monto5;
@@ -302,7 +308,7 @@ public class saldo extends JDialog {
                                 monto4 = c.intValue();
                                 System.out.print(monto4.toString());
                                 //monto.setText(monto4.toString());
-                                String sql ="INSERT INTO caja (cod, caja_total, coja_saldo, fecha_cierre, hora_cierre) VALUES ('" +cod.getText()+ "','"+monto4.toString()+"','" +monto4.toString()+"','" +calendar.getDate()+ "','"+descrip.getText()+"')";                                                        
+                                String sql ="INSERT INTO caja (cod, caja_total, coja_saldo, fecha_cierre, hora_cierre, turno_id) VALUES ('" +cod.getText()+ "','"+monto4.toString()+"','" +monto4.toString()+"','" +calendar.getDate()+ "','"+descrip.getText()+"','"+turnoActual.id+"')";                                                        
                                 PreparedStatement st = cn.prepareStatement(sql);                             
                                 System.out.print(sql);
                                 System.out.print(st);

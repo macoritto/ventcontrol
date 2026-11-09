@@ -17,8 +17,8 @@ public class conectar {
         public Connection conexion(){
             try{
                 Class.forName("org.postgresql.Driver");
-                conect = DriverManager.getConnection("jdbc:postgresql://localhost:5433/macocar", "postgres", "macorittogo");
-                //conect = DriverManager.getConnection("jdbc:postgresql://181.124.147.2:5433/ventcontrol", "postgres", "macorittogo");
+                //conect = DriverManager.getConnection("jdbc:postgresql://localhost:5433/macocar", "postgres", "macorittogo");
+                conect = DriverManager.getConnection("jdbc:postgresql://192.168.100.56:5433/macocar", "postgres", "macorittogo");
                 //conect = DriverManager.getConnection("jdbc:postgresql://192.168.100.11:5433/ventcontrol", "postgres", "macorittogo");
             }catch(Exception e){
                 JOptionPane.showConfirmDialog(null,"Error "+e);

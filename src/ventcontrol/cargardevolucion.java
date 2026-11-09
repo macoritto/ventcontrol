@@ -472,6 +472,10 @@ void cargarprov(String valor){
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
+        TurnoCaja.Turno turnoActual = TurnoCaja.requerir(this, usuarioactu);
+        if (turnoActual == null) {
+            return;
+        }
                 DecimalFormat formateador = new DecimalFormat("###,###");
                 Integer aux1=0;
                 String aux, auxx;
@@ -489,7 +493,7 @@ void cargarprov(String valor){
                     Integer ban=0;
                     conectar cc = new conectar();
                     Connection cn = cc.conexion();                    
-                    String sql ="INSERT INTO devolucion(id_devo, descripcion, fecha, usuario, total,hora) VALUES ('"+cod.getText()+"','"+descrip.getText()+"','"+fechain.getDate()+"','"+usuarioactu+"','"+aux1+"','"+dateFormat.format(date)+"')";                                                         
+                    String sql ="INSERT INTO devolucion(id_devo, descripcion, fecha, usuario, total,hora, turno_id) VALUES ('"+cod.getText()+"','"+descrip.getText()+"','"+fechain.getDate()+"','"+usuarioactu+"','"+aux1+"','"+dateFormat.format(date)+"','"+turnoActual.id+"')";                                                         
                     PreparedStatement st = cn.prepareStatement(sql);
                     if(st.executeUpdate()>0){                               
                         st.close();

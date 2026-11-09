@@ -95,7 +95,9 @@ public class venta extends JDialog implements KeyListener{
 
     public venta(menu menuprincipal, boolean modal, Integer usuactu) {
         super(menuprincipal, modal);
-        initComponents();  
+        initComponents();
+        configurarRuc();
+        disenoModerno();
         setLocationRelativeTo(menuprincipal);
         usuarioactu=usuactu;
         usuario();      
@@ -132,6 +134,128 @@ public class venta extends JDialog implements KeyListener{
         }
     }    
 
+    /**
+     * Reacomoda el formulario con el diseño moderno (ver {@link FormVentaUI}). Los componentes y
+     * sus listeners son los mismos que genera initComponents(): solo cambian de lugar y de estilo.
+     */
+    private void disenoModerno() {
+        FormVentaUI.Spec s = new FormVentaUI.Spec();
+        s.dlg = this;
+        s.titulo = jLabel2;
+        s.capNro = jLabel12;
+        s.nro = codcompra;
+        s.capUsuario = jLabel17;
+        s.usuario = nom;
+        s.capCodigo = jLabel5;
+        s.codigo = buscartxt2;
+        s.capDescripcion = jLabel6;
+        s.descripcion = buscartxt;
+        s.buscar = seleccionar;
+        s.resultados = jScrollPane1;
+        s.tablaResultados = tablaproaux;
+        s.capProducto = jLabel3;
+        s.producto = descrippro;
+        s.capPrecio = jLabel22;
+        s.precio = cant1;
+        s.capCant = jLabel8;
+        s.cant = cant;
+        s.capMonto = jLabel18;
+        s.monto = monto;
+        s.carrito = jScrollPane2;
+        s.tablaCarrito = tablaprodu;
+        s.quitar = quitar;
+        s.modificar = modificar;
+        s.capTipoPrecio = jLabel19;
+        s.tipoPrecio = tipoprecio;
+        s.capCliente = jLabel9;
+        s.elegirCliente = nuevo;
+        s.capNombre = jLabel11;
+        s.nombre = nombreprov;
+        s.capRuc = jLabel14;
+        s.ruc = codprov;
+        s.capPago = jLabel10;
+        s.pago = combovendedor;
+        s.capMedio = lblMedioPago;
+        s.medio = medioPago;
+        s.capFecha = jLabel13;
+        s.fecha = calendar;
+        s.capObs = jLabel15;
+        s.obs = factura1;
+        s.capIva5 = jLabel21;
+        s.iva5 = iva5;
+        s.capIva10 = jLabel7;
+        s.iva10 = iva10;
+        s.capTotIva = jLabel20;
+        s.totIva = totaliva;
+        s.capTotal = jLabel1;
+        s.total = total;
+        s.guardar = guardar;
+        s.ticket = btnprinter;
+        s.cancelar = tbncancelar;
+
+        // Selector de fecha: mismo aspecto plano que el resto de los campos.
+        javax.swing.JComponent editorFecha = calendar.getDateEditor().getUiComponent();
+        if (editorFecha instanceof javax.swing.JTextField) {
+            EstiloUI.campo((javax.swing.JTextField) editorFecha);
+        }
+        calendar.setBorder(null);
+        EstiloUI.botonSecundario(calendar.getCalendarButton());
+        calendar.getCalendarButton().setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 6, 0, 6));
+
+        // Tabla de resultados: la columna 2 (precio de compra) se mantiene oculta, como en el
+        // diseño original (allí quedaba con ancho 0). Se reaplica cada vez que cambia el modelo.
+        tablaproaux.getColumnModel().addColumnModelListener(new javax.swing.event.TableColumnModelListener() {
+            public void columnAdded(javax.swing.event.TableColumnModelEvent e) {
+                if (e.getToIndex() == 2 && tablaproaux.getColumnModel().getColumnCount() > 2) {
+                    javax.swing.table.TableColumn c = tablaproaux.getColumnModel().getColumn(2);
+                    c.setMinWidth(0);
+                    c.setMaxWidth(0);
+                    c.setPreferredWidth(0);
+                }
+            }
+            public void columnRemoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMarginChanged(javax.swing.event.ChangeEvent e) {
+            }
+            public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {
+            }
+        });
+        // Los encabezados se ven desde el principio (antes la tabla de resultados arrancaba sin columnas).
+        tablaproaux.setModel(new DefaultTableModel(new Object[][]{},
+                new String[]{"Cod", "Nombre", "P. Compra", "P. Venta", "Stock", "Marca"}) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        });
+        // Anchos del carrito: se reaplican cada vez que cambia el modelo (la descripción es la más ancha).
+        final int[] anchosCarrito = {72, 58, 68, 240, 84, 94, 94, 66};
+        tablaprodu.getColumnModel().addColumnModelListener(new javax.swing.event.TableColumnModelListener() {
+            public void columnAdded(javax.swing.event.TableColumnModelEvent e) {
+                int i = e.getToIndex();
+                if (i >= 0 && i < anchosCarrito.length && i < tablaprodu.getColumnModel().getColumnCount()) {
+                    tablaprodu.getColumnModel().getColumn(i).setPreferredWidth(anchosCarrito[i]);
+                }
+            }
+            public void columnRemoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMarginChanged(javax.swing.event.ChangeEvent e) {
+            }
+            public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {
+            }
+        });
+        for (int i = 0; i < anchosCarrito.length && i < tablaprodu.getColumnModel().getColumnCount(); i++) {
+            tablaprodu.getColumnModel().getColumn(i).setPreferredWidth(anchosCarrito[i]);
+        }
+
+        FormVentaUI.armar(s);
+        EstiloForm.barraMenu(menu);   // barra "Acciones" con el estilo plano
+    }
+
     venta(menu2 mimenu2, boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -158,7 +282,17 @@ public class venta extends JDialog implements KeyListener{
         }
     } 
 
+/** Medio con el que se cobra (el efectivo es el que suma al arqueo de la caja; tarjeta y transferencia se informan aparte). */
+private final javax.swing.JLabel lblMedioPago = new javax.swing.JLabel();
+private final javax.swing.JComboBox medioPago = new javax.swing.JComboBox(TurnoCaja.MEDIOS);
+
 void guardar(){
+    // toda venta queda ligada al turno de caja del usuario: si no tiene uno abierto, se le ofrece abrirlo
+    TurnoCaja.Turno turnoActual = TurnoCaja.requerir(this, usuarioactu);
+    if (turnoActual == null) {
+        return;
+    }
+    String medioElegido = String.valueOf(medioPago.getSelectedItem());
     DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
     System.out.println("Hora actual: " + dateFormat.format(date));
@@ -198,7 +332,7 @@ void guardar(){
                }
         }
         //VERIFICA SI ESTA SELECCIONADO EL CLIENTE
-        if(!codprov.getText().equals("")){
+        if(!stockjeje.getText().equals("")){
            //VERIFICA SI SE SELECCIONARON PRODUCTOS 
            if(tablaprodu.getRowCount()>0){
                String sql="", sql1="";
@@ -226,7 +360,7 @@ void guardar(){
                    //ACA SE CREA LA VENTA EN SI
                    conectar cc = new conectar();
                    Connection cn = cc.conexion();
-                   sql ="INSERT INTO venta(codventa, fecha, total, estado, fecha1, porc_ven, resto, descripcion, entregado, usuario_id, cliente_id, vendedor_id) VALUES ('"+codcompra.getText()+"','" +calendar.getDate()+ "','" +totalaux1.toString()+"','"+saldostring+"','" +calendar.getDate()+ "','"+saldocredito.toString()+"','0','"+factura1.getText()+"','"+dateFormat.format(date)+"','"+usuarioactu+"', '"+stockjeje.getText()+"', '"+v.toString()+"')";                                                                                                         
+                   sql ="INSERT INTO venta(codventa, fecha, total, estado, fecha1, porc_ven, resto, descripcion, entregado, usuario_id, cliente_id, vendedor_id, turno_id, medio_pago) VALUES ('"+codcompra.getText()+"','" +calendar.getDate()+ "','" +totalaux1.toString()+"','"+saldostring+"','" +calendar.getDate()+ "','"+saldocredito.toString()+"','0','"+factura1.getText()+"','"+dateFormat.format(date)+"','"+usuarioactu+"', '"+stockjeje.getText()+"', '"+v.toString()+"', '"+turnoActual.id+"', '"+medioElegido+"')";                                                                                                         
                    PreparedStatement st = cn.prepareStatement(sql);
                    if(st.executeUpdate()>0){
                         band1=0;
@@ -306,31 +440,15 @@ void guardar(){
                                     //st.executeUpdate();
                                     if(st.executeUpdate()>0){
                                         band2=0;
-                                        String sqlaux, sqlaux2;
-                                        Double stockaux=0.0, totalstock=0.0;
-                                        Double auxcanti=0.0;                        
-                                        sqlaux="SELECT * FROM producto where codprodu='"+codproaux+"'";                       
+                                        // Descuento atómico (lectura + escritura en una transacción, sin recortar a cero)
+                                        double cantidadvendida = 0.0;
                                         try{
-                                            cn.createStatement();
-                                            Statement st1 = cn.createStatement();
-                                            ResultSet rs = st1.executeQuery(sqlaux);                                                        
-                                            while(rs.next()){
-                                                stockaux= Double.parseDouble(rs.getString("stock"));   
-                                            }
-                                            System.out.print("Cantidad de Stock");
-                                            System.out.print(stockaux);
-                                            auxcanti = Double.parseDouble(canti);
-                                            if(stockaux<=0){
-                                                totalstock=0.0;
-                                                System.out.print("  EL STOCK SE VUELVE CERO   ");
-                                            }else{
-                                                totalstock = stockaux-auxcanti;
-                                            }                            
-                                            String sql2 ="UPDATE producto SET stock='"+totalstock.toString()+"' where codprodu='"+codproaux+"'";
-                                            PreparedStatement st2 = cn.prepareStatement(sql2);
-                                            st2.executeUpdate();
-                                        }catch(SQLException ex){   
-                                            JOptionPane.showMessageDialog(null, "DESCUENTO DE STOCK");
+                                            cantidadvendida = Double.parseDouble(canti.trim().replace(",", "."));
+                                        }catch(NumberFormatException exnum){
+                                            JOptionPane.showMessageDialog(null, "Cantidad inválida para el producto " + codproaux + ": no se descontó el stock.");
+                                        }
+                                        if(cantidadvendida != 0.0){
+                                            StockUtil.descontar(codproaux, cantidadvendida);
                                         }
                                    }else{
                                        band2=1;
@@ -344,26 +462,15 @@ void guardar(){
                                 PreparedStatement st = cn.prepareStatement(sql1);
                                     if(st.executeUpdate()>0){
                                         band2=0;
-                                        String sqlaux, sqlaux2;
-                                        Double stockaux=0.0, totalstock=0.0;
-                                        Double auxcanti=0.0;                        
-                                        sqlaux="SELECT * FROM producto where codprodu='"+codproaux+"'";                       
+                                        // Descuento atómico (lectura + escritura en una transacción, sin recortar a cero)
+                                        double cantidadvendida = 0.0;
                                         try{
-                                            cn.createStatement();
-                                            Statement st1 = cn.createStatement();
-                                            ResultSet rs = st1.executeQuery(sqlaux);                                                        
-                                            while(rs.next()){
-                                                stockaux= Double.parseDouble(rs.getString("stock"));   
-                                            }
-                                            System.out.print("Cantidad de Stock");
-                                            System.out.print(stockaux);
-                                            auxcanti = Double.parseDouble(canti);
-                                            totalstock = stockaux-auxcanti;                         
-                                            String sql2 ="UPDATE producto SET stock='"+totalstock.toString()+"' where codprodu='"+codproaux+"'";
-                                            PreparedStatement st2 = cn.prepareStatement(sql2);
-                                            st2.executeUpdate();
-                                        }catch(SQLException ex){   
-                                            JOptionPane.showMessageDialog(null, "PROBLEMAS EN DESCONTAR STOCK-CONTACTAR CON EL TECNICO");
+                                            cantidadvendida = Double.parseDouble(canti.trim().replace(",", "."));
+                                        }catch(NumberFormatException exnum){
+                                            JOptionPane.showMessageDialog(null, "Cantidad inválida para el producto " + codproaux + ": no se descontó el stock.");
+                                        }
+                                        if(cantidadvendida != 0.0){
+                                            StockUtil.descontar(codproaux, cantidadvendida);
                                         }
                                    }else{
                                        band2=1;
@@ -382,7 +489,7 @@ void guardar(){
                     try{
                             if(combovendedor.getSelectedItem().equals("Credito")){
                                     autonumerarextracto();
-                                    sql8 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','0','"+totalaux1.toString()+"','"+montosaldo+"','"+codcompra.getText()+"','"+usuarioactu+"','1','"+stockjeje.getText()+"','El Nro. de venta es "+codcompra.getText()+"','"+calendar.getDate()+"')";                                                        
+                                    sql8 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','0','"+totalaux1.toString()+"','"+montosaldo+"','"+codcompra.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+stockjeje.getText()+"','El Nro. de venta es "+codcompra.getText()+"','"+calendar.getDate()+"')";                                                        
                                     PreparedStatement st8= cn.prepareStatement(sql8);                             
                                     System.out.print(sql8);
                                     System.out.print(st8);     
@@ -397,7 +504,7 @@ void guardar(){
                                 System.out.print(montopago);
                                 if(montopago>0){
                                     System.out.print("     entra acaaaa    2   ");                                    
-                                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja,cliente) VALUES ('"+calendar.getDate()+ "','0','"+montopago+"','"+montosaldo+"','Pago entregado en el momento de la compra.','"+idpagoaux+"','"+usuarioactu+"','1','"+stockjeje.getText()+"')";                                                        
+                                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja,cliente, turno_id, medio_pago) VALUES ('"+calendar.getDate()+ "','0','"+montopago+"','"+montosaldo+"','Pago entregado en el momento de la compra.','"+idpagoaux+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+stockjeje.getText()+"','"+turnoActual.id+"','"+medioElegido+"')";                                                        
                                     PreparedStatement st6= cn.prepareStatement(sql5);                             
                                     System.out.print(sql5);
                                     System.out.print(st6);
@@ -406,7 +513,7 @@ void guardar(){
                                     //limpiar();                    
                                     if(st6.executeUpdate()>0){
                                         autonumerarextracto();
-                                        sql9 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','"+montopago+"','0','"+montosaldo+"','"+idpagoaux+"','"+usuarioactu+"','1','"+stockjeje.getText()+"','El pago Nro. es "+idpagoaux+"','"+calendar.getDate()+"')";                                                        
+                                        sql9 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','"+montopago+"','0','"+montosaldo+"','"+idpagoaux+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+stockjeje.getText()+"','El pago Nro. es "+idpagoaux+"','"+calendar.getDate()+"')";                                                        
                                         PreparedStatement st9= cn.prepareStatement(sql9);                             
                                         System.out.print(sql9);
                                         System.out.print(st9);     
@@ -427,6 +534,7 @@ void guardar(){
                         JOptionPane.showMessageDialog(null, "Excepcion al crear la venta "+ex);
                     }
                     JOptionPane.showMessageDialog(null, "Se creo exitosamente el registro.");
+                    medioPago.setSelectedIndex(0);
                     banderacredito=0;
                     tablaprodu.removeAll();
                     buscartxt2.requestFocus(); 
@@ -761,6 +869,57 @@ void cargardescrip(String valor){
         
     }
 
+    // ---- RUC editable: al dar Enter busca al cliente (o lo trae del padrón de la DNIT y lo registra) ----
+    private String rucActual = "";
+    private boolean buscandoRuc = false;
+
+    private void configurarRuc() {
+        codprov.setEditable(true);
+        codprov.setToolTipText("Escriba el RUC del cliente y presione Enter para buscarlo");
+        codprov.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (!e.isTemporary()) {
+                    buscarClientePorRuc(false);
+                }
+            }
+        });
+    }
+
+    private void buscarClientePorRuc(boolean desdeEnter) {
+        if (buscandoRuc) {
+            return;
+        }
+        String t = codprov.getText().trim();
+        if (t.equals(rucActual)) {
+            if (desdeEnter) {
+                buscartxt2.requestFocus();
+            }
+            return;
+        }
+        if (t.length() == 0) {
+            codprov.setText(rucActual);
+            return;
+        }
+        buscandoRuc = true;
+        try {
+            ClienteRuc.Cliente c = ClienteRuc.resolver(this, t);
+            if (c == null) {
+                codprov.setText(rucActual);
+                if (desdeEnter) {
+                    codprov.selectAll();
+                    codprov.requestFocus();
+                }
+                return;
+            }
+            cargarprov(c.id);
+            if (desdeEnter) {
+                buscartxt2.requestFocus();
+            }
+        } finally {
+            buscandoRuc = false;
+        }
+    }
+
 void cargarprov(String valor){
         String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
         String [] registros = new String[6];
@@ -779,7 +938,8 @@ void cargarprov(String valor){
                     registros[2] = rs.getString("ci");
                     registros[3] = rs.getString("direccion");        
                     registros[4] = rs.getString("ruc");  
-                    codprov.setText(rs.getString("id"));
+                    codprov.setText(rs.getString("ruc") == null ? "" : rs.getString("ruc").trim());
+                    rucActual = codprov.getText();
                     nombreprov.setText(rs.getString("nombre")+(" ")+rs.getString("apellido"));
                     tipocliente=rs.getString("sexo");
                     //ruc.setText(rs.getString("ruc"));
@@ -796,7 +956,7 @@ void cargarprov(String valor){
 void abrircliente(){
     buscarcli2 p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarcli2(mimenu, true);
         p.setVisible(true);        
         if(p.codid!=null){
@@ -810,7 +970,7 @@ void abrircliente(){
 void abrirproducto(){
     buscarprodu p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu(mimenu, true);
         p.setVisible(true);        
         String codigoaux="", nomproduaux="", unidadaux="", stockaux="";
@@ -895,7 +1055,7 @@ void abrirproducto(){
 void agregarcliente(){
     cargarcli2 p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new cargarcli2(mimenu, true, 0, "");
         p.setVisible(true);        
         if(p.codid!=null){
@@ -2499,7 +2659,7 @@ void btnagregar(){
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        idcosto=p.idcosto;
@@ -2529,7 +2689,7 @@ void btnagregar(){
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);                      
                                 idcosto=p.idcosto;
@@ -2559,7 +2719,7 @@ void btnagregar(){
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);     
                                 tipoproducto="A GRANEL";
@@ -2842,7 +3002,7 @@ void btnagregar(){
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        idcosto=p.idcosto;
@@ -2872,7 +3032,7 @@ void btnagregar(){
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);                      
                                 idcosto=p.idcosto;
@@ -2902,7 +3062,7 @@ void btnagregar(){
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);     
                                 tipoproducto="A GRANEL";
@@ -3140,7 +3300,7 @@ void btnagregar(){
                 
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         String rutaimagen;
@@ -3290,7 +3450,7 @@ void btnagregar(){
     private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         try {
@@ -3627,7 +3787,7 @@ void btnagregar(){
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         try {
@@ -3683,7 +3843,7 @@ void btnagregar(){
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         String rutaimagen;
@@ -3838,7 +3998,7 @@ void btnagregar(){
     }//GEN-LAST:event_codcompraActionPerformed
 
     private void codprovActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codprovActionPerformed
-        // TODO add your handling code here:
+        buscarClientePorRuc(true);
     }//GEN-LAST:event_codprovActionPerformed
 
     private void combovendedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combovendedorActionPerformed
@@ -3848,7 +4008,7 @@ void btnagregar(){
     private void seleccionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_seleccionarActionPerformed
         buscarprodu p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu(mimenu, true);
         p.setVisible(true);        
         String codigoaux="", nomproduaux="", unidadaux="", stockaux="";
@@ -4188,7 +4348,7 @@ void btnagregar(){
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux = 0;
         Double piva5 = 0.0, piva10 = 0.0, ptiva = 0.0;

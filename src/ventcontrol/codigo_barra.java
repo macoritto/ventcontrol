@@ -261,7 +261,7 @@ public class codigo_barra extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                codigo_barra dialog = new codigo_barra(new javax.swing.JFrame(), true);
+                final codigo_barra dialog = new codigo_barra(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 // Forzamos un repintado apenas la ventana termina de abrirse: en algunos
@@ -270,7 +270,7 @@ public class codigo_barra extends javax.swing.JDialog {
                 // adicional, y esto evita depender de que el usuario pase el mouse encima.
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        getContentPane().repaint();
+                        dialog.getContentPane().repaint();
                     }
                 });
             }

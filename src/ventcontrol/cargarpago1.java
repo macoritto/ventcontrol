@@ -38,9 +38,11 @@ import javax.swing.table.DefaultTableModel;
     String nroventas, montoventas, montosaldo;
     Integer codigocliente;
     Integer usuarioactu, idextracto, deuda;
+    private javax.swing.JComboBox medioPago = new javax.swing.JComboBox(TurnoCaja.MEDIOS);
     public cargarpago1(menu menuprincipal, boolean modal, Integer band, Integer usuario) {
         super(menuprincipal, modal);
         initComponents();
+        agregarMedioPago();
         this.setLocationRelativeTo(null);
         cod.setEnabled(false);
         usuarioactu=usuario;
@@ -51,6 +53,15 @@ import javax.swing.table.DefaultTableModel;
         descrip.setDocument(new solomayusculas());
         this.setTitle("Nuevo Pago.");
         //btnventas.setEnabled(false);
+    }
+    /** Medio con el que paga el cliente (el efectivo es el que suma al arqueo de la caja). */
+    private void agregarMedioPago(){
+        javax.swing.JLabel lbl = new javax.swing.JLabel("MEDIO DE PAGO:");
+        lbl.setFont(new java.awt.Font("Khmer UI", 1, 12));
+        lbl.setForeground(new java.awt.Color(240, 240, 240));
+        medioPago.setFont(new java.awt.Font("Khmer UI", 1, 12));
+        getContentPane().add(lbl, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 165, 130, 20), 0);
+        getContentPane().add(medioPago, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 190, 130, 30), 0);
     }
     private void autonumerar(){
             String sql="SELECT coalesce (max(idpago+1),1) as newid from pago";
@@ -329,6 +340,10 @@ import javax.swing.table.DefaultTableModel;
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
+        TurnoCaja.Turno turnoActual = TurnoCaja.requerir(this, usuarioactu);
+        if (turnoActual == null) {
+            return;
+        }
         //ban = p.pasar(ban);
         System.out.print("valor bandera");
         System.out.print(ban);
@@ -357,7 +372,7 @@ import javax.swing.table.DefaultTableModel;
         if(auxsaldo>0 && !compa1.equals("")){
         try{          
                     System.out.print("     entra acaaaa    2   ");                                    
-                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja, cliente) VALUES ('"+calendar.getDate()+ "','0','"+aux+"','"+auxsaldo+"','"+descrip.getText()+"','"+cod.getText()+"','"+usuarioactu+"','1','"+codigocliente+"')";                                                        
+                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja, cliente, turno_id, medio_pago) VALUES ('"+calendar.getDate()+ "','0','"+aux+"','"+auxsaldo+"','"+descrip.getText()+"','"+cod.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+codigocliente+"','"+turnoActual.id+"','"+medioPago.getSelectedItem()+"')";                                                        
                     PreparedStatement st6= cn.prepareStatement(sql5);                             
                     System.out.print(sql5);
                     System.out.print(st6);
@@ -366,7 +381,7 @@ import javax.swing.table.DefaultTableModel;
                     //limpiar();                    
                     if(st6.executeUpdate()>0){
                         autonumerarextracto();
-                        sql9 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','"+aux+"','0','"+auxsaldo+"','"+cod.getText()+"','"+usuarioactu+"','1','"+codigocliente+"','"+descrip.getText()+"','"+calendar.getDate()+"')";                                                        
+                        sql9 ="INSERT INTO extracto (id_extracto, activo, pasivo, saldo, idaux, usuario, caja, cliente, desripcion, fecha) VALUES ('"+idextracto+ "','"+aux+"','0','"+auxsaldo+"','"+cod.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+codigocliente+"','"+descrip.getText()+"','"+calendar.getDate()+"')";                                                        
                         PreparedStatement st9= cn.prepareStatement(sql9);                             
                         System.out.print(sql9);
                         System.out.print(st9);     

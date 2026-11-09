@@ -52,12 +52,17 @@ public class updatecompra extends JDialog implements KeyListener{
     DefaultTableModel modelodetcompra = new DefaultTableModel();
     Date fechaini1, fechafin1;
     Integer usuarioactu;
+    // Controles que el diseño moderno agrega (no existían en el formulario original)
+    private final javax.swing.JTextField precio = new javax.swing.JTextField();
+    private final javax.swing.JLabel capPrecio = new javax.swing.JLabel();
+    private final javax.swing.JButton seleccionar = new javax.swing.JButton();
 //    DefaultTableModel modelprov = new DefaultTableModel(){
 //        public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
 //    };
     public updatecompra(menu menuprincipal, boolean modal, String codigo1, String codigo, Date fechaini, Date fechafin, Integer usuactu) {
         super(menuprincipal, modal);
-        initComponents();                
+        initComponents();
+        disenoModerno();
         //autonumerar();
         usuarioactu=usuactu;
         usuario();
@@ -74,7 +79,190 @@ public class updatecompra extends JDialog implements KeyListener{
         //calendar.setDate(myDate);
         //compra.addKeyListener();
         //cargarproducto("");
-    }    
+    }
+
+    // ---------------------------------------------------------------------------------------
+    //  Diseño moderno (mismo que Compras / Ventas, ver FormVentaUI)
+    // ---------------------------------------------------------------------------------------
+    /** Anchos del carrito: Coddet (oculta), Cantidad, Unidad, Cod, Descripción, P. Unitario, Subtotal. */
+    private static final int[] ANCHOS_CARRITO = {0, 72, 70, 70, 300, 110, 120};
+
+    private void ajustarCarrito() {
+        int n = tablaprodu.getColumnModel().getColumnCount();
+        for (int i = 0; i < ANCHOS_CARRITO.length && i < n; i++) {
+            tablaprodu.getColumnModel().getColumn(i).setPreferredWidth(ANCHOS_CARRITO[i]);
+        }
+        if (n > 0) {
+            // la primera columna es el id interno del detalle: no se muestra
+            javax.swing.table.TableColumn c = tablaprodu.getColumnModel().getColumn(0);
+            c.setMinWidth(0);
+            c.setMaxWidth(0);
+            c.setPreferredWidth(0);
+        }
+    }
+
+    private void disenoModerno() {
+        FormVentaUI.Spec s = new FormVentaUI.Spec();
+        s.dlg = this;
+        s.tituloVentana = "MODIFICAR COMPRA";
+        s.textoNro = "NRO. COMPRA";
+        s.textoGuardar = "Guardar cambios (F1)";
+        s.textoTicket = "Imprimir";
+        s.tituloResumen = "RESUMEN DE LA COMPRA";
+        s.tituloDetalle = "DETALLE DE LA COMPRA";
+        s.textoTotal = "TOTAL DE LA COMPRA";
+        s.tituloCliente = "PROVEEDOR";
+        s.textoElegir = "Elegir (F2)";
+        s.textoBuscar = "Buscar";
+        s.textoRuc = "CÓD. PROVEEDOR";
+        s.textoPago = "NRO. FACTURA";
+        s.textoPrecio = "COSTO UNIT.";
+        s.textoCodigo = "CÓDIGO / BARRAS";
+        s.derechaResultados = new int[]{2, 3};
+        s.derechaCarrito = new int[]{1, 5, 6};
+        s.titulo = jLabel2;
+        s.capNro = jLabel12;
+        s.nro = codcompra;
+        s.capUsuario = jLabel18;
+        s.usuario = nom;
+        s.capCodigo = jLabel5;
+        s.codigo = buscartxt2;
+        s.capDescripcion = jLabel6;
+        s.descripcion = buscartxt;
+        s.buscar = seleccionar;
+        s.resultados = jScrollPane1;
+        s.tablaResultados = tablaproaux;
+        s.capProducto = jLabel3;
+        s.producto = descrippro;
+        s.capPrecio = capPrecio;
+        s.precio = precio;
+        s.capCant = jLabel8;
+        s.cant = cant;
+        s.capMonto = jLabel7;
+        s.monto = monto;
+        s.agregar = nuevo1;
+        s.carrito = jScrollPane2;
+        s.tablaCarrito = tablaprodu;
+        s.quitar = quitar;
+        s.modificar = modificar;
+        s.capCliente = jLabel9;
+        s.elegirCliente = nuevo;
+        s.capNombre = jLabel11;
+        s.nombre = nombreprov;
+        s.capRuc = jLabel14;
+        s.ruc = codprov;
+        s.capPago = jLabel10;
+        s.pagoTexto = factura;
+        s.capFecha = jLabel13;
+        s.fecha = calendar;
+        s.capObs = jLabel15;
+        s.obs = factura1;
+        s.capTotal = jLabel1;
+        s.total = total;
+        s.guardar = btnguardar;
+        s.ticket = btnprinter;
+        s.cancelar = modificarcompra;   // "Editar compra": desbloquea la compra para editarla
+
+        // El costo unitario se puede corregir al momento de comprar (el proveedor puede haberlo cambiado).
+        precio.setEditable(true);
+        precio.setEnabled(false);
+        precio.setText("0");
+        precio.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                boolean control = c < ' ' || c == 127;
+                if (!control && !Character.isDigit(c)) {
+                    e.consume();
+                    getToolkit().beep();
+                } else if (!control && precio.getSelectedText() == null && soloDigitos(precio.getText()).length() >= 9) {
+                    e.consume();
+                }
+            }
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    e.consume();
+                    recalcularMonto();
+                    cant.selectAll();
+                    cant.requestFocus();
+                }
+            }
+            public void keyReleased(KeyEvent e) {
+                recalcularMonto();
+            }
+        });
+        precio.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent e) {
+                precio.selectAll();
+            }
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (preciopro != null) {
+                    precio.setText(new DecimalFormat("###,###").format(preciopro));
+                }
+            }
+        });
+        seleccionar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cargardescrip(buscartxt.getText());
+                if (tablaproaux.getRowCount() > 0) {
+                    tablaproaux.requestFocus();
+                }
+            }
+        });
+
+        // Selector de fecha: mismo aspecto plano que el resto de los campos.
+        javax.swing.JComponent editorFecha = calendar.getDateEditor().getUiComponent();
+        if (editorFecha instanceof javax.swing.JTextField) {
+            EstiloUI.campo((javax.swing.JTextField) editorFecha);
+        }
+        calendar.setBorder(null);
+        EstiloUI.botonSecundario(calendar.getCalendarButton());
+        calendar.getCalendarButton().setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 6, 0, 6));
+
+        tablaproaux.setModel(new DefaultTableModel(new Object[][]{},
+                new String[]{"Cod", "Nombre", "P. Costo", "Stock", "Unidad"}) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        });
+        tablaprodu.setModel(new DefaultTableModel(new Object[][]{},
+                new String[]{"Coddet", "Cantidad", "Unidad", "Cod", "Descripcion del Producto", "P. Unitario", "Subtotal"}) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        });
+        // El carrito reaplica anchos (y oculta la columna del id) cada vez que cambia el modelo.
+        tablaprodu.getColumnModel().addColumnModelListener(new javax.swing.event.TableColumnModelListener() {
+            public void columnAdded(javax.swing.event.TableColumnModelEvent e) {
+                if (e.getToIndex() == ANCHOS_CARRITO.length - 1) {
+                    ajustarCarrito();
+                }
+            }
+            public void columnRemoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMarginChanged(javax.swing.event.ChangeEvent e) {
+            }
+            public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {
+            }
+        });
+        ajustarCarrito();
+
+        FormVentaUI.armar(s);
+        EstiloForm.barraMenu(menu);
+
+        // textos propios de esta pantalla
+        modificarcompra.setText("Editar compra");
+        FormVentaUI.ico(modificarcompra, EstiloUI.ICONO_LAPIZ, EstiloUI.AZUL);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                // la compra abre bloqueada: el foco inicial va a "Editar compra"
+                modificarcompra.requestFocusInWindow();
+            }
+        });
+    }
     private void usuario(){
             String sql ="SELECT * FROM usuario WHERE id='"+usuarioactu+"'";
             System.out.print(" el usuario es ");
@@ -93,6 +281,8 @@ public class updatecompra extends JDialog implements KeyListener{
         }
     } 
     void bloquear(){
+        seleccionar.setEnabled(false);
+        precio.setEnabled(false);
         //total.setText("0");
         btnprinter.setEnabled(true);
         modificarcompra.setEnabled(true);
@@ -113,6 +303,7 @@ public class updatecompra extends JDialog implements KeyListener{
         //factura1.setEnabled(false);
     }   
     void desbloquear(){
+        seleccionar.setEnabled(true);
         //total.setText("0");
         btnprinter.setEnabled(false);
         modificarcompra.setEnabled(false);
@@ -202,11 +393,19 @@ void cargarcompra(String valor, String valor1){
                     date1 = rs1.getString("fecha");
                     System.out.print("     fecha de la base");
                     System.out.print(date1);
-                    try {                    
-                        fechaaux = formatter.parse(date1);
-                        calendar.setDate(fechaaux);
-                    } catch (ParseException ex) {
-			ex.printStackTrace();
+                    // La fecha se guarda como Date.toString() ("Sat Nov 07 23:18:51 UTC 2026"); también se
+                    // aceptan fechas "yyyy-M-d". Si no se entiende, se conserva la fecha por defecto.
+                    Date fechaLeida = null;
+                    String[] formatos = {"EEE MMM dd HH:mm:ss zzz yyyy", "yyyy-M-d"};
+                    for(int fi = 0; fi < formatos.length && fechaLeida == null; fi++){
+                        try {
+                            fechaLeida = new SimpleDateFormat(formatos[fi], Locale.ENGLISH).parse(date1);
+                        } catch (ParseException ex) {
+                            fechaLeida = null;
+                        }
+                    }
+                    if(fechaLeida != null){
+                        calendar.setDate(fechaLeida);
                     }
                     factura.setText(rs1.getString("nrofactura"));
                     factura1.setText(rs1.getString("descripcion"));
@@ -224,83 +423,43 @@ void cargarcompra(String valor, String valor1){
         }        
     }
 void cargardescrip(String valor){
-        String [] titulos ={"Cod","Nombre","P. Costo", "Stock","Unidad"};
-        String [] registros = new String[5];
-        String sql, sql1, sql2;
-        if(valor.equals("")){
-            tablaproaux.removeAll();
-            sql="SELECT * FROM producto where codprodu='9999999'";
-            System.out.print("entra en el simple");
-                    try{
-                        conectar cc = new conectar();
-                        Connection cn = cc.conexion(); 
-                        Statement st = cn.createStatement();
-                        ResultSet rs = st.executeQuery(sql);
-                        System.out.print(sql);
-                        while(rs.next()){
-                            registros[0] = rs.getString("codprodu");
-                            registros[1] = rs.getString("nomprodu");
-                            registros[2] = rs.getString("costo");
-                            //registros[3] = rs.getString("venta");        
-                            registros[3] = rs.getString("stock");   
-                            //registros[4] = rs.getString("unidad_medida");     
-                            sql2="SELECT * FROM marca where id_marca='"+rs.getString("marca")+"'";
-                            System.out.print(sql2);
-                            st = cn.createStatement();
-                            ResultSet bs = st.executeQuery(sql2);
-                            while(bs.next()){
-                                registros[4] = bs.getString("nombre");                       
-                            }
-                            model.addRow(registros);                                                                 
-                            //JTableHeader header = tablausu.getTableHeader();
-
-                            //header.setForeground(Color.yellow);
-                        }                
-                        tablaproaux.setModel(model);   
-                        model.fireTableDataChanged();                                
-                }catch(SQLException ex){
-                                JOptionPane.showMessageDialog(null, "");
-                }                                
-        }else{
-            sql="SELECT * FROM producto where nomprodu LIKE '%"+valor+"%' ORDER BY codprodu";
-            System.out.print("entra en el segundo");
-            model = new DefaultTableModel (null, titulos){
-                public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-            };        
+    String [] titulos ={"Cod","Nombre","P. Costo", "Stock","Unidad"};
+    DefaultTableModel m = new DefaultTableModel (null, titulos){
+        public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
+    };
+    valor = valor == null ? "" : valor.trim();
+    if(!valor.isEmpty()){
+        Connection cn = null;
         try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
+            cn = new conectar().conexion();
+            if(cn != null){
+                PreparedStatement ps = cn.prepareStatement("SELECT codprodu, nomprodu, costo, stock, unidad_medida FROM producto WHERE UPPER(nomprodu) LIKE UPPER(?) AND CAST(codprodu AS TEXT)<>'10000' ORDER BY nomprodu");
+                ps.setString(1, "%" + valor + "%");
+                ResultSet rs = ps.executeQuery();
                 while(rs.next()){
-                    registros[0] = rs.getString("codprodu");
-                    registros[1] = rs.getString("nomprodu");
-                    registros[2] = rs.getString("costo");
-                    //registros[3] = rs.getString("venta");        
-                    registros[3] = rs.getString("stock");   
-                    registros[4] = rs.getString("unidad_medida");     
-//                    sql1="SELECT * FROM tipo where id='"+rs.getString("tipo_id")+"'";
-//                    System.out.print(sql1);
-//                    st = cn.createStatement();
-//                    ResultSet as = st.executeQuery(sql1);
-//                    while(as.next()){
-//                        registros[6] = as.getString("nombre");                       
-//                    }
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
-                }                
-                tablaproaux.setModel(model);   
-                model.fireTableDataChanged();
-                cn.close();
+                    m.addRow(new String[]{rs.getString("codprodu"), rs.getString("nomprodu"), formatoCosto(rs.getString("costo")), rs.getString("stock"), rs.getString("unidad_medida")});
+                }
+                rs.close();
+                ps.close();
+            }
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        }        
-        }                
-        
+            JOptionPane.showMessageDialog(this, "No se pudo buscar los productos:\n" + ex.getMessage());
+        }finally{
+            try{
+                if(cn != null){
+                    cn.close();
+                }
+            }catch(SQLException ignorar){
+            }
+        }
     }
+    model = m;
+    tablaproaux.setModel(m);
+    int[] anchos = {60, 300, 90, 80, 100};
+    for(int i = 0; i < anchos.length && i < tablaproaux.getColumnModel().getColumnCount(); i++){
+        tablaproaux.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+    }
+}
 void cargarprov(String valor){
         String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
         String [] registros = new String[6];
@@ -331,56 +490,87 @@ void cargarprov(String valor){
                         JOptionPane.showMessageDialog(null, "");
         } 
     }
-void cargarproducto(String valor){
-        String [] titulos ={"Cod","Nombre","P. Costo", "Stock","Unidad"};
-        String [] registros = new String[5];
-        String sql, sql1, sql2;
-        if(valor.equals("")){
-            tablaproaux.removeAll();
-        }else{
-            sql="SELECT * FROM producto where codprodu='"+valor+"' ORDER BY codprodu";
-            System.out.print("entra en el segundo");
-            model = new DefaultTableModel (null, titulos){
-                public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-            };        
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                while(rs.next()){
-                    registros[0] = rs.getString("codprodu");
-                    registros[1] = rs.getString("nomprodu");
-                    registros[2] = formateador.format(Integer.parseInt(rs.getString("costo")));      
-                    //registros[3] = rs.getString("venta");        
-                    registros[3] = rs.getString("stock");   
-                    sql2="SELECT * FROM marca where id_marca='"+rs.getString("marca")+"'";
-                    System.out.print(sql2);
-                    st = cn.createStatement();
-                    ResultSet bs = st.executeQuery(sql2);
-                    while(bs.next()){
-                        registros[4] = bs.getString("nombre");                       
-                    }
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
-                }                
-                tablaproaux.setModel(model);   
-                model.fireTableDataChanged();           
-                cn.close();
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        }        
-        }                
-        
+/** Busca por código de producto o por código de barras (estante) y lo deja elegido. */
+void buscarPorCodigo(String valor){
+    valor = valor == null ? "" : valor.trim();
+    if(valor.isEmpty()){
+        return;
     }
+    Connection cn = null;
+    try{
+        cn = new conectar().conexion();
+        if(cn == null){
+            return;
+        }
+        PreparedStatement ps = cn.prepareStatement("SELECT codprodu, nomprodu, costo, stock, unidad_medida FROM producto WHERE (CAST(codprodu AS TEXT)=? OR CAST(estante AS TEXT)=?) AND CAST(codprodu AS TEXT)<>'10000' ORDER BY codprodu");
+        ps.setString(1, valor);
+        ps.setString(2, valor);
+        ResultSet rs = ps.executeQuery();
+        if(rs.next()){
+            elegirProducto(rs.getString("codprodu"), rs.getString("nomprodu"), rs.getString("unidad_medida"), formatoCosto(rs.getString("costo")), rs.getString("stock"));
+            buscartxt2.setText("");
+        }else{
+            JOptionPane.showMessageDialog(this, "No se encontró ningún producto con el código " + valor + ".");
+            buscartxt2.selectAll();
+            buscartxt2.requestFocus();
+        }
+        rs.close();
+        ps.close();
+    }catch(SQLException ex){
+        JOptionPane.showMessageDialog(this, "No se pudo buscar el producto:\n" + ex.getMessage());
+    }finally{
+        try{
+            if(cn != null){
+                cn.close();
+            }
+        }catch(SQLException ignorar){
+        }
+    }
+}
+/** Costo tal como se muestra en la grilla de resultados (con separador de miles). */
+private static String formatoCosto(String raw){
+    try{
+        return new DecimalFormat("###,###").format(new java.math.BigDecimal(raw.trim()).intValue());
+    }catch(Exception e){
+        return "0";
+    }
+}
+/**
+ * Deja el producto elegido listo para agregar al detalle: muestra su costo, pone cantidad 1 y activa
+ * "Agregar". Lo usan todos los caminos (doble clic, Enter y código de barras).
+ */
+void elegirProducto(String codigo, String descripcion, String unid, String costoTxt, String stockTxt){
+    DecimalFormat formateador = new DecimalFormat("###,###");
+    int costo = 0;
+    try{
+        costo = formateador.parse(costoTxt == null ? "0" : costoTxt.trim()).intValue();
+    }catch(ParseException e){
+        costo = 0;
+    }
+    cod = codigo;
+    descrip = descripcion;
+    unidad = unid == null ? "" : unid;
+    preuni = Integer.toString(costo);
+    preciopro = costo;
+    precio.setText(formateador.format(costo));
+    precio.setEnabled(true);
+    descrippro.setText(descripcion);
+    stock.setText(stockTxt == null ? "0" : stockTxt);
+    cant.setText("1");
+    monto.setText(formateador.format(costo));
+    cant.selectAll();
+    cant.requestFocus();
+    nuevo1.setEnabled(true);
+}
+/** La ventana principal (dueña de este diálogo); solo crea una nueva si por algún motivo no hay. */
+private menu menuPadre(){
+    java.awt.Window w = getOwner();
+    return (w instanceof menu) ? (menu) w : new menu(usuarioactu);
+}
 void abrirprov(){
     buscaprov p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = menuPadre();
         p = new buscaprov(mimenu, true);
         p.setVisible(true);        
         if(p.codid!=null){
@@ -420,79 +610,105 @@ private void autonumerardet(){
         
         }
     }
-void btnagregar(){
-    System.out.print("       ERROR EN AGREGAR    ");
-    DefaultTableModel modelprov = (DefaultTableModel) tablaprodu.getModel();
-    Integer ban=0, codaux, codaux1;
-    codaux1 = Integer.parseInt(this.cod);
-    System.out.print("Codigo seleccionado");
-    System.out.print(codaux1);
-    System.out.print("Cantidad de Rows");
-    System.out.print(tablaprodu.getRowCount());
-    String aux;
-    DecimalFormat formateador = new DecimalFormat("###,###");
-    if(tablaprodu.getRowCount()==0){
-        ban=0;
-        modificarcompra.setEnabled(true);
-    }else{    
-            for(int i=0; i<tablaprodu.getRowCount(); i++){
-                    aux=tablaprodu.getValueAt(i, 3).toString();
-                    codaux = Integer.parseInt(aux);         
-                    System.out.print("      codigo de Rows    ");
-                    System.out.print(codaux);
-                if(codaux1==codaux){
-                    ban=1;
-                }       
-            }
-            
+private static String soloDigitos(String t){
+    return t == null ? "" : t.replaceAll("[^0-9]", "");
+}
+
+/** Toma el costo escrito en el campo "COSTO UNIT." y recalcula el monto de la línea. */
+private void recalcularMonto(){
+    if(cod == null){
+        return;
     }
-    if(ban==0){
-            String [] titulos3 ={"Coddet","Cantidad","Unidad","Cod","Descripcion del Producto","P. Unitario", "Subtotal"};
-            String [] registros3 = new String[7];
-            //modelprov = new DefaultTableModel (null, titulos); 
-            autonumerardet();
-            registros3[0] = this.detcod.toString();
-            registros3[1] = cant.getText();
-            registros3[2] = unidad;
-            registros3[3] = this.cod;
-            registros3[4] = descrip;
-            registros3[5] = formateador.format(Integer.parseInt(preuni));
-            registros3[6] = monto.getText();
-            modelprov.addRow(registros3);
-            //tablaprodu.setModel(modelprov);
-            model.fireTableDataChanged(); 
-            Integer aux1=0, aux2=0, cal;
-            try{
-                Number montonum = formateador.parse(monto.getText());                
-                aux1 = montonum.intValue();
-                Number montonum1 = formateador.parse(total.getText());   
-                aux2 = montonum1.intValue();
-                cal = aux1+aux2;
-                total.setText(formateador.format(cal));
-            }catch (ParseException e){
-        
-            }
-            //cal = aux1+aux2;
-            //total.setText(cal.toString());
-            buscartxt2.setText("");
-            buscartxt2.requestFocus();
-            cant.setText("0");
-            monto.setText("0");
-            descrippro.setText("");
-            stock.setText("0");
-            DefaultTableModel modelo = new DefaultTableModel(){
-                public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
-            }; 
-            tablaproaux.setModel(modelo);
-            nuevo1.setEnabled(false);
-    }else{
-        if(ban==1){
-            JOptionPane.showMessageDialog(null, "El producto ya se encuentra seleccionado.");
-            buscartxt2.requestFocus();
-            buscartxt2.setText("");
+    String d = soloDigitos(precio.getText());
+    int costo = 0;
+    try{
+        costo = d.isEmpty() ? 0 : Integer.parseInt(d);
+    }catch(NumberFormatException e){
+        costo = 0;
+    }
+    preciopro = costo;
+    preuni = Integer.toString(costo);
+    double cantaux = 0.0;
+    try{
+        cantaux = Double.parseDouble(cant.getText().trim().replace(',', '.'));
+    }catch(NumberFormatException e){
+        cantaux = 0.0;
+    }
+    DecimalFormat formateador = new DecimalFormat("###,###");
+    monto.setText(cantaux > 0.0 ? formateador.format(Math.round(cantaux * costo)) : "0");
+}
+
+/** Duplica las comillas simples para armar SQL con textos como D'AGOSTINI. */
+private static String q(String t){
+    return t == null ? "" : t.replace("'", "''");
+}
+
+void btnagregar(){
+    if(cod == null || cod.trim().isEmpty() || preciopro == null){
+        JOptionPane.showMessageDialog(this, "Seleccione un producto de la lista.");
+        buscartxt.requestFocus();
+        return;
+    }
+    recalcularMonto();
+    if(preciopro <= 0){
+        JOptionPane.showMessageDialog(this, "Ingrese el costo unitario del producto.");
+        precio.selectAll();
+        precio.requestFocus();
+        return;
+    }
+    double cantidad = 0.0;
+    try{
+        cantidad = Double.parseDouble(cant.getText().trim().replace(',', '.'));
+    }catch(NumberFormatException e){
+        cantidad = 0.0;
+    }
+    if(cantidad <= 0.0){
+        JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a cero.");
+        cant.selectAll();
+        cant.requestFocus();
+        return;
+    }
+    DefaultTableModel modelprov = (DefaultTableModel) tablaprodu.getModel();
+    for(int i=0; i<modelprov.getRowCount(); i++){
+        if(cod.equals(String.valueOf(modelprov.getValueAt(i, 3)))){
+            JOptionPane.showMessageDialog(this, "El producto ya se encuentra seleccionado.");
+            buscartxt.requestFocus();
+            return;
         }
     }
+    DecimalFormat formateador = new DecimalFormat("###,###");
+    long subtotal = Math.round(cantidad * preciopro);
+    autonumerardet();
+    modelprov.addRow(new String[]{this.detcod.toString(), cant.getText().trim(), unidad, cod, descrip, formateador.format(preciopro), formateador.format(subtotal)});
+    long totalActual = 0;
+    try{
+        totalActual = formateador.parse(total.getText()).longValue();
+    }catch(ParseException e){
+        totalActual = 0;
+    }
+    total.setText(formateador.format(totalActual + subtotal));
+    modificarcompra.setEnabled(true);
+    limpiarSeleccion();
+    buscartxt.setText("");
+    cargardescrip("");
+    buscartxt.requestFocus();
 }
+
+/** Vacía los campos del producto elegido (después de agregarlo al detalle). */
+private void limpiarSeleccion(){
+    cod = null;
+    preciopro = null;
+    preuni = null;
+    buscartxt2.setText("");
+    cant.setText("0");
+    monto.setText("0");
+    precio.setText("0");
+    precio.setEnabled(false);
+    descrippro.setText("");
+    stock.setText("0");
+    nuevo1.setEnabled(false);
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1032,69 +1248,26 @@ void btnagregar(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void tablaproauxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaproauxMouseClicked
-//        view.setEnabled(true);
-//        delete.setEnabled(true);
         if(evt.getClickCount()==2){
-            System.out.println("HOLAP");  
-            int FilaSelec = tablaproaux.getSelectedRow();
-            System.out.print(FilaSelec);
-            String codigo;
-            codigo= tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            cod =tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            descrip = tablaproaux.getValueAt(FilaSelec, 1).toString();  
-            unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();
-            try{
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                preuni= tablaproaux.getValueAt(FilaSelec, 2).toString();
-                System.out.println("       PRIMER VALOORR     ");  
-                System.out.println(preuni);
-                Number aux = formateador.parse(preuni);
-                Integer aux1=aux.intValue();
-                preuni = aux1.toString();
-                System.out.println("       SEGUNDO VALOORR     ");  
-                System.out.println(preuni);
-                String montoq;
-                montoq = preuni;
-                this.preciopro= Integer.parseInt(montoq);
-                monto.setText(formateador.format(Integer.parseInt(montoq)));
-            }catch (ParseException e){
-        
-            }
-            descrippro.setText(tablaproaux.getValueAt(FilaSelec, 1).toString());
-            stock.setText(tablaproaux.getValueAt(FilaSelec, 3).toString());
-            cant.setText("1");
-            
-            cant.selectAll();
-            cant.requestFocus();
-            nuevo1.setEnabled(true);
+            elegirFilaResultados();
         }
     }//GEN-LAST:event_tablaproauxMouseClicked
+
+    /** Toma la fila marcada en los resultados y la deja lista para agregar. */
+    private void elegirFilaResultados(){
+        int fila = tablaproaux.getSelectedRow();
+        if(fila < 0){
+            return;
+        }
+        elegirProducto(String.valueOf(tablaproaux.getValueAt(fila, 0)), String.valueOf(tablaproaux.getValueAt(fila, 1)),
+                String.valueOf(tablaproaux.getValueAt(fila, 4)), String.valueOf(tablaproaux.getValueAt(fila, 2)),
+                String.valueOf(tablaproaux.getValueAt(fila, 3)));
+    }
 
     private void tablaproduMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaproduMouseClicked
         if(bandera==1){
             quitar.setEnabled(true);
-            modificar.setEnabled(true);        
-        }
-        if(evt.getClickCount()==2){
-            System.out.println("HOLAP");  
-            int FilaSelec = tablaproaux.getSelectedRow();
-            System.out.print(FilaSelec);
-            String codigo;
-            codigo= tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            cod =tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            descrip = tablaproaux.getValueAt(FilaSelec, 1).toString();  
-            unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
-            preuni = tablaproaux.getValueAt(FilaSelec, 2).toString();  
-            descrippro.setText(tablaproaux.getValueAt(FilaSelec, 1).toString());
-            stock.setText(tablaproaux.getValueAt(FilaSelec, 3).toString());
-            cant.setText("1");
-            String montoq;
-            montoq = tablaproaux.getValueAt(FilaSelec, 2).toString();
-            this.preciopro= Integer.parseInt(montoq);
-            monto.setText(montoq);
-            cant.selectAll();
-            cant.requestFocus();
-            nuevo1.setEnabled(true);
+            modificar.setEnabled(true);
         }
     }//GEN-LAST:event_tablaproduMouseClicked
 
@@ -1120,7 +1293,7 @@ void btnagregar(){
     }//GEN-LAST:event_nuevoActionPerformed
 
     private void buscartxt2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscartxt2ActionPerformed
-        cargarproducto(buscartxt2.getText());        
+        buscarPorCodigo(buscartxt2.getText());
     }//GEN-LAST:event_buscartxt2ActionPerformed
 
     private void buscartxt2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscartxt2KeyReleased
@@ -1184,38 +1357,8 @@ void btnagregar(){
 
     private void tablaproauxKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tablaproauxKeyPressed
         if(evt.getKeyCode() == KeyEvent.VK_ENTER){
-            System.out.println("HOLAP");  
-            int FilaSelec = tablaproaux.getSelectedRow();
-            System.out.print(FilaSelec);
-            String codigo;
-            codigo= tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            cod =tablaproaux.getValueAt(FilaSelec, 0).toString();  
-            descrip = tablaproaux.getValueAt(FilaSelec, 1).toString();  
-            unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();
-            try{
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                preuni= tablaproaux.getValueAt(FilaSelec, 2).toString();
-                System.out.println("       PRIMER VALOORR     ");  
-                System.out.println(preuni);
-                Number aux = formateador.parse(preuni);
-                Integer aux1=aux.intValue();
-                preuni = aux1.toString();
-                System.out.println("       SEGUNDO VALOORR     ");  
-                System.out.println(preuni);
-                String montoq;
-                montoq = preuni;
-                this.preciopro= Integer.parseInt(montoq);
-                monto.setText(formateador.format(Integer.parseInt(montoq)));
-            }catch (ParseException e){
-        
-            }
-            descrippro.setText(tablaproaux.getValueAt(FilaSelec, 1).toString());
-            stock.setText(tablaproaux.getValueAt(FilaSelec, 3).toString());
-            cant.setText("1");
-            
-            cant.selectAll();
-            cant.requestFocus();
-            nuevo1.setEnabled(true);
+            evt.consume();
+            elegirFilaResultados();
         }
     }//GEN-LAST:event_tablaproauxKeyPressed
 
@@ -1261,22 +1404,15 @@ void btnagregar(){
     }//GEN-LAST:event_cantKeyPressed
 
     private void cantKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cantKeyReleased
-        Double cantaux=0.0;
-        Integer precioaux=0;
         DecimalFormat formateador = new DecimalFormat("###,###");
-        if(!cant.getText().equals("")){
-            cantaux= Double.parseDouble(cant.getText());
-            Integer aux1 =0;
-            try{
-                Number aux = formateador.parse(monto.getText());
-                aux1 = aux.intValue();
-            }catch (ParseException e){
-        
-            }
-            precioaux= aux1;   
-            Double calculo=0.0;
-            calculo= cantaux*this.preciopro;
-            monto.setText(formateador.format(calculo));        
+        double cantaux = 0.0;
+        try{
+            cantaux = Double.parseDouble(cant.getText().trim().replace(',', '.'));
+        }catch(NumberFormatException e){
+            cantaux = 0.0;
+        }
+        if(preciopro != null && cantaux > 0.0){
+            monto.setText(formateador.format(Math.round(cantaux * preciopro)));
         }else{
             monto.setText("0");
         }
@@ -1306,119 +1442,75 @@ void btnagregar(){
         }catch (ParseException e){
 
         }
-        try{                                                              
-                    conectar cc = new conectar();
-                    Connection cn = cc.conexion();   
-                    String sql ="UPDATE compra SET fecha='"+calendar.getDate().toString()+"', total='"+totalaux1.toString()+"', fecha1='"+calendar.getDate().toString()+"', nrofactura='"+factura.getText()+"', descripcion='"+factura1.getText()+"', proveedor_codprov='"+codprov.getText()+"', usuario_id='"+usuarioactu+"' where codcompra='"+codcompra.getText()+"'";
-                    PreparedStatement st = cn.prepareStatement(sql);                             
-                    System.out.print(sql);
-                    System.out.print(st);     
-                    String valor="";
-//                    DefaultTableModel modeloaux;
-//                    modeloaux = new DefaultTableModel();                    
-                    if(st.executeUpdate()>0){
-//                            int filas2 =modelodetcompra.getRowCount()-1;
-                                String [] registros1 = new String[7];
-                                String sqlaux ="SELECT * FROM detcompra where compra_codcompra='"+codcompra.getText()+"'";                                                               
-                                try{
-                                Statement st5 = cn.createStatement();
-                                ResultSet rs5 = st5.executeQuery(sqlaux);
-                                while(rs5.next()){
-                                    Integer band2=0;
-                                    String sqlaux1, sqlaux2;
-                                    Double stockaux=0.0, totalstock=0.0, auxcanti=0.0;                        
-                                    sqlaux1="SELECT * FROM producto where codprodu='"+rs5.getString("producto_codprodu")+"'";                       
-                                    try{
-                                        cn.createStatement();
-                                        Statement st7 = cn.createStatement();
-                                        ResultSet rs7 = st7.executeQuery(sqlaux1);                                                        
-                                        while(rs7.next()){
-                                            stockaux= Double.parseDouble(rs7.getString("stock"));   
-                                        }
-                                        System.out.print("Cantidad de Stock");
-                                        System.out.print(stockaux);
-                                        auxcanti = Double.parseDouble(rs5.getString("cantidad"));
-                                        if(stockaux<=0){
-                                            totalstock=0.0;
-                                        }else{
-                                            if(stockaux>=auxcanti){
-                                                totalstock = stockaux-auxcanti;
-                                            }else{
-                                                totalstock =0.0;
-                                            }
-                                        }                            
-                                        String sql8 ="UPDATE producto SET stock='"+totalstock.toString()+"' where codprodu='"+rs5.getString("producto_codprodu")+"'";
-                                        PreparedStatement st8 = cn.prepareStatement(sql8);
-                                        st8.executeUpdate();
-                                    }catch(SQLException ex){   
-                                        JOptionPane.showMessageDialog(null, "DESCUENTO DE STOCK");
-                                    }
-                                    System.out.print("    MALDITA SEAAAA    ");
-                                    registros1[0] = rs5.getString("id");  
-                                    String sql2 ="DELETE FROM detcompra where id='"+rs5.getString("id")+"'";
-                                    PreparedStatement st1 = cn.prepareStatement(sql2);
-                                    st1.executeUpdate();
-                                }
-                                }catch(SQLException ex){            
-                                }
-//                            DefaultTableModel modelprov = (DefaultTableModel)tablaprodu.getModel();                    
-                              System.out.print("    Cantidad de rows en el array Auxiliar     ");
-                              System.out.print(tablaprodu.getRowCount()); 
-                              int filasputa = tablaprodu.getRowCount();
-                              for(int z=0; z<filasputa; z++){
-                                      Integer num1=0, num2=0;
-                                            try{
-                                                Number kore = formateador.parse(tablaprodu.getValueAt(z, 5).toString());
-                                                num1=kore.intValue();
-                                                Number japi =formateador.parse(tablaprodu.getValueAt(z, 6).toString());
-                                                num2 = japi.intValue();                        
-                                            }catch (ParseException e){        
-                                            }
-                                      //autonumerardet();
-                                      try{
-                                      String sql3 ="INSERT INTO detcompra (id, cantidad, preunit, total, compra_codcompra, producto_codprodu) VALUES ('"+tablaprodu.getValueAt(z, 0).toString()+"','" +tablaprodu.getValueAt(z, 1).toString()+ "','" +num1.toString()+"','" +num2.toString()+ "','"+codcompra.getText()+"','"+tablaprodu.getValueAt(z, 3).toString()+"')";                                                         
-                                      //this.modeloRefresca.removeRow(z);
-                                      PreparedStatement st2 = cn.prepareStatement(sql3);
-                                      if(st2.executeUpdate()>0){
-                                            Integer band2=0;
-                                            String sqlaux1, sqlaux2;
-                                            Double stockaux=0.0, totalstock=0.0, auxcanti=0.0;                        
-                                            sqlaux1="SELECT * FROM producto where codprodu='"+tablaprodu.getValueAt(z, 3).toString()+"'";                       
-                                            try{
-                                                cn.createStatement();
-                                                Statement st7 = cn.createStatement();
-                                                ResultSet rs7 = st7.executeQuery(sqlaux1);                                                        
-                                                while(rs7.next()){
-                                                    stockaux= Double.parseDouble(rs7.getString("stock"));   
-                                                }
-                                                System.out.print("Cantidad de Stock");
-                                                System.out.print(stockaux);
-                                                auxcanti = Double.parseDouble(tablaprodu.getValueAt(z, 1).toString());
-                                                if(stockaux<0){
-                                                    totalstock=0.0;
-                                                }
-                                                    //if(auxcanti>=stockaux){
-                                                totalstock = stockaux+auxcanti;
-//                                                    }else{
-//                                                        totalstock =0;/                                                                               
-                                                String sql8 ="UPDATE producto SET stock='"+totalstock.toString()+"' where codprodu='"+tablaprodu.getValueAt(z, 3).toString()+"'";
-                                                PreparedStatement st8 = cn.prepareStatement(sql8);
-                                                st8.executeUpdate();
-                                            }catch(SQLException ex){   
-                                                JOptionPane.showMessageDialog(null, "DESCUENTO DE STOCK");
-                                            }
-                                      }
-                                      }catch(SQLException ex){            
-                                      }
-                              }
-                              System.out.print("    Cantidad de rows en el array Auxiliar     ");
-                              System.out.print(modelodetcompra.getRowCount());                                                                                     
-                              JOptionPane.showMessageDialog(null, "Se creó modifico correctamete el Registro.");                              
-                    }
-                    cn.close();
-                    }catch(SQLException ex){            
-                    }
-                    System.out.print("PUTO");
+        if(calendar.getDate() == null){
+            JOptionPane.showMessageDialog(this, "Seleccione la fecha de la compra.");
+            return;
+        }
+        if(tablaprodu.getRowCount() == 0){
+            JOptionPane.showMessageDialog(this, "La compra debe tener al menos un producto.");
+            buscartxt.requestFocus();
+            return;
+        }
+        // Todo en UNA transacción: cabecera, detalle y stock. Si algo falla se deshace completo y no
+        // queda stock a medias. Stock = stock - (lo que traía la compra) + (lo que queda ahora), sin
+        // recortar a 0 (si ya se vendió parte de lo comprado, el stock puede quedar negativo y eso es real).
+        Connection cn = null;
+        boolean ok = false;
+        try{
+            cn = new conectar().conexion();
+            if(cn == null){
+                JOptionPane.showMessageDialog(this, "No hay conexión con la base de datos.");
+                return;
+            }
+            cn.setAutoCommit(false);
+            String codigoCompra = codcompra.getText();
+            Statement stq = cn.createStatement();
+            int filasCompra = stq.executeUpdate("UPDATE compra SET fecha='"+q(calendar.getDate().toString())+"', total='"+totalaux1.toString()+"', fecha1='"+q(calendar.getDate().toString())+"', nrofactura='"+q(factura.getText())+"', descripcion='"+q(factura1.getText())+"', proveedor_codprov='"+q(codprov.getText())+"', usuario_id='"+usuarioactu+"' where codcompra='"+q(codigoCompra)+"'");
+            if(filasCompra == 0){
+                throw new SQLException("no se encontró la compra " + codigoCompra);
+            }
+            // 1) deshacer en el stock lo que traía la compra (y borrar su detalle)
+            ResultSet rsViejo = stq.executeQuery("SELECT id, cantidad, producto_codprodu FROM detcompra where compra_codcompra='"+q(codigoCompra)+"' FOR UPDATE");
+            java.util.List<String[]> viejos = new java.util.ArrayList<String[]>();
+            while(rsViejo.next()){
+                viejos.add(new String[]{rsViejo.getString("producto_codprodu"), rsViejo.getString("cantidad")});
+            }
+            rsViejo.close();
+            for(String[] v : viejos){
+                StockUtil.ajustarEn(cn, v[0], -Double.parseDouble(v[1].trim().replace(',', '.')));
+            }
+            stq.executeUpdate("DELETE FROM detcompra where compra_codcompra='"+q(codigoCompra)+"'");
+            // 2) insertar el detalle nuevo y sumar su cantidad al stock
+            for(int z=0; z<tablaprodu.getRowCount(); z++){
+                long unitario = 0, subtotalFila = 0;
+                try{
+                    unitario = formateador.parse(tablaprodu.getValueAt(z, 5).toString()).longValue();
+                    subtotalFila = formateador.parse(tablaprodu.getValueAt(z, 6).toString()).longValue();
+                }catch(ParseException e){
+                }
+                String idDet = tablaprodu.getValueAt(z, 0).toString();
+                String cantidadTxt = tablaprodu.getValueAt(z, 1).toString().trim().replace(',', '.');
+                String codigoProd = tablaprodu.getValueAt(z, 3).toString();
+                double cantidadNueva = Double.parseDouble(cantidadTxt);
+                stq.executeUpdate("INSERT INTO detcompra (id, cantidad, preunit, total, compra_codcompra, producto_codprodu) VALUES ('"+q(idDet)+"','"+q(cantidadTxt)+"','"+unitario+"','"+subtotalFila+"','"+q(codigoCompra)+"','"+q(codigoProd)+"')");
+                StockUtil.ajustarEn(cn, codigoProd, cantidadNueva);
+            }
+            stq.close();
+            cn.commit();
+            ok = true;
+        }catch(SQLException ex){
+            try{ if(cn != null){ cn.rollback(); } }catch(SQLException ignorar){}
+            JOptionPane.showMessageDialog(this, "No se pudo modificar la compra. No se hizo ningún cambio (ni en el stock).\n" + ex.getMessage());
+        }catch(NumberFormatException ex){
+            try{ if(cn != null){ cn.rollback(); } }catch(SQLException ignorar){}
+            JOptionPane.showMessageDialog(this, "Hay una cantidad o un stock inválido. No se hizo ningún cambio.\n" + ex.getMessage());
+        }finally{
+            try{ if(cn != null){ cn.close(); } }catch(SQLException ignorar){}
+        }
+        if(!ok){
+            return;
+        }
+        JOptionPane.showMessageDialog(null, "Se modificó correctamente el registro.");
                     String [] titulos ={"Cod","Fecha","Proveedor","Nro. Factura","Usuario", "Total"};
                     String [] registros = new String[6];
                     String sql5, sql6, sql4;
@@ -1458,8 +1550,7 @@ void btnagregar(){
                                 while(bs.next()){                      
                                     registros[4] = bs.getString("usuario");                       
                                 }
-                                model.addRow(registros); 
-                                this.modeloRefresca.addRow(registros);                                                                 
+                                this.modeloRefresca.addRow(registros.clone());                                                                 
                                 //JTableHeader header = tablausu.getTableHeader();
 
                                 //header.setForeground(Color.yellow);
@@ -1487,64 +1578,54 @@ void btnagregar(){
 
     private void modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modificarActionPerformed
         int FilaSelec = tablaprodu.getSelectedRow();
-        cod =tablaprodu.getValueAt(FilaSelec, 3).toString();  
-        descrip = tablaprodu.getValueAt(FilaSelec, 4).toString();  
-        unidad = tablaprodu.getValueAt(FilaSelec, 2).toString();  
-        //preuni = tablaprodu.getValueAt(FilaSelec, 5).toString();  
+        if(FilaSelec < 0){
+            return;
+        }
+        DecimalFormat formateador = new DecimalFormat("###,###");
+        cod = tablaprodu.getValueAt(FilaSelec, 3).toString();
+        descrip = tablaprodu.getValueAt(FilaSelec, 4).toString();
+        unidad = String.valueOf(tablaprodu.getValueAt(FilaSelec, 2));
+        int unitario = 0;
+        long subtotal = 0, totalActual = 0;
+        try{
+            unitario = formateador.parse(tablaprodu.getValueAt(FilaSelec, 5).toString()).intValue();
+            subtotal = formateador.parse(tablaprodu.getValueAt(FilaSelec, 6).toString()).longValue();
+            totalActual = formateador.parse(total.getText()).longValue();
+        }catch(ParseException e){
+        }
+        preuni = Integer.toString(unitario);
+        preciopro = unitario;
+        precio.setText(formateador.format(unitario));
+        precio.setEnabled(true);
         descrippro.setText(descrip);
-        //stock.setText(tablaprodu.getValueAt(FilaSelec, 3).toString());
         cant.setText(tablaprodu.getValueAt(FilaSelec, 1).toString());
         monto.setText(tablaprodu.getValueAt(FilaSelec, 6).toString());
-       
-        cant.selectAll();
-        cant.requestFocus();
-        Integer aux=0, aux1=0, monto1;
-        DecimalFormat formateador = new DecimalFormat("###,###");
-        try{
-            
-            Number puta = formateador.parse(tablaprodu.getValueAt(FilaSelec, 5).toString());
-            Integer a = puta.intValue();
-            preuni = a.toString(); 
-            this.preciopro = a;
-            Number kore = formateador.parse(tablaprodu.getValueAt(FilaSelec, 6).toString());
-            Number japi = formateador.parse(total.getText());
-            aux1 =kore.intValue();        
-            aux = japi.intValue();
-        }catch (ParseException e){
-        
-        }
-        monto1 = aux-aux1;
-        total.setText(formateador.format(monto1));
-        DefaultTableModel modelo = (DefaultTableModel)tablaprodu.getModel();
-        modelo.removeRow(tablaprodu.getSelectedRow()); 
+        total.setText(formateador.format(totalActual - subtotal));
+        ((DefaultTableModel)tablaprodu.getModel()).removeRow(FilaSelec);
         quitar.setEnabled(false);
         modificar.setEnabled(false);
+        nuevo1.setEnabled(true);
+        cant.selectAll();
+        cant.requestFocus();
     }//GEN-LAST:event_modificarActionPerformed
 
     private void quitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitarActionPerformed
         int FilaSelec = tablaprodu.getSelectedRow();
-//        String idaux = tablacliente.getValueAt(FilaSelec, 0).toString();
-//        Integer id = Integer.parseInt(idaux);                
-        Integer aux=0, aux1=0, monto1;
-       DecimalFormat formateador = new DecimalFormat("###,###");
-        try{
-            Number kore = formateador.parse(tablaprodu.getValueAt(FilaSelec, 6).toString());
-            aux1 =kore.intValue();
-            Number japi = formateador.parse(total.getText());
-            aux = japi.intValue();
-        }catch (ParseException e){
-        
+        if(FilaSelec < 0){
+            return;
         }
-        monto1 = aux-aux1;
-        total.setText(formateador.format(monto1));
-        DefaultTableModel modelprov = (DefaultTableModel)tablaprodu.getModel();
-        modelprov.removeRow(tablaprodu.getSelectedRow()); 
-        modelprov.fireTableDataChanged();
-        System.out.print("    Cantidad de rows en el array Auxiliar     ");
-        System.out.print(tablaprodu.getRowCount()); 
+        DecimalFormat formateador = new DecimalFormat("###,###");
+        long subtotal = 0, totalActual = 0;
+        try{
+            subtotal = formateador.parse(tablaprodu.getValueAt(FilaSelec, 6).toString()).longValue();
+            totalActual = formateador.parse(total.getText()).longValue();
+        }catch(ParseException e){
+        }
+        total.setText(formateador.format(totalActual - subtotal));
+        ((DefaultTableModel)tablaprodu.getModel()).removeRow(FilaSelec);
         quitar.setEnabled(false);
         modificar.setEnabled(false);
-        buscartxt2.requestFocus();
+        buscartxt.requestFocus();
     }//GEN-LAST:event_quitarActionPerformed
 
     private void stockKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_stockKeyTyped
@@ -1568,11 +1649,15 @@ void btnagregar(){
     }//GEN-LAST:event_tablaproauxMousePressed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-
+        if(btnguardar.isEnabled()){
+            btnguardarActionPerformed(evt);
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        abrirprov();
+        if(nuevo.isEnabled()){
+            abrirprov();
+        }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed

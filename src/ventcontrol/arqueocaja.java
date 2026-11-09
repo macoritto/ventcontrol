@@ -17,7 +17,9 @@ import javax.swing.JOptionPane;
 import java.util.Date;
 import java.sql.ResultSet;
 //import org.apache.log4j.Logger;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
@@ -36,311 +38,805 @@ public class arqueocaja extends JDialog {
     DefaultTableModel model;
     DefaultComboBoxModel modeloRol;
     Integer band=0;
+
+    // ---- Diseño moderno (ver disenoModerno) ----
+    private static final Color C_VERDE = new Color(30, 132, 84);
+    private static final Color C_NARANJA = new Color(204, 112, 22);
+    private static final Color C_TEAL = new Color(0, 125, 140);
+    private static final Color C_ROJO = new Color(200, 62, 52);
+    private final DecimalFormat fmt = new DecimalFormat("###,###");
+    private Tarjeta tFondo, tVentas, tCobros, tIngresos, tRetiros, tDevo, tOtros, tCredito;
+    private JLabel lblMonto, lblTituloMonto, lblDetalleMonto, lblFechaGrande, lblTituloTabla, lblPieCant, lblPieTotal, lblPista, lblBanner, lblBanner2;
+    private JPanel panelTablas, banner;
+    private JButton btnDetalle, btnAbrir, btnCerrar, btnCajas;
+    private JComboBox cmbVista;
+    private java.awt.CardLayout cartas;
+    private String vistaActual = "ventas";
+    private boolean cargando = false, llenandoCombo = false;
+    private CajaDatos.Datos ultimo;
+    private CajaDatos.Alcance alcanceActual;
+    private Vista vistaElegida;
+    private int usuarioId = -1;
+    private boolean admin = false;
+    private int vistaPedida = Integer.MIN_VALUE;   // turno que se quiere ver (o DIA / SIN_TURNO); MIN_VALUE: el que corresponda
+
+    private static final int DIA = -1, SIN_TURNO = -2;
+
+    /** Una opción del selector: un turno, el día completo, o lo que quedó sin turno. */
+    private static final class Vista {
+        final int clave;
+        final String texto;
+        final TurnoCaja.Turno turno;
+
+        Vista(int clave, String texto, TurnoCaja.Turno turno) {
+            this.clave = clave;
+            this.texto = texto;
+            this.turno = turno;
+        }
+
+        @Override
+        public String toString() {
+            return texto;
+        }
+    }
+
+    /** Lo que trae la carga en segundo plano. */
+    private static final class Carga {
+        final java.util.List<Vista> vistas = new java.util.ArrayList<Vista>();
+        int elegida = -1;
+        CajaDatos.Datos datos;
+        CajaDatos.Alcance alcance;
+        TurnoCaja.Turno propio;      // turno abierto del usuario (o null)
+        boolean admin;
+    }
+
+    /** Tarjeta de resumen: título, importe grande y detalle; al hacer clic muestra la tabla que le corresponde. */
+    private static final class Tarjeta extends JPanel {
+        private final Color acento;
+        private boolean activa;
+        final JLabel titulo = new JLabel();
+        final JLabel valor = new JLabel("0");
+        final JLabel detalle = new JLabel(" ");
+
+        Tarjeta(String texto, Color acento) {
+            this.acento = acento;
+            setOpaque(false);
+            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
+            setBorder(BorderFactory.createEmptyBorder(9, 18, 9, 10));
+            titulo.setText(texto);
+            titulo.setFont(EstiloUI.fuente(Font.BOLD, 11));
+            titulo.setForeground(EstiloUI.MUTED);
+            valor.setFont(EstiloUI.fuente(Font.BOLD, 21));
+            valor.setForeground(EstiloUI.TEXTO);
+            detalle.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+            detalle.setForeground(EstiloUI.MUTED);
+            add(titulo);
+            add(javax.swing.Box.createVerticalGlue());
+            add(valor);
+            add(detalle);
+        }
+
+        void activar(boolean a) {
+            activa = a;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            int w = getWidth() - 1, h = getHeight() - 1;
+            g2.setColor(acento);
+            g2.fillRoundRect(0, 0, w, h, 14, 14);
+            g2.setColor(activa ? new Color(240, 248, 253) : Color.WHITE);
+            g2.fillRoundRect(5, 0, w - 5, h, 14, 14);
+            g2.fillRect(5, 0, 14, h);
+            g2.setColor(activa ? EstiloUI.AZUL : EstiloUI.BORDE);
+            g2.setStroke(new java.awt.BasicStroke(activa ? 2f : 1f));
+            g2.drawRoundRect(0, 0, w, h, 14, 14);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    /** Muestra un importe en una tarjeta ("-" delante cuando resta de la caja). */
+    private void poner(Tarjeta t, long valor, int cantidad, boolean resta, String sinMov) {
+        t.valor.setText((resta && valor > 0 ? "-" : "") + fmt.format(valor));
+        t.detalle.setText(cantidad == 0 ? sinMov : (cantidad == 1 ? "1 registro" : cantidad + " registros"));
+    }
+
     public arqueocaja(menu menuprincipal, boolean modal) {
         super(menuprincipal, modal);
         initComponents();        
         this.setLocationRelativeTo(null);
-        Date fecha= new Date();
-        calendar.setDate(fecha);
-        calendar.setEnabled(false);
-        int contador=0;    
-        sumar.requestFocus();
-        sumar.setText("0");
-        sumav.setText("0");
-        diferencia.setText("0");
-        ingresos.setText("0");
-        pagos.setText("0");
-        sumad.setText("0");
-        pagos.setHorizontalAlignment(JTextField.RIGHT);
-        sumad.setHorizontalAlignment(JTextField.RIGHT);
-        diferencia.setHorizontalAlignment(JTextField.RIGHT);
-        ingresos.setHorizontalAlignment(JTextField.RIGHT);
-        sumacre.setHorizontalAlignment(JTextField.RIGHT);
-        sumav.setHorizontalAlignment(JTextField.RIGHT);
-        //sumar.selectAll();
-        //autonumerar();
-        //cargar("");
+        usuarioId = menuprincipal == null || menuprincipal.usuarioactu == null ? -1 : menuprincipal.usuarioactu.intValue();
+        calendar.setDate(new Date());
+        disenoModerno();
+        // el arqueo se calcula al abrir (antes había que presionar "Calcular")
+        calcular();
     }    
 
     arqueocaja(menu2 mimenu2, boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    private void autonumerar(){
-            String sql="SELECT coalesce (max(cod+1),1) as newid from caja";
-            conectar cc = new conectar();
-            Connection cn = cc.conexion(); 
-        try
-        {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(sql);       
-            rs.next();
-            sumar.setText(rs.getString("newid"));
-            
-        }catch(SQLException ex){
-        
-        }
-    }
-    void cargar(String valor){
-        String [] titulos ={"Cod","Fecha","Hora","Monto", "Detalle"};
-        String [] registros = new String[5];
-        Date fecha= new Date();
-        String sql;        
-            sql="SELECT * FROM retiro where fecha='"+fecha.toString()+"' ORDER BY cod";
-            System.out.print("entra en el segundo");  
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-        };  
-        //model1= new DefaultTableModel (null, titulos);  
-        Integer suma=0;
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                System.out.print(sql);
-                while(rs.next()){
-                    registros[0] = rs.getString("cod");
-                    registros[1] = rs.getString("fecha");
-                    registros[2] = rs.getString("hora");                    
-                    registros[3] = formateador.format(Integer.parseInt(rs.getString("monto")));        
-                    registros[4] = rs.getString("detalle");                 
-                    model.addRow(registros);   
-                    suma = suma + Integer.parseInt(rs.getString("monto"));
-                    //JTableHeader header = tablausu.getTableHeader();
 
-                    //header.setForeground(Color.yellow);
-                }    
-                //DecimalFormat formateador = new DecimalFormat("###,###.##");
-                sumar.setText(formateador.format(suma));
-                tablaproveedor.setModel(model); 
-                tablaproveedor.getColumnModel().getColumn(0).setPreferredWidth(30);
-                tablaproveedor.getColumnModel().getColumn(1).setPreferredWidth(80);
-                tablaproveedor.getColumnModel().getColumn(2).setPreferredWidth(60);
-                tablaproveedor.getColumnModel().getColumn(3).setPreferredWidth(80);
-                tablaproveedor.getColumnModel().getColumn(4).setPreferredWidth(230);
-                model.fireTableDataChanged();                                
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-    }
-    void cargaringresos(String valor){
-        String [] titulos ={"Cod","Fecha","Monto", "Detalle"};
-        String [] registros = new String[4];
-        Date fecha= new Date();
-        String sql;        
-            sql="SELECT * FROM caja where fecha_cierre='"+fecha.toString()+"' ORDER BY cod";
-            System.out.print("entra en el segundo");  
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-        };   
-        //model1= new DefaultTableModel (null, titulos);  
-        Integer suma=0;
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                System.out.print(sql);
-                while(rs.next()){
-                    registros[0] = rs.getString("cod");
-                    registros[1] = rs.getString("fecha_cierre");
-                    //registros[2] = rs.getString("hora");                    
-                    registros[2] = formateador.format(Integer.parseInt(rs.getString("coja_saldo")));        
-                    registros[3] = rs.getString("hora_cierre");                 
-                    model.addRow(registros);   
-                    suma = suma + Integer.parseInt(rs.getString("coja_saldo"));
-                    //JTableHeader header = tablausu.getTableHeader();
+    // =====================================================================================
+    //  Diseño moderno: panel de resumen con tarjetas y una sola tabla de detalle que se cambia haciendo
+    //  clic en cada tarjeta. El arqueo es por turno: cada cajero ve el suyo; el administrador ve todos.
+    // =====================================================================================
+    private void disenoModerno() {
+        setTitle("Arqueo y cierre de caja");
+        setResizable(true);
+        setJMenuBar(null);
+        java.awt.Container cp = getContentPane();
+        cp.removeAll();
+        cp.setLayout(new BorderLayout());
+        cp.setBackground(EstiloUI.FONDO);
+        ((JComponent) cp).setPreferredSize(new Dimension(1240, 760));
+        ((JComponent) cp).setMinimumSize(new Dimension(1000, 640));
 
-                    //header.setForeground(Color.yellow);
-                }    
-                //DecimalFormat formateador = new DecimalFormat("###,###.##");
-                ingresos.setText(formateador.format(suma));
-                tablasaldo.setModel(model);
-                tablasaldo.getColumnModel().getColumn(0).setPreferredWidth(30);
-                tablasaldo.getColumnModel().getColumn(1).setPreferredWidth(60);
-                tablasaldo.getColumnModel().getColumn(2).setPreferredWidth(80);
-                tablasaldo.getColumnModel().getColumn(3).setPreferredWidth(200);
-                model.fireTableDataChanged();                                
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-    }
-    void cargarpagos(String valor){
-        String [] titulos ={"Cod","Fecha","Monto", "Detalle"};
-        String [] registros = new String[4];
-        Date fecha= new Date();
-        String sql;        
-            sql="SELECT * FROM pago where fecha='"+fecha.toString()+"' ORDER BY idpago";
-            System.out.print("entra en el segundo");  
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-        };   
-        //model1= new DefaultTableModel (null, titulos);  
-        Integer suma=0;
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                System.out.print(sql);
-                while(rs.next()){
-                    registros[0] = rs.getString("idpago");
-                    registros[1] = rs.getString("fecha");
-                    //registros[2] = rs.getString("hora");                    
-                    registros[2] = formateador.format(Integer.parseInt(rs.getString("monto")));        
-                    registros[3] = rs.getString("descripcion");                 
-                    model.addRow(registros);   
-                    suma = suma + Integer.parseInt(rs.getString("monto"));
-                    //JTableHeader header = tablausu.getTableHeader();
+        // --- Encabezado ---
+        JPanel head = new JPanel(new BorderLayout(14, 0));
+        head.setBackground(EstiloUI.NAVY);
+        head.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 3, 0, EstiloUI.AZUL_VIVO),
+                BorderFactory.createEmptyBorder(14, 24, 14, 24)));
+        JLabel ico = new JLabel(jLabel2.getIcon() == null ? null : EstiloUI.escalar(jLabel2.getIcon(), 44));
+        head.add(ico, BorderLayout.WEST);
+        JPanel tit = new JPanel();
+        tit.setOpaque(false);
+        tit.setLayout(new javax.swing.BoxLayout(tit, javax.swing.BoxLayout.Y_AXIS));
+        JLabel t1 = new JLabel("Arqueo y cierre de caja");
+        t1.setFont(EstiloUI.fuente(Font.BOLD, 22));
+        t1.setForeground(Color.WHITE);
+        JLabel t2 = new JLabel("Efectivo que entró y salió de cada caja, por turno");
+        t2.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        t2.setForeground(new Color(160, 184, 208));
+        tit.add(t1);
+        tit.add(t2);
+        head.add(tit, BorderLayout.CENTER);
+        cp.add(head, BorderLayout.NORTH);
 
-                    //header.setForeground(Color.yellow);
-                }    
-                //DecimalFormat formateador = new DecimalFormat("###,###.##");
-                pagos.setText(formateador.format(suma));
-                tablapagos.setModel(model);
-                tablapagos.getColumnModel().getColumn(0).setPreferredWidth(30);
-                tablapagos.getColumnModel().getColumn(1).setPreferredWidth(60);
-                tablapagos.getColumnModel().getColumn(2).setPreferredWidth(80);
-                tablapagos.getColumnModel().getColumn(3).setPreferredWidth(200);
-                model.fireTableDataChanged();                                
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-    }
-    void cargardevo(String valor){
-        String [] titulos ={"Cod","Fecha","Monto", "Detalle"};
-        String [] registros = new String[4];
-        Date fecha= new Date();
-        String sql;        
-            sql="SELECT * FROM devolucion where fecha='"+fecha.toString()+"' ORDER BY id_devo";
-            System.out.print("entra en el segundo");  
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-        };   
-        //model1= new DefaultTableModel (null, titulos);  
-        Integer suma=0;
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                System.out.print(sql);
-                while(rs.next()){
-                    registros[0] = rs.getString("id_devo");
-                    registros[1] = rs.getString("fecha");
-                    //registros[2] = rs.getString("hora");                    
-                    registros[2] = formateador.format(Integer.parseInt(rs.getString("total")));        
-                    registros[3] = rs.getString("descripcion");                 
-                    model.addRow(registros);   
-                    suma = suma + Integer.parseInt(rs.getString("total"));
-                    //JTableHeader header = tablausu.getTableHeader();
+        // --- Cuerpo ---
+        JPanel body = new JPanel(new BorderLayout(0, 12));
+        body.setOpaque(false);
+        body.setBorder(BorderFactory.createEmptyBorder(14, 24, 18, 24));
+        cp.add(body, BorderLayout.CENTER);
 
-                    //header.setForeground(Color.yellow);
-                }    
-                //DecimalFormat formateador = new DecimalFormat("###,###.##");
-                sumad.setText(formateador.format(suma));
-                tabladevo.setModel(model);
-                tabladevo.getColumnModel().getColumn(0).setPreferredWidth(30);
-                tabladevo.getColumnModel().getColumn(1).setPreferredWidth(60);
-                tabladevo.getColumnModel().getColumn(2).setPreferredWidth(80);
-                tabladevo.getColumnModel().getColumn(3).setPreferredWidth(200);
-                model.fireTableDataChanged();                                
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "ES LA DEVO");
-        } 
-    }
-    void cargarventas(String valor){
-        String [] titulos ={"Cod","Fecha","Cliente", "Total","Tipo"};
-        String [] registros = new String[5];
-        Date fecha= new Date();
-        String sql, sql1;
-//        if(valor.equals("")){
-//            sql="SELECT * FROM compra ORDER BY codcompra";
-//            System.out.print("entra en el simple");
-//        }else{
-            sql="SELECT * FROM venta c inner join cliente p on c.cliente_id=p.id where fecha= '"+fecha+"' ORDER BY codventa";
-            System.out.print("entra en el segundo");
-//        }                
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-        };         
-        try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
-                Integer conta=0, monto=0, montocredito=0;               
-                DecimalFormat formateador = new DecimalFormat("###,###");
-                while(rs.next()){                    
-                    registros[0] = rs.getString("codventa");
-                    registros[1] = rs.getString("fecha");
-                    //registros[2] = rs.getString("c.proveedor_nombre");
-                    //registros[3] = rs.getString("venta");        
-                    //registros[4] = rs.getString("descripcion");   
-                    registros[3] = formateador.format(Integer.parseInt(rs.getString("total")));  
-                    registros[4] = rs.getString("estado");
-                    sql1="SELECT * FROM cliente where id='"+rs.getString("cliente_id")+"'";
-                    System.out.print(sql1);
-                    conta = conta+1;
-                    if(rs.getString("estado").equals("Contado")){
-                       monto = monto + Integer.parseInt(rs.getString("total"));      
-                    }else{
-                        montocredito=montocredito+Integer.parseInt(rs.getString("total"));  
-                    }                                   
-                    st = cn.createStatement();
-                    ResultSet as = st.executeQuery(sql1);
-                    while(as.next()){
-                        //registros[2] = as.getString("id");                       
-                        registros[2] = as.getString("nombre")+as.getString("apellido");                       
-                    }
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
+        // fila 1: fecha, selector de turno, actualizar y salir
+        JPanel barra = new JPanel(new BorderLayout(16, 0));
+        barra.setOpaque(false);
+        JPanel izq = new JPanel();
+        izq.setOpaque(false);
+        izq.setLayout(new javax.swing.BoxLayout(izq, javax.swing.BoxLayout.X_AXIS));
+        JPanel fechaBox = new JPanel();
+        fechaBox.setOpaque(false);
+        fechaBox.setLayout(new javax.swing.BoxLayout(fechaBox, javax.swing.BoxLayout.Y_AXIS));
+        JLabel f1 = new JLabel("FECHA");
+        f1.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        f1.setForeground(EstiloUI.MUTED);
+        fechaBox.add(f1);
+        admin = usuarioId >= 0 && TurnoCaja.esAdmin(usuarioId);
+        if (admin) {
+            // el administrador puede revisar otros días
+            JComponent editor = calendar.getDateEditor().getUiComponent();
+            if (editor instanceof JTextField) {
+                EstiloUI.campo((JTextField) editor);
+            }
+            calendar.setBorder(null);
+            EstiloUI.botonSecundario(calendar.getCalendarButton());
+            calendar.setEnabled(true);
+            calendar.setPreferredSize(new Dimension(190, 38));
+            calendar.setMaximumSize(new Dimension(190, 38));
+            calendar.setAlignmentX(0f);
+            fechaBox.add(javax.swing.Box.createVerticalStrut(3));
+            fechaBox.add(calendar);
+            calendar.addPropertyChangeListener("date", new java.beans.PropertyChangeListener() {
+                public void propertyChange(java.beans.PropertyChangeEvent e) {
+                    vistaPedida = Integer.MIN_VALUE;
+                    calcular();
                 }
-                //nrocompras.setText(conta.toString());
-                //DecimalFormat formateador = new DecimalFormat("###,###.##");
-                sumav.setText(formateador.format(monto));
-                sumacre.setText(formateador.format(montocredito));
-                tablaventas.setModel(model); 
-                tablaventas.getColumnModel().getColumn(0).setPreferredWidth(30);
-                tablaventas.getColumnModel().getColumn(1).setPreferredWidth(60);
-                tablaventas.getColumnModel().getColumn(2).setPreferredWidth(250);
-                tablaventas.getColumnModel().getColumn(3).setPreferredWidth(80);
-                tablaventas.getColumnModel().getColumn(4).setPreferredWidth(80);
-                model.fireTableDataChanged();                                
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-       //view.setEnabled(false);
-       //cargarcompra.setEnabled(false);
-       //buscartxt.setEnabled(true);
+            });
+        } else {
+            calendar.setEnabled(false);
+            lblFechaGrande = new JLabel(" ");
+            lblFechaGrande.setFont(EstiloUI.fuente(Font.BOLD, 17));
+            lblFechaGrande.setForeground(EstiloUI.TEXTO);
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", new java.util.Locale("es", "PY"));
+            String ft = sdf.format(new Date());
+            lblFechaGrande.setText(ft.substring(0, 1).toUpperCase() + ft.substring(1));
+            fechaBox.add(javax.swing.Box.createVerticalStrut(6));
+            fechaBox.add(lblFechaGrande);
+        }
+        izq.add(fechaBox);
+        izq.add(javax.swing.Box.createHorizontalStrut(18));
+        JPanel vistaBox = new JPanel();
+        vistaBox.setOpaque(false);
+        vistaBox.setLayout(new javax.swing.BoxLayout(vistaBox, javax.swing.BoxLayout.Y_AXIS));
+        JLabel f2 = new JLabel(admin ? "VER" : "MIS TURNOS");
+        f2.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        f2.setForeground(EstiloUI.MUTED);
+        cmbVista = new JComboBox();
+        EstiloUI.combo(cmbVista);
+        cmbVista.setPreferredSize(new Dimension(380, 38));
+        cmbVista.setMaximumSize(new Dimension(380, 38));
+        cmbVista.setAlignmentX(0f);
+        cmbVista.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (llenandoCombo || cmbVista.getSelectedItem() == null) {
+                    return;
+                }
+                vistaPedida = ((Vista) cmbVista.getSelectedItem()).clave;
+                calcular();
+            }
+        });
+        vistaBox.add(f2);
+        vistaBox.add(javax.swing.Box.createVerticalStrut(3));
+        vistaBox.add(cmbVista);
+        izq.add(vistaBox);
+        barra.add(izq, BorderLayout.WEST);
+        JPanel botones = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 10, 0));
+        botones.setOpaque(false);
+        guardar1.setText("Actualizar (F1)");
+        guardar1.setIcon(null);
+        EstiloUI.botonSecundario(guardar1);
+        guardar1.setPreferredSize(new Dimension(150, 40));
+        guardar.setText("Salir (Esc)");
+        guardar.setIcon(null);
+        EstiloUI.botonSecundario(guardar);
+        guardar.setPreferredSize(new Dimension(120, 40));
+        botones.add(guardar1);
+        botones.add(guardar);
+        JPanel botonesBox = new JPanel(new java.awt.GridBagLayout());
+        botonesBox.setOpaque(false);
+        botonesBox.add(botones);
+        barra.add(botonesBox, BorderLayout.EAST);
+
+        // fila 2: franja con el estado del turno y sus acciones
+        banner = new JPanel(new BorderLayout(14, 0)) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.setColor(EstiloUI.BORDE);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.dispose();
+            }
+        };
+        banner.setOpaque(false);
+        banner.setBackground(new Color(236, 241, 247));
+        banner.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 10));
+        JPanel textoBanner = new JPanel();
+        textoBanner.setOpaque(false);
+        textoBanner.setLayout(new javax.swing.BoxLayout(textoBanner, javax.swing.BoxLayout.Y_AXIS));
+        lblBanner = new JLabel(" ");
+        lblBanner.setFont(EstiloUI.fuente(Font.BOLD, 13));
+        lblBanner.setForeground(EstiloUI.TEXTO);
+        lblBanner2 = new JLabel(" ");
+        lblBanner2.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        lblBanner2.setForeground(EstiloUI.MUTED);
+        textoBanner.add(lblBanner);
+        textoBanner.add(lblBanner2);
+        banner.add(textoBanner, BorderLayout.CENTER);
+        btnAbrir = new JButton("Abrir mi turno");
+        EstiloUI.botonAccion(btnAbrir);
+        btnAbrir.setPreferredSize(new Dimension(150, 36));
+        btnCerrar = new JButton("Cerrar turno");
+        EstiloUI.botonAccion(btnCerrar);
+        btnCerrar.setPreferredSize(new Dimension(140, 36));
+        btnCajas = new JButton("Cajas");
+        EstiloUI.botonSecundario(btnCajas);
+        btnCajas.setPreferredSize(new Dimension(100, 36));
+        JPanel accionesBanner = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        accionesBanner.setOpaque(false);
+        accionesBanner.add(btnAbrir);
+        accionesBanner.add(btnCerrar);
+        accionesBanner.add(btnCajas);
+        JPanel accionesBox = new JPanel(new java.awt.GridBagLayout());
+        accionesBox.setOpaque(false);
+        accionesBox.add(accionesBanner);
+        banner.add(accionesBox, BorderLayout.EAST);
+        btnAbrir.setVisible(false);
+        btnCerrar.setVisible(false);
+        btnCajas.setVisible(admin);
+        btnAbrir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                TurnoCaja.Turno t = AperturaTurno.mostrar(arqueocaja.this, usuarioId);
+                if (t != null) {
+                    vistaPedida = t.id;
+                    calcular();
+                }
+            }
+        });
+        btnCerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (vistaElegida != null && vistaElegida.turno != null) {
+                    if (CierreTurno.mostrar(arqueocaja.this, vistaElegida.turno) != null) {
+                        calcular();
+                    }
+                }
+            }
+        });
+        btnCajas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                CajasAdmin.mostrar(arqueocaja.this);
+                calcular();
+            }
+        });
+
+        // tarjetas
+        JPanel resumen = new JPanel(new BorderLayout(14, 0));
+        resumen.setOpaque(false);
+        resumen.setPreferredSize(new Dimension(100, 176));
+        JPanel grande = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setPaint(new java.awt.GradientPaint(0, 0, EstiloUI.NAVY, getWidth(), getHeight(), new Color(0, 88, 134)));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        grande.setOpaque(false);
+        grande.setBorder(BorderFactory.createEmptyBorder(16, 22, 14, 18));
+        grande.setPreferredSize(new Dimension(340, 100));
+        lblTituloMonto = new JLabel("EFECTIVO EN CAJA");
+        lblTituloMonto.setFont(EstiloUI.fuente(Font.BOLD, 12));
+        lblTituloMonto.setForeground(new Color(150, 200, 230));
+        lblMonto = new JLabel("Gs. 0");
+        lblMonto.setFont(EstiloUI.fuente(Font.BOLD, 36));
+        lblMonto.setForeground(Color.WHITE);
+        lblDetalleMonto = new JLabel("<html>Fondo inicial + ingresos + ventas y cobros en efectivo - retiros - devoluciones</html>");
+        lblDetalleMonto.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        lblDetalleMonto.setForeground(new Color(180, 205, 225));
+        grande.add(lblTituloMonto, BorderLayout.NORTH);
+        grande.add(lblMonto, BorderLayout.CENTER);
+        grande.add(lblDetalleMonto, BorderLayout.SOUTH);
+        resumen.add(grande, BorderLayout.WEST);
+
+        tFondo = new Tarjeta("FONDO INICIAL", EstiloUI.NAVY_BTN);
+        tVentas = new Tarjeta("VENTAS EN EFECTIVO", C_VERDE);
+        tCobros = new Tarjeta("COBROS EN EFECTIVO", C_TEAL);
+        tIngresos = new Tarjeta("INGRESOS A LA CAJA", EstiloUI.AZUL);
+        tRetiros = new Tarjeta("RETIROS", C_ROJO);
+        tDevo = new Tarjeta("DEVOLUCIONES", C_ROJO);
+        tOtros = new Tarjeta("TARJETA / TRANSFERENCIA", EstiloUI.MUTED);
+        tCredito = new Tarjeta("VENTAS A CRÉDITO", C_NARANJA);
+        JPanel rejilla = new JPanel(new java.awt.GridLayout(2, 4, 12, 12));
+        rejilla.setOpaque(false);
+        rejilla.add(tFondo);
+        rejilla.add(tVentas);
+        rejilla.add(tCobros);
+        rejilla.add(tIngresos);
+        rejilla.add(tRetiros);
+        rejilla.add(tDevo);
+        rejilla.add(tOtros);
+        rejilla.add(tCredito);
+        resumen.add(rejilla, BorderLayout.CENTER);
+        enlazar(tVentas, "ventas");
+        enlazar(tOtros, "ventas");
+        enlazar(tCredito, "ventas");
+        enlazar(tCobros, "pagos");
+        enlazar(tIngresos, "ingresos");
+        enlazar(tRetiros, "retiros");
+        enlazar(tDevo, "devoluciones");
+        tFondo.setCursor(java.awt.Cursor.getDefaultCursor());
+
+        JPanel arriba = new JPanel();
+        arriba.setOpaque(false);
+        arriba.setLayout(new javax.swing.BoxLayout(arriba, javax.swing.BoxLayout.Y_AXIS));
+        barra.setAlignmentX(0f);
+        banner.setAlignmentX(0f);
+        resumen.setAlignmentX(0f);
+        banner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 62));
+        resumen.setMaximumSize(new Dimension(Integer.MAX_VALUE, 176));
+        arriba.add(barra);
+        arriba.add(javax.swing.Box.createVerticalStrut(10));
+        arriba.add(banner);
+        arriba.add(javax.swing.Box.createVerticalStrut(12));
+        arriba.add(resumen);
+        body.add(arriba, BorderLayout.NORTH);
+
+        // detalle
+        JPanel detalle = new JPanel(new BorderLayout());
+        detalle.setBackground(Color.WHITE);
+        detalle.setBorder(BorderFactory.createLineBorder(EstiloUI.BORDE));
+        JPanel dh = new JPanel(new BorderLayout());
+        dh.setBackground(Color.WHITE);
+        dh.setBorder(BorderFactory.createEmptyBorder(10, 18, 8, 18));
+        lblTituloTabla = new JLabel("Ventas");
+        lblTituloTabla.setFont(EstiloUI.fuente(Font.BOLD, 15));
+        lblTituloTabla.setForeground(EstiloUI.TEXTO);
+        lblPista = new JLabel("Haga clic en una tarjeta para ver su detalle");
+        lblPista.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        lblPista.setForeground(EstiloUI.MUTED);
+        btnDetalle = new JButton("Ver detalle de la venta");
+        EstiloUI.botonAccion(btnDetalle);
+        btnDetalle.setPreferredSize(new Dimension(190, 34));
+        btnDetalle.setEnabled(false);
+        btnDetalle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                abrirDetalleVenta();
+            }
+        });
+        JPanel derecha = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 12, 0));
+        derecha.setOpaque(false);
+        derecha.add(lblPista);
+        derecha.add(btnDetalle);
+        dh.add(lblTituloTabla, BorderLayout.WEST);
+        dh.add(derecha, BorderLayout.EAST);
+        // doble clic o Enter sobre una venta abre su detalle
+        tablaventas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && javax.swing.SwingUtilities.isLeftMouseButton(e)) {
+                    abrirDetalleVenta();
+                }
+            }
+        });
+        tablaventas.getInputMap(JComponent.WHEN_FOCUSED).put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0), "verDetalle");
+        tablaventas.getActionMap().put("verDetalle", new javax.swing.AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                abrirDetalleVenta();
+            }
+        });
+        tablaventas.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                btnDetalle.setEnabled(tablaventas.getSelectedRow() >= 0);
+            }
+        });
+        detalle.add(dh, BorderLayout.NORTH);
+
+        cartas = new java.awt.CardLayout();
+        panelTablas = new JPanel(cartas);
+        panelTablas.setBackground(Color.WHITE);
+        EstiloUI.tabla(tablaventas, jScrollPane1);
+        EstiloUI.tabla(tablasaldo, jScrollPane3);
+        EstiloUI.tabla(tablapagos, jScrollPane4);
+        EstiloUI.tabla(tablaproveedor, jScrollPane2);
+        EstiloUI.tabla(tabladevo, jScrollPane5);
+        JScrollPane[] sps = {jScrollPane1, jScrollPane3, jScrollPane4, jScrollPane2, jScrollPane5};
+        for (JScrollPane sp : sps) {
+            sp.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, EstiloUI.BORDE));
+        }
+        panelTablas.add(jScrollPane1, "ventas");
+        panelTablas.add(jScrollPane3, "ingresos");
+        panelTablas.add(jScrollPane4, "pagos");
+        panelTablas.add(jScrollPane2, "retiros");
+        panelTablas.add(jScrollPane5, "devoluciones");
+        detalle.add(panelTablas, BorderLayout.CENTER);
+
+        JPanel pie = new JPanel(new BorderLayout());
+        pie.setBackground(new Color(249, 250, 252));
+        pie.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, EstiloUI.BORDE),
+                BorderFactory.createEmptyBorder(9, 18, 9, 18)));
+        lblPieCant = new JLabel(" ");
+        lblPieCant.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        lblPieCant.setForeground(EstiloUI.MUTED);
+        lblPieTotal = new JLabel(" ");
+        lblPieTotal.setFont(EstiloUI.fuente(Font.BOLD, 13));
+        lblPieTotal.setForeground(EstiloUI.TEXTO);
+        pie.add(lblPieCant, BorderLayout.WEST);
+        pie.add(lblPieTotal, BorderLayout.EAST);
+        detalle.add(pie, BorderLayout.SOUTH);
+        body.add(detalle, BorderLayout.CENTER);
+
+        // atajos: F1/F5 actualizar, Esc salir
+        javax.swing.JRootPane rp = getRootPane();
+        javax.swing.InputMap im = rp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        im.put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0), "actualizar");
+        im.put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0), "actualizar");
+        im.put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "salir");
+        rp.getActionMap().put("actualizar", new javax.swing.AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                calcular();
+            }
+        });
+        rp.getActionMap().put("salir", new javax.swing.AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                dispose();
+            }
+        });
+
+        mostrar("ventas");
+        pack();
+        setLocationRelativeTo(null);
     }
+
+    private void enlazar(Tarjeta t, final String vista) {
+        t.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        t.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                mostrar(vista);
+            }
+        });
+    }
+
+    /** Abre el detalle (solo lectura) de la venta seleccionada en la tabla. */
+    private void abrirDetalleVenta() {
+        int fila = tablaventas.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        VentaDetalle.mostrar(this, String.valueOf(tablaventas.getValueAt(fila, 0)));
+    }
+
+    /** Cambia la tabla de detalle y marca la tarjeta correspondiente. */
+    private void mostrar(String vista) {
+        vistaActual = vista;
+        cartas.show(panelTablas, vista);
+        tVentas.activar(vista.equals("ventas"));
+        tOtros.activar(false);
+        tCredito.activar(false);
+        tCobros.activar(vista.equals("pagos"));
+        tIngresos.activar(vista.equals("ingresos"));
+        tRetiros.activar(vista.equals("retiros"));
+        tDevo.activar(vista.equals("devoluciones"));
+        String titulo = "Ventas";
+        if (vista.equals("ingresos")) {
+            titulo = "Ingresos de efectivo a la caja";
+        } else if (vista.equals("pagos")) {
+            titulo = "Cobros de créditos";
+        } else if (vista.equals("retiros")) {
+            titulo = "Retiros de caja";
+        } else if (vista.equals("devoluciones")) {
+            titulo = "Devoluciones";
+        }
+        lblTituloTabla.setText(titulo);
+        boolean ventas = vista.equals("ventas");
+        btnDetalle.setVisible(ventas);
+        lblPista.setText(ventas ? "Doble clic (o Enter) sobre una venta para ver su detalle" : "Haga clic en una tarjeta para ver su detalle");
+        actualizarPie();
+    }
+
+    private void actualizarPie() {
+        if (ultimo == null) {
+            lblPieCant.setText(" ");
+            lblPieTotal.setText(" ");
+            return;
+        }
+        int n;
+        String total;
+        if (vistaActual.equals("ventas")) {
+            n = ultimo.ventas.size();
+            total = "Efectivo " + fmt.format(ultimo.ventasEfectivo) + "   ·   Tarjeta/Transf. " + fmt.format(ultimo.ventasOtros)
+                    + "   ·   Crédito " + fmt.format(ultimo.credito)
+                    + "   ·   Total " + fmt.format(ultimo.ventasEfectivo + ultimo.ventasOtros + ultimo.credito);
+        } else if (vistaActual.equals("ingresos")) {
+            n = ultimo.ingresos.size();
+            total = "Total " + fmt.format(ultimo.ingresosTotal);
+        } else if (vistaActual.equals("pagos")) {
+            n = ultimo.pagos.size();
+            total = "Efectivo " + fmt.format(ultimo.pagosEfectivo) + "   ·   Otros medios " + fmt.format(ultimo.pagosOtros);
+        } else if (vistaActual.equals("retiros")) {
+            n = ultimo.retiros.size();
+            total = "Total " + fmt.format(ultimo.retirosTotal);
+        } else {
+            n = ultimo.devoluciones.size();
+            total = "Total " + fmt.format(ultimo.devolucionesTotal);
+        }
+        lblPieCant.setText(n == 0 ? "Sin movimientos" : (n == 1 ? "1 registro" : n + " registros"));
+        lblPieTotal.setText(n == 0 ? " " : total);
+    }
+
+    // =====================================================================================
+    //  Tablas
+    // =====================================================================================
+
+    private DefaultTableModel modelo(String[] titulos, java.util.List<String[]> filas, boolean conTurno) {
+        String[] cols = titulos;
+        if (conTurno) {
+            cols = new String[titulos.length + 1];
+            System.arraycopy(titulos, 0, cols, 0, titulos.length);
+            cols[titulos.length] = "Turno";
+        }
+        DefaultTableModel m = new DefaultTableModel(null, cols) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
+        for (String[] f : filas) {
+            // cada fila trae el turno al final: se muestra solo cuando se ven varios turnos juntos
+            m.addRow(conTurno ? f : java.util.Arrays.copyOf(f, f.length - 1));
+        }
+        return m;
+    }
+
+    private void llenar(JTable t, DefaultTableModel m, int[] anchos, int... derecha) {
+        t.setModel(m);
+        t.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        for (int i = 0; i < anchos.length && i < t.getColumnModel().getColumnCount(); i++) {
+            t.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+        EstiloUI.derecha(t, derecha);
+    }
+
+    // =====================================================================================
+    //  Carga de datos (en segundo plano)
+    // =====================================================================================
+
+    /** Lee los turnos del día, decide cuál mostrar y trae sus datos. */
+    private Carga cargar(final java.util.Date dia, int pedida) throws SQLException {
+        Carga c = new Carga();
+        c.admin = admin;
+        TurnoCaja.asegurarEsquema();
+        c.propio = usuarioId >= 0 ? TurnoCaja.turnoAbierto(usuarioId) : null;
+        java.util.List<TurnoCaja.Turno> turnos = TurnoCaja.turnosDelDia(dia, admin ? 0 : Math.max(usuarioId, -1) < 0 ? -2 : usuarioId);
+        if (admin) {
+            c.vistas.add(new Vista(DIA, "Todo el día · todas las cajas", null));
+        }
+        for (TurnoCaja.Turno t : turnos) {
+            c.vistas.add(new Vista(t.id, t.etiqueta() + (t.abierto() ? "  (abierto)" : "  (cerrado)"), t));
+        }
+        if (admin && TurnoCaja.operacionesSinTurno(dia) > 0) {
+            c.vistas.add(new Vista(SIN_TURNO, "Sin turno asignado (anterior a los turnos)", null));
+        }
+        if (c.vistas.isEmpty()) {
+            return c;
+        }
+        int idx = -1;
+        for (int i = 0; i < c.vistas.size(); i++) {
+            if (c.vistas.get(i).clave == pedida) {
+                idx = i;
+            }
+        }
+        if (idx < 0) {
+            // por defecto: el cajero ve su turno abierto (o el último); el administrador, el día completo
+            if (admin) {
+                idx = 0;
+            } else {
+                idx = c.vistas.size() - 1;
+                for (int i = 0; i < c.vistas.size(); i++) {
+                    if (c.vistas.get(i).turno != null && c.vistas.get(i).turno.abierto()) {
+                        idx = i;
+                    }
+                }
+            }
+        }
+        c.elegida = idx;
+        Vista v = c.vistas.get(idx);
+        c.alcance = v.clave == DIA ? CajaDatos.Alcance.dia(dia)
+                : (v.clave == SIN_TURNO ? CajaDatos.Alcance.sinTurno(dia) : CajaDatos.Alcance.turno(v.clave));
+        c.datos = CajaDatos.leer(c.alcance);
+        return c;
+    }
+
+    /** Muestra en pantalla lo leído: selector, franja del turno, tarjetas y las cinco tablas. */
+    private void aplicar(Carga c) {
+        llenandoCombo = true;
+        cmbVista.removeAllItems();
+        for (Vista v : c.vistas) {
+            cmbVista.addItem(v);
+        }
+        if (c.elegida >= 0) {
+            cmbVista.setSelectedIndex(c.elegida);
+        }
+        llenandoCombo = false;
+        vistaElegida = c.elegida >= 0 ? c.vistas.get(c.elegida) : null;
+        alcanceActual = c.alcance;
+        CajaDatos.Datos d = c.datos == null ? new CajaDatos.Datos() : c.datos;
+        ultimo = d;
+        boolean conTurno = alcanceActual == null || alcanceActual.turnoId <= 0;
+        TurnoCaja.Turno t = vistaElegida == null ? null : vistaElegida.turno;
+
+        // franja del turno
+        boolean abiertoMio = c.propio != null;
+        btnAbrir.setVisible(!abiertoMio && usuarioId >= 0);
+        btnCerrar.setVisible(t != null && t.abierto() && (admin || t.usuarioId == usuarioId));
+        Color fondo = new Color(236, 241, 247);
+        if (vistaElegida == null) {
+            fondo = new Color(253, 243, 224);
+            lblBanner.setText(usuarioId < 0 ? "No se pudo identificar al usuario." : "No tiene turnos de caja hoy");
+            lblBanner2.setText("Abra su turno para empezar a registrar ventas, cobros y retiros en una caja.");
+        } else if (t != null && t.abierto()) {
+            fondo = new Color(231, 245, 236);
+            lblBanner.setText("TURNO ABIERTO  ·  " + t.etiqueta().replace("Turno " + t.id + " · ", "Turno " + t.id + "  ·  "));
+            lblBanner2.setText("Desde el " + UiCaja.fechaHora(t.apertura) + "  ·  Abrió con " + fmt.format(t.montoInicial));
+        } else if (t != null) {
+            fondo = new Color(238, 240, 243);
+            long dif = t.diferencia == null ? 0 : t.diferencia.longValue();
+            lblBanner.setText("TURNO CERRADO  ·  " + t.etiqueta().replace("Turno " + t.id + " · ", "Turno " + t.id + "  ·  "));
+            lblBanner2.setText("Del " + UiCaja.fechaHora(t.apertura) + " al " + UiCaja.fechaHora(t.cierre) + "  ·  Esperado "
+                    + fmt.format(t.esperado == null ? 0 : t.esperado.longValue()) + "  ·  Contado " + fmt.format(t.contado == null ? 0 : t.contado.longValue())
+                    + "  ·  " + (dif == 0 ? "La caja cuadró" : (dif > 0 ? "Sobrante " + fmt.format(dif) : "Faltante " + fmt.format(-dif)))
+                    + (t.observacion.length() > 0 ? "  ·  " + t.observacion : ""));
+        } else if (vistaElegida.clave == DIA) {
+            lblBanner.setText("VISTA DEL DÍA  ·  suma de todas las cajas y turnos");
+            lblBanner2.setText("Elija un turno en la lista para ver el arqueo de una caja o cajero en particular.");
+        } else {
+            lblBanner.setText("SIN TURNO  ·  operaciones registradas antes de que existieran los turnos");
+            lblBanner2.setText("Se muestran aparte para que no se mezclen con los turnos.");
+        }
+        banner.setBackground(fondo);
+        banner.repaint();
+
+        // tablas
+        llenar(tablaventas, modelo(new String[]{"Cód.", "Fecha", "Cliente", "Total", "Tipo", "Medio"}, d.ventas, conTurno),
+                new int[]{60, 100, 360, 120, 90, 120, 200}, 3);
+        // el tipo de venta se marca con color: contado en verde, crédito en naranja
+        tablaventas.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
+                setFont(EstiloUI.fuente(Font.BOLD, 13));
+                setForeground("Contado".equals(value) ? C_VERDE : C_NARANJA);
+                if (!isSelected) {
+                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(249, 250, 252));
+                }
+                return this;
+            }
+        });
+        llenar(tablasaldo, modelo(new String[]{"Cód.", "Fecha", "Hora", "Monto"}, d.ingresos, conTurno), new int[]{60, 110, 110, 140, 220}, 3);
+        llenar(tablapagos, modelo(new String[]{"Cód.", "Fecha", "Monto", "Medio", "Descripción"}, d.pagos, conTurno), new int[]{60, 110, 140, 120, 360, 220}, 2);
+        llenar(tablaproveedor, modelo(new String[]{"Cód.", "Fecha", "Hora", "Monto", "Detalle"}, d.retiros, conTurno), new int[]{60, 110, 100, 140, 380, 220}, 3);
+        llenar(tabladevo, modelo(new String[]{"Cód.", "Fecha", "Total", "Descripción"}, d.devoluciones, conTurno), new int[]{60, 110, 140, 420, 220}, 2);
+
+        // tarjetas
+        btnDetalle.setEnabled(false);
+        poner(tFondo, d.montoInicial, 0, false, " ");
+        tFondo.detalle.setText(alcanceActual != null && alcanceActual.turnoId > 0 ? "con el que abrió el turno" : (alcanceActual != null && alcanceActual.sinTurno ? "-" : "suma de las aperturas"));
+        poner(tVentas, d.ventasEfectivo, d.nVentasEfectivo, false, "Sin movimientos");
+        poner(tCobros, d.pagosEfectivo, d.nPagosEfectivo, false, "Sin movimientos");
+        poner(tIngresos, d.ingresosTotal, d.ingresos.size(), false, "Sin movimientos");
+        poner(tRetiros, d.retirosTotal, d.retiros.size(), true, "Sin movimientos");
+        poner(tDevo, d.devolucionesTotal, d.devoluciones.size(), true, "Sin movimientos");
+        poner(tOtros, d.otrosMedios(), d.nVentasOtros + d.nPagosOtros, false, "Sin movimientos (no suma al efectivo)");
+        if (!d.otrosPorMedio.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (java.util.Map.Entry<String, Long> e : d.otrosPorMedio.entrySet()) {
+                sb.append(sb.length() > 0 ? " · " : "").append(e.getKey()).append(" ").append(fmt.format(e.getValue().longValue()));
+            }
+            tOtros.detalle.setText(sb.toString());
+        }
+        poner(tCredito, d.credito, d.nCredito, false, "Sin movimientos (no suma al efectivo)");
+        long esperado = d.esperado();
+        lblMonto.setText("Gs. " + fmt.format(esperado));
+        lblMonto.setForeground(esperado < 0 ? new Color(255, 160, 150) : Color.WHITE);
+        lblTituloMonto.setText(t != null && !t.abierto() ? "EFECTIVO ESPERADO AL CERRAR" : "EFECTIVO QUE DEBE HABER EN CAJA");
+        actualizarPie();
+    }
+
+    /**
+     * Lee en segundo plano (para no congelar la ventana si la base tarda) y muestra. El efectivo de la caja es:
+     * fondo inicial + ingresos + ventas y cobros en efectivo - retiros - devoluciones.
+     */
+    void calcular() {
+        if (cargando) {
+            return;
+        }
+        cargando = true;
+        guardar1.setEnabled(false);
+        final java.util.Date dia = calendar.getDate() == null ? new Date() : calendar.getDate();
+        final int pedida = vistaPedida;
+        new SwingWorker<Carga, Void>() {
+            @Override
+            protected Carga doInBackground() throws Exception {
+                return cargar(dia, pedida);
+            }
+
+            @Override
+            protected void done() {
+                cargando = false;
+                guardar1.setEnabled(true);
+                try {
+                    aplicar(get());
+                } catch (Exception ex) {
+                    Throwable causa = ex.getCause() == null ? ex : ex.getCause();
+                    lblBanner.setText("No se pudo calcular el arqueo");
+                    lblBanner2.setText(String.valueOf(causa.getMessage()).replace('\n', ' ') + TurnoCaja.ayuda().replace('\n', ' '));
+                    banner.setBackground(new Color(251, 232, 229));
+                    banner.repaint();
+                }
+            }
+        }.execute();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -845,26 +1341,7 @@ public class arqueocaja extends JDialog {
     }//GEN-LAST:event_formWindowIconified
 
     private void guardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardar1ActionPerformed
-        cargar("");
-        cargarventas("");
-        cargaringresos("");
-        cargarpagos("");
-        cargardevo("");
-        try{
-        Integer resto;
-        DecimalFormat formateador = new DecimalFormat("###,###");
-        Number sum =formateador.parse(sumav.getText());
-        Number sum4 =formateador.parse(sumad.getText());
-        Number sum2 =formateador.parse(ingresos.getText());
-        Number sum1 =formateador.parse(sumar.getText());
-        Number sum3=formateador.parse(pagos.getText());
-        resto = sum2.intValue()+sum.intValue()+sum3.intValue()-sum1.intValue()-sum4.intValue();        
-        diferencia.setText(formateador.format(resto));    
-        }catch (ParseException e){
-        
-        }
-        
-        
+        calcular();
     }//GEN-LAST:event_guardar1ActionPerformed
 
     private void sumarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sumarActionPerformed
@@ -956,20 +1433,7 @@ public class arqueocaja extends JDialog {
     }//GEN-LAST:event_ingresosKeyTyped
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        cargar("");
-        cargarventas("");
-        cargaringresos("");
-        try{
-        Integer resto;
-        DecimalFormat formateador = new DecimalFormat("###,###");
-        Number sum =formateador.parse(sumav.getText());
-        Number sum2 =formateador.parse(ingresos.getText());
-        Number sum1 =formateador.parse(sumar.getText());
-        resto = sum2.intValue()+sum.intValue()-sum1.intValue();        
-        diferencia.setText(formateador.format(resto));    
-        }catch (ParseException e){
-        
-        }
+        calcular();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed

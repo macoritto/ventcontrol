@@ -35,6 +35,7 @@ import static ventcontrol.cliente.tablacliente;
     public updatecli(menu menuprincipal, boolean modal, Integer band, String codigo) {
         super(menuprincipal, modal);
         initComponents();
+        agregarBuscarRuc();
         this.setLocationRelativeTo(null);
         cod.setEnabled(false);                
         this.ban = band;
@@ -61,6 +62,26 @@ import static ventcontrol.cliente.tablacliente;
         descuento.setText("");
         limcre.setText("");        
     }
+
+    // ---- Búsqueda de RUC en el padrón de la DNIT (ver RucPadron) ----
+    private final javax.swing.JButton buscarRuc = new javax.swing.JButton();
+
+    private void agregarBuscarRuc() {
+        javax.swing.JTextField r = ruc;
+        getContentPane().add(r, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, 112, 30), 0);
+        buscarRuc.setText("Buscar");
+        buscarRuc.setToolTipText("Trae la razón social del RUC desde el padrón de la DNIT (también con Enter)");
+        buscarRuc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscarRuc();
+            }
+        });
+        getContentPane().add(buscarRuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(508, 120, 72, 30), 0);
+    }
+
+    private void buscarRuc() {
+        RucPadron.completar(this, ruc, razon, nombre, apellido, ci);
+    }
     void bloquear(){
         nombre.setEnabled(false);
         ci.setEnabled(false);
@@ -75,6 +96,7 @@ import static ventcontrol.cliente.tablacliente;
         checkdescu.setEnabled(false);
         btnguardar.setEnabled(false);
         ruc.setEnabled(false);
+        buscarRuc.setEnabled(false);
         sexocombo.setEnabled(false);
     }
     void desbloquear(){
@@ -91,6 +113,7 @@ import static ventcontrol.cliente.tablacliente;
         checkdescu.setEnabled(true);
         btnguardar.setEnabled(true);
         ruc.setEnabled(true);
+        buscarRuc.setEnabled(true);
         sexocombo.setEnabled(true);
     }
     public void setModel(DefaultTableModel modelo){
@@ -596,7 +619,7 @@ import static ventcontrol.cliente.tablacliente;
     }//GEN-LAST:event_direccionActionPerformed
 
     private void rucActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rucActionPerformed
-        // TODO add your handling code here:
+        buscarRuc();
     }//GEN-LAST:event_rucActionPerformed
 
     private void limcreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limcreActionPerformed

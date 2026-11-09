@@ -32,7 +32,7 @@ public class ventas extends JDialog {
         super(menuprincipal, modal);
         usuarioactu=usuactu;
         initComponents();        
-        this.setLocation(300, 30);  
+        disenoModerno();
         int contador=0;
         this.setTitle("Ventas.");
         fechaini.setDate(new Date());
@@ -93,7 +93,7 @@ public class ventas extends JDialog {
                     ResultSet as = st.executeQuery(sql1);
                     while(as.next()){
                         registros[2] = as.getString("id");                       
-                        registros[3] = as.getString("nombre")+as.getString("apellido");                       
+                        registros[3] = (as.getString("nombre")+" "+as.getString("apellido")).trim();                       
                     }
                     sql4="SELECT * FROM usuario where id='"+rs.getString("usuario_id")+"'";
                     st = cn.createStatement();
@@ -109,18 +109,11 @@ public class ventas extends JDialog {
                 nrocompras.setText(conta.toString());
                 totalcompra.setText(formateador.format(monto));
                 tablacliente.setModel(model); 
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(250);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(200);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(80);
+                ajustarColumnas();
                 model.fireTableDataChanged();         
                 cn.close();
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
+                        JOptionPane.showMessageDialog(this, "No se pudieron cargar las ventas:\n" + ex.getMessage());
         } 
        //view.setEnabled(false);
        //cargarcompra.setEnabled(false);
@@ -192,7 +185,7 @@ public class ventas extends JDialog {
                 totalcompra.setText(monto.toString());
                 cn.close();
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
+                        JOptionPane.showMessageDialog(this, "No se pudieron cargar las ventas:\n" + ex.getMessage());
         } 
        //view.setEnabled(false);
        //cargarcompra.setEnabled(false);
@@ -262,6 +255,182 @@ public class ventas extends JDialog {
         view.setEnabled(false);
         //cargarcompra.setEnabled(false);
     }    
+
+    // ---------------------------------------------------------------------------------------
+    //  Diseño moderno (mismo estilo que Ventas / Presupuesto)
+    // ---------------------------------------------------------------------------------------
+    private static final int[] ANCHOS = {60, 100, 70, 280, 110, 260, 110, 110};
+
+    private void ajustarColumnas() {
+        if (tablacliente.getColumnModel().getColumnCount() < ANCHOS.length) {
+            return;
+        }
+        for (int i = 0; i < ANCHOS.length; i++) {
+            tablacliente.getColumnModel().getColumn(i).setPreferredWidth(ANCHOS[i]);
+        }
+        // columna del código de cliente: no aporta, pero se conserva en el modelo (se usa al abrir la venta)
+        javax.swing.table.TableColumn cc = tablacliente.getColumnModel().getColumn(2);
+        cc.setMinWidth(0);
+        cc.setMaxWidth(0);
+        cc.setPreferredWidth(0);
+    }
+
+    private void disenoModerno() {
+        final java.awt.Container cp = getContentPane();
+        final int M = 20, G = 14, HEAD = 60, TH = 28, CH = 38;
+        final java.awt.Color acento = EstiloUI.AZUL_VIVO;
+
+        // ---- estilo de los componentes existentes ----
+        jLabel2.setText("VENTAS REALIZADAS");
+        jLabel2.setFont(EstiloUI.fuente(java.awt.Font.BOLD, 22));
+        jLabel2.setForeground(java.awt.Color.WHITE);
+        jLabel2.setIcon(null);
+        FormVentaUI.cap(jLabel5, "N° DE VENTAS", true, true);
+        FormVentaUI.cap(jLabel7, "TOTAL VENTAS", true, true);
+        FormVentaUI.sobreOscuro(nrocompras, 20, true);
+        FormVentaUI.sobreOscuro(totalcompra, 20, true);
+        nrocompras.setEditable(false);
+        totalcompra.setEditable(false);
+        nrocompras.setFocusable(false);
+        totalcompra.setFocusable(false);
+        FormVentaUI.cap(jLabel4, "FECHA INICIO", false, false);
+        FormVentaUI.cap(jLabel6, "FECHA FIN", false, false);
+        FormVentaUI.cap(jLabel1, "CLIENTE", false, false);
+
+        EstiloUI.campo(buscartxt);
+        for (com.toedter.calendar.JDateChooser dc : new com.toedter.calendar.JDateChooser[]{fechaini, fechafin}) {
+            javax.swing.JComponent ed = dc.getDateEditor().getUiComponent();
+            if (ed instanceof javax.swing.JTextField) {
+                EstiloUI.campo((javax.swing.JTextField) ed);
+            }
+            dc.setBorder(null);
+            EstiloUI.botonSecundario(dc.getCalendarButton());
+            dc.getCalendarButton().setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 6, 0, 6));
+        }
+
+        EstiloUI.botonAccion(cargarcompra);
+        cargarcompra.setText("BUSCAR");
+        FormVentaUI.ico(cargarcompra, EstiloUI.ICONO_LUPA, java.awt.Color.WHITE);
+        EstiloUI.botonAccion(view);
+        view.setText("Ver / Modificar");
+        FormVentaUI.ico(view, EstiloUI.ICONO_LAPIZ, java.awt.Color.WHITE);
+        EstiloUI.botonPeligro(delete1);
+        delete1.setText("Eliminar");
+        FormVentaUI.ico(delete1, EstiloUI.ICONO_BASURA, java.awt.Color.WHITE);
+        delete1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        EstiloUI.tabla(tablacliente, jScrollPane1);
+        tablacliente.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tablacliente.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        EstiloUI.derecha(tablacliente, 7);
+        tablacliente.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    boolean hay = tablacliente.getSelectedRow() >= 0;
+                    view.setEnabled(hay);
+                    delete1.setEnabled(hay);
+                }
+            }
+        });
+        // doble clic o Enter sobre una venta: abrirla
+        tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2 && tablacliente.getSelectedRow() >= 0) {
+                    viewActionPerformed(null);
+                }
+            }
+        });
+        tablacliente.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0), "abrirVenta");
+        tablacliente.getActionMap().put("abrirVenta", new javax.swing.AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (tablacliente.getSelectedRow() >= 0) {
+                    viewActionPerformed(null);
+                }
+            }
+        });
+
+        // sugerencia al pie
+        final javax.swing.JLabel pista = new javax.swing.JLabel("Doble clic (o Enter) sobre una venta para visualizarla o modificarla");
+        pista.setFont(EstiloUI.fuente(java.awt.Font.PLAIN, 12));
+        pista.setForeground(EstiloUI.MUTED);
+
+        // ---- armado (el primer componente agregado queda al frente) ----
+        cp.removeAll();
+        cp.setLayout(null);
+        cp.setBackground(FormVentaUI.FONDO_VENTA);
+        final FormVentaUI.Tarjeta tFiltros = new FormVentaUI.Tarjeta("FILTROS", acento, false);
+        final FormVentaUI.Tarjeta tLista = new FormVentaUI.Tarjeta("LISTADO DE VENTAS", FormVentaUI.VERDE, false);
+        final FormVentaUI.Cabecera cabecera = new FormVentaUI.Cabecera();
+        javax.swing.JComponent[] frente = {
+            jLabel2, jLabel5, nrocompras, jLabel7, totalcompra,
+            jLabel4, fechaini, jLabel6, fechafin, jLabel1, buscartxt, cargarcompra,
+            jScrollPane1, pista, view, delete1,
+            tFiltros, tLista, cabecera
+        };
+        for (javax.swing.JComponent c : frente) {
+            cp.add(c);
+        }
+
+        final Runnable relayout = new Runnable() {
+            public void run() {
+                int w = cp.getWidth(), h = cp.getHeight();
+                if (w <= 0 || h <= 0) {
+                    w = getWidth() - 16;
+                    h = getHeight() - 80;
+                }
+                cabecera.setBounds(0, 0, w, HEAD);
+                jLabel2.setBounds(M, 0, 380, HEAD - 3);
+                int xr = w - 24;
+                jLabel7.setBounds(xr - 200, 12, 200, 14);
+                totalcompra.setBounds(xr - 200, 26, 200, 26);
+                jLabel5.setBounds(xr - 200 - 30 - 140, 12, 140, 14);
+                nrocompras.setBounds(xr - 200 - 30 - 140, 26, 140, 26);
+
+                int top = HEAD + 14;
+                int fw = w - 2 * M;
+                int filtroH = TH + 8 + 14 + 3 + CH + 12;
+                tFiltros.setBounds(M, top, fw, filtroH);
+                int capY = top + TH + 8, fy = capY + 17;
+                int dw = 190, bw = 150;
+                int x = M + 16;
+                jLabel4.setBounds(x, capY, dw, 14);
+                fechaini.setBounds(x, fy, dw, CH);
+                x += dw + 12;
+                jLabel6.setBounds(x, capY, dw, 14);
+                fechafin.setBounds(x, fy, dw, CH);
+                x += dw + 12;
+                int bx = M + fw - 16 - bw;
+                jLabel1.setBounds(x, capY, 200, 14);
+                buscartxt.setBounds(x, fy, Math.max(120, bx - 12 - x), CH);
+                cargarcompra.setBounds(bx, fy, bw, CH);
+
+                int bottomH = 44, bottomY = h - M - bottomH;
+                int yl = top + filtroH + 10;
+                int lh = bottomY - 10 - yl;
+                tLista.setBounds(M, yl, fw, lh);
+                jScrollPane1.setBounds(M + 8, yl + TH + 6, fw - 16, lh - TH - 6 - 11);
+                delete1.setBounds(M + fw - 150, bottomY, 150, bottomH);
+                view.setBounds(M + fw - 150 - 8 - 190, bottomY, 190, bottomH);
+                pista.setBounds(M, bottomY, Math.max(100, fw - 150 - 8 - 190 - 16), bottomH);
+            }
+        };
+        cp.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                relayout.run();
+            }
+        });
+
+        setResizable(true);
+        java.awt.Rectangle pant = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int ancho = Math.min(1240, pant.width - 20);
+        int alto = Math.min(760, pant.height - 10);
+        setMinimumSize(new java.awt.Dimension(Math.min(900, ancho), Math.min(520, alto)));
+        setSize(ancho, alto);
+        relayout.run();
+        setLocationRelativeTo(getOwner());
+        EstiloForm.barraMenu(menu);
+        getRootPane().putClientProperty(EstiloForm.OMITIR, Boolean.TRUE);
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -516,37 +685,15 @@ public class ventas extends JDialog {
             codigo="";
             codigo1="";
         }
-        updateventa cp;
-        menu mimenu;
-        mimenu = new menu(0);
-        this.band=2;
-        System.out.print(codigo);
-        System.out.print("valor de la tabla");
-        cp = new updateventa(mimenu, true, codigo1, codigo, fechaini.getDate(), fechafin.getDate(), usuarioactu);        
-        cp.setVisible(true); 
-        Integer conta=0, monto=0;        
-        if(cp.modeloRefresca!=null){
-            tablacliente.setModel(cp.modeloRefresca); 
-            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(250);
-            tablacliente.getColumnModel().getColumn(4).setPreferredWidth(200);
-            tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-            tablacliente.getColumnModel().getColumn(6).setPreferredWidth(80);
-            Integer num1;
-            for(int z =0; z<tablacliente.getRowCount(); z++){                
-                conta = conta+1;
-                try{
-                        Number kore = formateador.parse(tablacliente.getValueAt(z, 6).toString());
-                        num1=kore.intValue();
-                        monto = monto + num1;                       
-                }catch (ParseException e){        
-                }
-            }
-            nrocompras.setText(formateador.format(conta));
-            totalcompra.setText(formateador.format(monto));
+        if(FilaSelec<0){
+            return;
         }
+        updateventa cp;
+        this.band=2;
+        cp = new updateventa((ventcontrol.menu) getOwner(), true, codigo1, codigo, fechaini.getDate(), fechafin.getDate(), usuarioactu);        
+        cp.setVisible(true); 
+        // al volver, se recarga el listado (la venta pudo modificarse)
+        cargar(buscartxt.getText());
     }//GEN-LAST:event_viewActionPerformed
 
     private void tablaclienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaclienteMouseClicked
@@ -593,26 +740,24 @@ public class ventas extends JDialog {
                             Connection cn = cc.conexion();
                             Statement staux = cn.createStatement();
                             ResultSet rsaux = staux.executeQuery(sql1);
+                            // Se reponen los productos de forma atómica (transacción + bloqueo de fila)
+                            java.util.List<String> prodsrepo = new java.util.ArrayList<String>();
+                            java.util.List<Double> cantsrepo = new java.util.ArrayList<Double>();
                             while(rsaux.next()){
-                                sqlaux="SELECT * FROM producto where codprodu='"+rsaux.getString("producto_codprodu")+"'";
-                                Statement stupdate = cn.createStatement();
-                                ResultSet rs1 = stupdate.executeQuery(sqlaux);
-                                while(rs1.next()){
-                                    stockaux= Double.parseDouble(rs1.getString("stock"));
-                                    codprodu = rs1.getString("codprodu");
+                                try{
+                                    cantsrepo.add(Double.valueOf(rsaux.getString("cantidad").trim().replace(",", ".")));
+                                    prodsrepo.add(rsaux.getString("producto_codprodu"));
+                                }catch(NumberFormatException exnum){
+                                    JOptionPane.showMessageDialog(null, "Cantidad inválida en el producto " + rsaux.getString("producto_codprodu") + ": revise su stock.");
                                 }
-                                auxcanti = Double.parseDouble(rsaux.getString("cantidad"));      
-                                if(stockaux<0){
-                                    totalstock=0.0;
-                                }
-                                totalstock = stockaux+auxcanti;
-                                String sql4 ="UPDATE producto SET stock='"+totalstock.toString()+"' where codprodu='"+codprodu+"'";
-                                PreparedStatement st2 = cn.prepareStatement(sql4);
-                                st2.executeUpdate();
-                                sql2 ="DELETE FROM detventa where venta_codventa='"+rsaux.getString("venta_codventa")+"'";
-                                PreparedStatement st1 = cn.prepareStatement(sql2);
-                                st1.executeUpdate();
-                            }                                
+                            }
+                            rsaux.close();
+                            for(int r = 0; r < prodsrepo.size(); r++){
+                                StockUtil.reponer(prodsrepo.get(r), cantsrepo.get(r).doubleValue());
+                            }
+                            sql2 ="DELETE FROM detventa where venta_codventa='"+cod+"'";
+                            PreparedStatement stdet = cn.prepareStatement(sql2);
+                            stdet.executeUpdate();
                             sql ="DELETE FROM venta where codventa='"+cod+"'";                                                                 
                             PreparedStatement st = cn.prepareStatement(sql);         
                             System.out.print(sql);

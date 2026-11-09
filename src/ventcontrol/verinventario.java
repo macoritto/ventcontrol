@@ -54,6 +54,7 @@ public class verinventario extends JDialog {
     Integer usuarioactu;
     Integer detinv;
     Integer idinv;
+    JLabel lblResumen;
     public verinventario(menu menuprincipal, boolean modal, Integer usuario, Integer idinventario) {
         super(menuprincipal, modal);
         initComponents();        
@@ -71,7 +72,31 @@ public class verinventario extends JDialog {
         guardar.setEnabled(true);
         //view.setEnabled(false);
         //nuevo.setEnabled(false);
+        disenoConteo();
         cargarinv("");
+    }
+
+    /** Más ancho para la tabla con el conteo, y una línea de resumen abajo. */
+    private void disenoConteo() {
+        final int W = 1280, H = 630;
+        java.awt.Container cp = getContentPane();
+        guardar.setText("  Reporte PDF ");
+        ModeloInventario.colocar(cp, descrip, 590, 30, 650, 30);
+        ModeloInventario.colocar(cp, jLabel4, 860, 90, 80, 30);
+        ModeloInventario.colocar(cp, hora, 910, 90, 120, 30);
+        ModeloInventario.colocar(cp, jLabel7, 1040, 90, 80, 30);
+        ModeloInventario.colocar(cp, user, 1120, 90, 120, 30);
+        ModeloInventario.colocar(cp, jScrollPane1, 40, 130, 1200, 420);
+        ModeloInventario.colocar(cp, view1, 910, 560, 160, 60);
+        ModeloInventario.colocar(cp, guardar, 1080, 560, 160, 60);
+        lblResumen = new JLabel("");
+        lblResumen.setFont(new java.awt.Font("Khmer UI", java.awt.Font.BOLD, 13));
+        lblResumen.setForeground(new java.awt.Color(240, 240, 240));
+        lblResumen.setVerticalAlignment(SwingConstants.TOP);
+        cp.add(lblResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 560, 850, 60), 0);
+        ModeloInventario.ampliarFondo(cp, fondo, W, H);
+        pack();
+        setLocationRelativeTo(getOwner());
     }
 
     verinventario(menu2 mimenu2, boolean b) {
@@ -150,19 +175,18 @@ public class verinventario extends JDialog {
         }        
     }
     void cargarinv(String valor){
-        String [] titulos ={"Cod","Nombre","Stock Ini", "Comprado","Vendido","Devuelto","Reajuste Mas","Reajuste Menos","Stock Actual"};
-        String [] registros = new String[9];
-        String sql, sql1;        
-        sql="SELECT i.id_inv as id_inv, i.descripcion as descripcion, i.fecha as fecha, i.fechaini as fechaini, i.fechafin as fechafin, i.hora as hora, u.usuario as usuario FROM inventario i inner join usuario u ON i.usuario=u.id where i.id_inv='"+idinv+"' ORDER BY i.id_inv";                    
-        model = new DefaultTableModel (null, titulos);     
-        TableRowSorter sorter = new TableRowSorter(model);
+        InventarioDb.asegurarEsquema();
+        model = new DefaultTableModel (null, ModeloInventario.TITULOS) {
+            @Override
+            public boolean isCellEditable(int fila, int col) {
+                return false;
+            }
+        };
+        Connection cn = null;
         try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
+                cn = new conectar().conexion();
                 Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
+                ResultSet rs = st.executeQuery("SELECT i.id_inv as id_inv, i.descripcion as descripcion, i.fecha as fecha, i.fechaini as fechaini, i.fechafin as fechafin, i.hora as hora, i.alcance as alcance, i.ajustado as ajustado, u.usuario as usuario FROM inventario i inner join usuario u ON i.usuario=u.id where i.id_inv='"+idinv+"' ORDER BY i.id_inv");
                 while(rs.next()){
                     cod.setText(rs.getString("id_inv"));
                     descrip.setText(rs.getString("descripcion"));
@@ -171,43 +195,75 @@ public class verinventario extends JDialog {
                     fechafin.setDate(rs.getDate("fechafin"));
                     user.setText(rs.getString("usuario"));
                     hora.setText(rs.getString("hora"));
-                    String sql2="SELECT * FROM detinv where inventario='"+idinv+"' ORDER BY id_inv";
-                    Statement st1 = cn.createStatement();
-                    ResultSet rs1 = st1.executeQuery(sql2);
-                    while(rs1.next()){
-                        registros[0] = rs.getString("id_inv");
-                        String sql3="SELECT * FROM producto where codprodu='"+rs1.getString("producto")+"'";
-                        st = cn.createStatement();
-                        ResultSet bs = st.executeQuery(sql3);
-                        while(bs.next()){
-                            registros[1] = bs.getString("nomprodu");                       
+                    String alc = rs.getString("alcance");
+                    this.setTitle("Inventario Seleccionado." + (alc == null || alc.isEmpty() ? "" : " " + alc)
+                            + ("1".equals(rs.getString("ajustado")) ? "  [stock ajustado a lo contado]" : ""));
+                }
+                rs.close();
+                ResultSet rs1 = st.executeQuery("SELECT d.producto AS cod, p.nomprodu AS nom, d.stockini, d.comprado, d.vendido, d.entregado, d.repo, d.rene, d.stock, "
+                        + "d.contado, d.stock_sistema, d.costo "
+                        + "FROM detinv d LEFT JOIN producto p ON p.codprodu::text=d.producto::text WHERE d.inventario='"+idinv+"' ORDER BY d.id_inv");
+                while(rs1.next()){
+                    String [] r = new String[15];
+                    r[0] = rs1.getString("cod");
+                    r[1] = rs1.getString("nom") == null ? "(producto no encontrado)" : rs1.getString("nom");
+                    for (int c = 2; c <= 7; c++) {
+                        r[c] = rs1.getString(c + 1);
+                    }
+                    // Stock Actual = el que tenía el sistema al guardar (antes de ajustar); en inventarios viejos, el stock guardado.
+                    String sistema = rs1.getString("stock_sistema");
+                    r[8] = sistema != null ? sistema : rs1.getString("stock");
+                    // Stock Ini + Comprado + Vendido (guardado con signo -) + Devuelto + Reajuste(+) + Reajuste(-) (con signo -)
+                    try {
+                        java.math.BigDecimal teorico = java.math.BigDecimal.ZERO;
+                        for (int c = 2; c <= 7; c++) {
+                            teorico = teorico.add(new java.math.BigDecimal(r[c].trim()));
                         }
-                        registros[2] = rs1.getString("stockini");                    
-                        registros[3] = rs1.getString("comprado");
-                        registros[4] = rs1.getString("vendido");
-                        registros[5] = rs1.getString("entregado");
-                        registros[6] = rs1.getString("repo");
-                        registros[7] = rs1.getString("rene");
-                        registros[8] = rs1.getString("stock");                        
-                        model.addRow(registros);                                                                 
-                    }                                                            
-                    
-                }                
-                model.fireTableDataChanged();                                
+                        r[9] = ModeloInventario.plano(teorico);
+                        r[10] = ModeloInventario.plano(new java.math.BigDecimal(r[8].trim()).subtract(teorico));
+                    } catch (RuntimeException ex) {
+                        r[9] = "";
+                        r[10] = "";
+                    }
+                    String contado = rs1.getString("contado");
+                    String costo = rs1.getString("costo");
+                    r[11] = "";
+                    r[12] = "";
+                    r[13] = costo == null ? "" : ModeloInventario.plano(new java.math.BigDecimal(costo.trim()));
+                    r[14] = "";
+                    if (contado != null) {
+                        try {
+                            java.math.BigDecimal cont = new java.math.BigDecimal(contado.trim());
+                            java.math.BigDecimal dif = cont.subtract(new java.math.BigDecimal(r[8].trim()));
+                            r[11] = ModeloInventario.plano(cont);
+                            r[12] = ModeloInventario.plano(dif);
+                            r[14] = ModeloInventario.plano(dif.multiply(ModeloInventario.num(r[13])).setScale(0, java.math.RoundingMode.HALF_UP));
+                        } catch (RuntimeException ex) {
+                            // fila sin conteo válido
+                        }
+                    }
+                    model.addRow(r);
+                }
+                rs1.close();
+                st.close();
                 tablacliente.setModel(model);
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(250);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(40);
-                tablacliente.getColumnModel().getColumn(8).setPreferredWidth(40);                
+                ModeloInventario.estilizar(tablacliente);
+                if (lblResumen != null) {
+                    lblResumen.setText(ModeloInventario.resumen(model));
+                }
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, " PROBLEMAS AL CARGAR EL INV");
-        }        
+                JOptionPane.showMessageDialog(null, "No se pudo cargar el inventario:\n" + ex.getMessage() + InventarioDb.ayuda());
+        }finally{
+                if (cn != null) {
+                    try {
+                        cn.close();
+                    } catch (SQLException ignorada) {
+                    }
+                }
+        }
     }
+
+
     void cargarventas(String valor){
         String [] titulos ={"fecha","Cantidad","Costo","Sub-total"};
         String [] registros = new String[4];
@@ -258,7 +314,7 @@ public class verinventario extends JDialog {
 void abrirproveedor(){
     buscarprodu3 p;
         menu mimenu;
-        mimenu = new menu(0);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu3(mimenu, true, fechaini.getDate(), fechafin.getDate());
         p.setVisible(true);        
         if(p.model1!=null){
@@ -581,53 +637,7 @@ void cargarprov(String valor){
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
-        try {
-                        String sql="SELECT * FROM reporte where id='2'";
-                        conectar cc = new conectar();
-                        Connection cn = cc.conexion();
-                        Statement st = cn.createStatement();
-                        ResultSet rs = st.executeQuery(sql);
-                        String impreaux="";
-                        while(rs.next()){
-                            impreaux=rs.getString("impresora");
-                        }
-                        st.close();
-                        ConexionBD cbd = new ConexionBD();           
-                        JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/inventario.jasper"));
-                        //JasperReport jr =  JasperCompileManager.compileReport(archivo);      
-                        Map<String, Object> parametros = new HashMap<String, Object>();        
-                        PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
-                                parametros.put("vCodventa", Integer.parseInt(cod.getText()));
-                                JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
-                                cn.close();
-                        } catch (Exception ex) {
-                            Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+        InventarioReporte.preguntarYGenerar(this, idinv);
     }//GEN-LAST:event_guardarActionPerformed
 
     private void view1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_view1ActionPerformed

@@ -36,6 +36,7 @@ import java.text.DecimalFormat;
     public cargarcli2(menu menuprincipal, boolean modal, Integer band, String codigo) {
         super(menuprincipal, modal);
         initComponents();
+        agregarBuscarRuc();
         this.setLocationRelativeTo(null);
         cod.setEnabled(false);
         limpiar();
@@ -67,6 +68,26 @@ import java.text.DecimalFormat;
         }catch(SQLException ex){
         
         }
+    }
+
+    // ---- Búsqueda de RUC en el padrón de la DNIT (ver RucPadron) ----
+    private final javax.swing.JButton buscarRuc = new javax.swing.JButton();
+
+    private void agregarBuscarRuc() {
+        javax.swing.JTextField r = ruc;
+        getContentPane().add(r, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, 112, 30), 0);
+        buscarRuc.setText("Buscar");
+        buscarRuc.setToolTipText("Trae la razón social del RUC desde el padrón de la DNIT (también con Enter)");
+        buscarRuc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscarRuc();
+            }
+        });
+        getContentPane().add(buscarRuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(508, 120, 72, 30), 0);
+    }
+
+    private void buscarRuc() {
+        RucPadron.completar(this, ruc, razon, nombre, apellido, ci);
     }
     void limpiar(){
         nombre.setText(null);
@@ -584,7 +605,7 @@ import java.text.DecimalFormat;
     }//GEN-LAST:event_direccionActionPerformed
 
     private void rucActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rucActionPerformed
-        // TODO add your handling code here:
+        buscarRuc();
     }//GEN-LAST:event_rucActionPerformed
 
     private void limcreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limcreActionPerformed

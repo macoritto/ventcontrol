@@ -256,14 +256,14 @@ public class menu extends javax.swing.JFrame {
         });
         estilizarBotonNav(jButton6);
 
-        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/log-out.png"))); // NOI18N
-        jButton7.setToolTipText("Salir");
+        jButton7.setText("Cerrar sesión");
+        jButton7.setToolTipText("Cerrar la sesión y volver al inicio de sesión");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
             }
         });
-        estilizarBotonSalir(jButton7);
+        estilizarBotonCerrarSesion(jButton7);
 
         jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cajaarqueo.png"))); // NOI18N
         jButton8.setText("  ARQUEO CAJA");
@@ -283,25 +283,57 @@ public class menu extends javax.swing.JFrame {
         });
         estilizarBotonNav(jButton9);
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/macocar.png"))); // NOI18N
+        jLabel3.setIcon(crearLogoRedondo(LOGO_SIZE));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setVerticalAlignment(javax.swing.SwingConstants.CENTER);
 
-        nom.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        nom.setForeground(new java.awt.Color(33, 37, 41));
+        // Tarjeta de usuario (abajo en el sidebar): nombre + rol sobre fondo oscuro.
+        nom.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+        nom.setForeground(java.awt.Color.WHITE);
 
-        usu.setFont(new java.awt.Font("Segoe UI", 0, 12));
-        usu.setForeground(new java.awt.Color(120, 128, 138));
-        usu.setText("BIENVENIDO,");
-        usu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        usu.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
+        usu.setForeground(new java.awt.Color(150, 172, 194));
+        usu.setText("Sesión iniciada");
+        usu.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
-        horas.setFont(new java.awt.Font("Segoe UI", 1, 13));
-        horas.setForeground(new java.awt.Color(60, 68, 78));
+        // Encabezado del contenido: hora y fecha a la derecha, título a la izquierda.
+        horas.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
+        horas.setForeground(new java.awt.Color(33, 43, 56));
         horas.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
-        fecha.setFont(new java.awt.Font("Segoe UI", 0, 12));
+        fecha.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
         fecha.setForeground(new java.awt.Color(120, 128, 138));
         fecha.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
+        tituloPanel = new javax.swing.JLabel("Panel principal");
+        tituloPanel.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
+        tituloPanel.setForeground(new java.awt.Color(33, 43, 56));
+
+        saludoSub = new javax.swing.JLabel("Bienvenido");
+        saludoSub.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        saludoSub.setForeground(new java.awt.Color(120, 128, 138));
+
+        // Panel de estadísticas (ventas del mes, proyección, gráficos, top productos y alertas).
+        panelEstadisticas = new PanelEstadisticas();
+        btnActualizar = new javax.swing.JButton("Actualizar");
+        estilizarBotonActualizar(btnActualizar);
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                panelEstadisticas.recargar();
+            }
+        });
+        // Al volver de cualquier formulario (diálogo modal) se refrescan las estadísticas.
+        addWindowFocusListener(new java.awt.event.WindowAdapter() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                panelEstadisticas.recargarSiPaso(4000);
+            }
+        });
+
+        headerBar = new javax.swing.JPanel();
+        headerBar.setBackground(java.awt.Color.WHITE);
+        headerBar.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(224, 228, 233)));
+
+        userCard = new UserCard();
 
         fondo.setBackground(SIDEBAR_BG);
 
@@ -805,13 +837,18 @@ public class menu extends javax.swing.JFrame {
         // Diseño manual con posicionamiento absoluto + reajuste dinámico en cada resize.
         // Reemplaza el GroupLayout anterior (que había quedado desincronizado con el .form
         // y terminaba tapando/ocultando los botones) por un layout nulo explícito: cada
-        // componente se agrega en el orden correcto (fondo -> botones -> fondo1 -> encabezado)
-        // para que el apilado visual (z-order) sea siempre el esperado, y un listener de
+        // componente se agrega en el orden correcto (ver nota de z-order más abajo)
+        // para que el apilado visual sea siempre el esperado, y un listener de
         // resize recalcula tamaños/posiciones para adaptarse a cualquier resolución de pantalla.
         final java.awt.Container raiz = getContentPane();
         raiz.setLayout(null);
 
-        raiz.add(fondo);
+        // OJO con el orden: en Swing/AWT el z-order es INVERSO al orden de add(): el primer
+        // componente agregado queda AL FRENTE y el último AL FONDO. Por eso los paneles de
+        // fondo (fondo, fondo1) se agregan al final, para que queden detrás de los botones y
+        // de las etiquetas. Antes se agregaban primero y tapaban todo el sidebar: los botones
+        // solo se veían al pasar el mouse porque cada repintado individual los dibujaba
+        // encima del panel de fondo.
         raiz.add(jButton4);
         raiz.add(jButton2);
         raiz.add(jButton3);
@@ -820,15 +857,22 @@ public class menu extends javax.swing.JFrame {
         raiz.add(jButton6);
         raiz.add(jButton8);
         raiz.add(jButton9);
-        raiz.add(fondo1);
         raiz.add(jLabel3);
-        raiz.add(fecha);
-        raiz.add(horas);
+        raiz.add(jButton7);
         raiz.add(usu);
         raiz.add(nom);
-        raiz.add(jButton7);
+        raiz.add(userCard);
+        raiz.add(fecha);
+        raiz.add(horas);
+        raiz.add(tituloPanel);
+        raiz.add(headerBar);
+        raiz.add(btnActualizar);
+        raiz.add(saludoSub);
+        raiz.add(panelEstadisticas);
+        raiz.add(fondo1);
+        raiz.add(fondo);
 
-        int bx = 16, bw = 228, bh = 60, bgap = 14, by = 26;
+        int bx = 16, bw = 228, bh = NAV_H, bgap = NAV_GAP, by = NAV_TOP;
         jButton4.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton2.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton3.setBounds(bx, by, bw, bh); by += bh + bgap;
@@ -894,36 +938,278 @@ public class menu extends javax.swing.JFrame {
             }
         });
 
+        // Primero se instala la barra y recién después se la estiliza: setJMenuBar() hace que
+        // Nimbus vuelva a instalar su propio UI (degradé gris) y pisaba el estilo plano,
+        // dejando una franja gris a la derecha de los menús.
         setJMenuBar(menusys);
+        estilizarMenuBar();
     }// </editor-fold>//GEN-END:initComponents
+
+    // ---- Estilo plano y moderno para la barra de menú superior ----
+    private static final java.awt.Color MB_BG = java.awt.Color.WHITE;
+    private static final java.awt.Color MB_LINE = new java.awt.Color(224, 228, 233);
+    private static final java.awt.Color MB_TEXT = new java.awt.Color(40, 48, 60);
+    private static final java.awt.Color MB_MUTED = new java.awt.Color(130, 138, 150);
+    private static final java.awt.Color MB_SELECT = new java.awt.Color(0, 102, 153);
+
+    /** UI plana para los menús (JMenu) de la barra y de los submenús. */
+    private static class FlatMenuUI extends javax.swing.plaf.basic.BasicMenuUI {
+        protected void installDefaults() {
+            super.installDefaults();
+            selectionBackground = MB_SELECT;
+            selectionForeground = java.awt.Color.WHITE;
+            acceleratorForeground = MB_MUTED;
+            acceleratorSelectionForeground = new java.awt.Color(210, 232, 242);
+            disabledForeground = MB_MUTED;
+        }
+    }
+
+    /** UI plana para los ítems (JMenuItem) de los menús desplegables. */
+    private static class FlatMenuItemUI extends javax.swing.plaf.basic.BasicMenuItemUI {
+        protected void installDefaults() {
+            super.installDefaults();
+            selectionBackground = MB_SELECT;
+            selectionForeground = java.awt.Color.WHITE;
+            acceleratorForeground = MB_MUTED;
+            acceleratorSelectionForeground = new java.awt.Color(210, 232, 242);
+            disabledForeground = MB_MUTED;
+        }
+    }
+
+    /**
+     * Reemplaza el aspecto "viejo" de Nimbus (degradé, íconos de colores, texto en negrita)
+     * por una barra plana: fondo blanco, línea inferior fina, tipografía Segoe UI normal,
+     * resaltado azul al pasar el mouse y desplegables con borde fino. Se aplica de forma
+     * recursiva a todos los menús y submenús de menusys.
+     */
+    private void estilizarMenuBar() {
+        menusys.setUI(new javax.swing.plaf.basic.BasicMenuBarUI());
+        menusys.setOpaque(true);
+        menusys.setBackground(MB_BG);
+        menusys.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, MB_LINE));
+        menusys.setPreferredSize(new java.awt.Dimension(232, 36));
+        for (java.awt.Component c : menusys.getComponents()) {
+            if (c instanceof javax.swing.JMenu) {
+                estilizarMenu((javax.swing.JMenu) c, true);
+            }
+        }
+    }
+
+    private void estilizarMenu(javax.swing.JMenu m, boolean superior) {
+        m.setUI(new FlatMenuUI());
+        m.setIcon(null);
+        if (m.getText() != null) {
+            m.setText(m.getText().trim());
+        }
+        m.setOpaque(true);
+        m.setBackground(MB_BG);
+        m.setForeground(MB_TEXT);
+        m.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, superior ? 14 : 13));
+        m.setBorder(javax.swing.BorderFactory.createEmptyBorder(
+                superior ? 8 : 7, superior ? 14 : 12, superior ? 8 : 7, superior ? 14 : 12));
+        m.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.JPopupMenu popup = m.getPopupMenu();
+        popup.setUI(new javax.swing.plaf.basic.BasicPopupMenuUI());
+        popup.setOpaque(true);
+        popup.setBackground(MB_BG);
+        popup.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(MB_LINE),
+                javax.swing.BorderFactory.createEmptyBorder(4, 0, 4, 0)));
+
+        for (java.awt.Component c : m.getMenuComponents()) {
+            if (c instanceof javax.swing.JMenu) {
+                estilizarMenu((javax.swing.JMenu) c, false);
+            } else if (c instanceof javax.swing.JMenuItem) {
+                javax.swing.JMenuItem it = (javax.swing.JMenuItem) c;
+                it.setUI(new FlatMenuItemUI());
+                it.setIcon(null);
+                if (it.getText() != null) {
+                    it.setText(it.getText().trim());
+                }
+                it.setOpaque(true);
+                it.setBackground(MB_BG);
+                it.setForeground(MB_TEXT);
+                it.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+                it.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 14, 7, 14));
+                it.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            } else if (c instanceof javax.swing.JSeparator) {
+                ((javax.swing.JSeparator) c).setUI(new javax.swing.plaf.basic.BasicPopupMenuSeparatorUI());
+                c.setForeground(MB_LINE);
+                c.setBackground(MB_BG);
+            }
+        }
+    }
+
+    private static final int LOGO_SIZE = 96;
+    private static final int NAV_TOP = 128;
+    private static final int NAV_H = 48;
+    private static final int NAV_GAP = 8;
+    private javax.swing.JLabel tituloPanel;
+    private PanelEstadisticas panelEstadisticas;
+    private javax.swing.JButton btnActualizar;
+    private javax.swing.JLabel saludoSub;
+    private javax.swing.JPanel headerBar;
+    private UserCard userCard;
 
     private static final java.awt.Color SIDEBAR_BG = new java.awt.Color(16, 44, 72);
     private static final java.awt.Color NAV_BASE = new java.awt.Color(31, 68, 102);
     private static final java.awt.Color NAV_HOVER = new java.awt.Color(0, 102, 153);
     private static final java.awt.Color CONTENT_BG = new java.awt.Color(247, 248, 250);
 
-    /** Aplica el estilo plano de navegación (barra lateral) a un botón del menú. */
-    private void estilizarBotonNav(final javax.swing.JButton b) {
+
+    /** Tarjeta de usuario del sidebar: fondo redondeado + avatar circular con la inicial. */
+    private static class UserCard extends javax.swing.JPanel {
+        private String inicial = "?";
+
+        UserCard() {
+            setOpaque(false);
+        }
+
+        void setInicial(String texto) {
+            String t = texto == null ? "" : texto.trim();
+            inicial = t.isEmpty() ? "?" : t.substring(0, 1).toUpperCase();
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setColor(new java.awt.Color(24, 60, 94));
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 18, 18);
+            g2.setColor(new java.awt.Color(0, 150, 200));
+            g2.fillOval(14, 14, 42, 42);
+            g2.setColor(java.awt.Color.WHITE);
+            g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 20));
+            java.awt.FontMetrics fm = g2.getFontMetrics();
+            int tx = 14 + (42 - fm.stringWidth(inicial)) / 2;
+            int ty = 14 + (42 - fm.getHeight()) / 2 + fm.getAscent();
+            g2.drawString(inicial, tx, ty);
+            g2.dispose();
+        }
+    }
+
+    /** Muestra el usuario logueado en la tarjeta del sidebar y en el saludo del contenido. */
+    private void mostrarUsuario(String nombre, String rol) {
+        String n = nombre == null ? "" : nombre;
+        nom.setText(n);
+        usu.setText("0".equals(rol) ? "Administrador" : "Usuario");
+        userCard.setInicial(n);
+        saludoSub.setText("Bienvenido, " + n);
+    }
+
+    /** Logo circular escalado con buena calidad (el PNG original es mucho más grande). */
+    private javax.swing.ImageIcon crearLogoRedondo(int size) {
+        java.awt.image.BufferedImage dst = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        try {
+            java.awt.Image src = new javax.swing.ImageIcon(getClass().getResource("/images/macocar.png")).getImage();
+            // Reducción en dos pasos (primero al doble de tamaño) para que quede nítido.
+            java.awt.image.BufferedImage mid = new java.awt.image.BufferedImage(size * 2, size * 2, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+            java.awt.Graphics2D g1 = mid.createGraphics();
+            g1.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g1.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+            g1.drawImage(src, 0, 0, size * 2, size * 2, null);
+            g1.dispose();
+            java.awt.Graphics2D g2 = dst.createGraphics();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.drawImage(mid, 0, 0, size, size, null);
+            // Aro fino blanco translúcido alrededor del logo.
+            g2.setColor(new java.awt.Color(255, 255, 255, 60));
+            g2.setStroke(new java.awt.BasicStroke(2f));
+            g2.drawOval(1, 1, size - 3, size - 3);
+            g2.dispose();
+        } catch (Exception ex) {
+            // Si no se encuentra la imagen, queda el espacio vacío.
+        }
+        return new javax.swing.ImageIcon(dst);
+    }
+
+    /** Escala un ícono a size x size con buena calidad (los PNG de los botones son de 64px). */
+    private static javax.swing.Icon escalarIcono(javax.swing.Icon icon, int size) {
+        if (!(icon instanceof javax.swing.ImageIcon)) {
+            return icon;
+        }
+        java.awt.Image src = ((javax.swing.ImageIcon) icon).getImage();
+        java.awt.image.BufferedImage mid = new java.awt.image.BufferedImage(size * 2, size * 2, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D g1 = mid.createGraphics();
+        g1.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g1.drawImage(src, 0, 0, size * 2, size * 2, null);
+        g1.dispose();
+        java.awt.image.BufferedImage dst = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D g2 = dst.createGraphics();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+        g2.drawImage(mid, 0, 0, size, size, null);
+        g2.dispose();
+        return new javax.swing.ImageIcon(dst);
+    }
+
+    /** Botón "Actualizar" del encabezado: contorno fino, se rellena de azul al pasar el mouse. */
+    private void estilizarBotonActualizar(final javax.swing.JButton b) {
         b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         b.setOpaque(true);
         b.setContentAreaFilled(true);
-        b.setBackground(NAV_BASE);
-        b.setForeground(java.awt.Color.WHITE);
-        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+        b.setFocusPainted(false);
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        b.setBackground(java.awt.Color.WHITE);
+        b.setForeground(new java.awt.Color(0, 102, 153));
+        b.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 153)));
+        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b.setToolTipText("Volver a leer los datos de la base");
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(new java.awt.Color(0, 102, 153));
+                b.setForeground(java.awt.Color.WHITE);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(java.awt.Color.WHITE);
+                b.setForeground(new java.awt.Color(0, 102, 153));
+            }
+        });
+    }
+
+    /** Botón "Cerrar sesión": fondo suave que pasa a rojo al hacer hover. */
+    private void estilizarBotonCerrarSesion(final javax.swing.JButton b) {
+        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
+        b.setIcon(null);
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
         b.setBorderPainted(false);
         b.setFocusPainted(false);
-        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        b.setIconTextGap(14);
-        b.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 18, 0, 6));
+        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        b.setBackground(new java.awt.Color(40, 78, 114));
+        b.setForeground(new java.awt.Color(255, 190, 182));
+        b.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        b.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 8, 0, 8));
         b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         b.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                b.setBackground(NAV_HOVER);
+                b.setBackground(new java.awt.Color(200, 62, 52));
+                b.setForeground(java.awt.Color.WHITE);
             }
             public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(NAV_BASE);
+                b.setBackground(new java.awt.Color(40, 78, 114));
+                b.setForeground(new java.awt.Color(255, 190, 182));
             }
         });
+    }
+
+    /** Aplica el estilo plano de navegación (barra lateral) a un botón del menú. */
+    private void estilizarBotonNav(final javax.swing.JButton b) {
+        // Mismo estilo (esquinas redondeadas, hover azul) que los botones de Clientes,
+        // Productos y Proveedores. Los textos traían espacios de relleno para "centrarlos":
+        // se quitan para que todos queden alineados a la izquierda junto al ícono.
+        if (b.getText() != null) {
+            b.setText(b.getText().trim());
+        }
+        b.setIcon(escalarIcono(b.getIcon(), 32));
+        EstiloUI.botonLateral(b);
+        b.setFont(EstiloUI.fuente(java.awt.Font.BOLD, 14));
+        b.setIconTextGap(14);
+        b.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 14, 0, 6));
     }
 
     /**
@@ -977,17 +1263,30 @@ public class menu extends javax.swing.JFrame {
         fondo.setBounds(0, 0, sidebarW, h);
         fondo1.setBounds(sidebarW, 0, Math.max(0, w - sidebarW), h);
 
-        int logoutSize = 40;
-        int margin = 24;
-        jButton7.setBounds(w - margin - logoutSize, 18, logoutSize, logoutSize);
+        // Logo centrado arriba en el sidebar.
+        jLabel3.setBounds((sidebarW - LOGO_SIZE) / 2, 18, LOGO_SIZE, LOGO_SIZE);
 
-        int rightEdge = jButton7.getX() - 16;
-        horas.setBounds(rightEdge - 100, 14, 100, 20);
-        fecha.setBounds(horas.getX() - 8 - 140, 14, 140, 20);
-        nom.setBounds(rightEdge - 120, 40, 120, 20);
-        usu.setBounds(nom.getX() - 8 - 100, 40, 100, 20);
+        // Tarjeta de usuario abajo en el sidebar: avatar + nombre + rol + "Cerrar sesión".
+        int cardX = 16, cardW = sidebarW - 32, cardH = 108;
+        int cardY = Math.max(NAV_TOP + 8 * (NAV_H + NAV_GAP), h - cardH - 16);
+        userCard.setBounds(cardX, cardY, cardW, cardH);
+        nom.setBounds(cardX + 68, cardY + 14, cardW - 80, 22);
+        usu.setBounds(cardX + 68, cardY + 36, cardW - 80, 18);
+        jButton7.setBounds(cardX + 12, cardY + cardH - 12 - 34, cardW - 24, 34);
 
-        jLabel3.setBounds(sidebarW + 30, 90, 220, 100);
+        // Encabezado del contenido.
+        int headerH = 76;
+        headerBar.setBounds(sidebarW, 0, Math.max(0, w - sidebarW), headerH);
+        tituloPanel.setBounds(sidebarW + 30, 14, 320, 30);
+        saludoSub.setBounds(sidebarW + 30, 46, 420, 20);
+        int rightEdge = w - 30;
+        horas.setBounds(rightEdge - 160, 14, 160, 28);
+        fecha.setBounds(rightEdge - 200, 44, 200, 18);
+
+        btnActualizar.setBounds(rightEdge - 200 - 16 - 104, 22, 104, 32);
+
+        // Panel de estadísticas ocupa todo el contenido bajo el encabezado.
+        panelEstadisticas.setBounds(sidebarW, headerH, Math.max(0, w - sidebarW), Math.max(0, h - headerH));
     }
 
     /**
@@ -1025,7 +1324,12 @@ public class menu extends javax.swing.JFrame {
             Statement st = cn.createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
-                nom.setText(rs.getString("usuario"));
+                String rol = "";
+                try {
+                    rol = rs.getString("rol_id");
+                } catch (SQLException ignorada) {
+                }
+                mostrarUsuario(rs.getString("usuario"), rol);
             }
         } catch (SQLException ex) {
 
@@ -1079,7 +1383,13 @@ public class menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        int r = JOptionPane.showConfirmDialog(this, "¿Querés cerrar la sesión?", "Cerrar sesión",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (r != JOptionPane.YES_OPTION) {
+            return;
+        }
         this.dispose();
+        new iniciosesion().setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed

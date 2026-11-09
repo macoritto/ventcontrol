@@ -17,8 +17,8 @@ import javax.swing.JOptionPane;
 public class ConexionBD {
      
     private Connection conexion = null;
-    //private String urlBD = "jdbc:postgresql://192.168.100.11:5433/ventcontrol";
-    private String urlBD = "jdbc:postgresql://localhost:5433/macocar";
+    private String urlBD = "jdbc:postgresql://192.168.100.56:5433/macocar";
+    //private String urlBD = "jdbc:postgresql://localhost:5433/macocar";
     
     private String userBD = "postgres";
     private String passBD = "macorittogo";

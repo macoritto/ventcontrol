@@ -29,6 +29,9 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class proveedor extends JDialog {
 
+    private static final String[] TITULOS = {"Cód.", "Nombre", "RUC", "Teléfono", "Dirección"};
+    private static final int[] ANCHOS = {64, 230, 110, 120, 186};
+
     DefaultTableModel model;
     DefaultComboBoxModel modeloRol;
     Integer band=0;
@@ -41,81 +44,81 @@ public class proveedor extends JDialog {
         cargar("");
         buscartxt.setDocument(new solomayusculas());
         bloquear();
-        //tablaproveedor.setDefaultRenderer(Object.class, new MiRender());
+        buscartxt.requestFocus();
     }
 
     proveedor(menu2 mimenu2, boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     void cargar(String valor){
-        String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
-        String [] registros = new String[5];
         String sql;
         if(valor.equals("")){
             sql="SELECT * FROM proveedor ORDER BY codprov";
-            System.out.print("entra en el simple");
         }else{
-            sql="SELECT * FROM proveedor where UPPER(nombre) LIKE UPPER('%"+valor+"%') ORDER BY codprov";
-            System.out.print("entra en el segundo");
-        }                
-        model = new DefaultTableModel (null, titulos){
+            sql="SELECT * FROM proveedor where UPPER(nombre) LIKE UPPER('%"+valor.replace("'", "''")+"%') ORDER BY codprov";
+        }
+        model = new DefaultTableModel (null, TITULOS){
         @Override
         public boolean isCellEditable(int row, int col)
         {
             return false;
         }
-        };      
+        };
+        Connection cn = null;
         try{
                 conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
+                cn = cc.conexion();
+                if (cn == null) {
+                    return;
+                }
                 Statement st = cn.createStatement();
                 ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
+                String [] registros = new String[5];
                 while(rs.next()){
                     registros[0] = rs.getString("codprov");
                     registros[1] = rs.getString("nombre");
                     registros[2] = rs.getString("ruc");
-                    registros[3] = rs.getString("telefono");        
-                    registros[4] = rs.getString("direccion");                 
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
-                }                
-                tablaproveedor.setModel(model);   
-                model.fireTableDataChanged();  
-                cn.close();
+                    registros[3] = rs.getString("telefono");
+                    registros[4] = rs.getString("direccion");
+                    model.addRow(registros);
+                }
+                tablaproveedor.setModel(model);
+                ajustarColumnas();
+                model.fireTableDataChanged();
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
+                JOptionPane.showMessageDialog(this, "No se pudieron cargar los proveedores:\n" + ex.getMessage(),
+                        "Proveedores", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.close();
+                } catch (SQLException ignorada) {
+                }
+            }
+        }
         view.setEnabled(false);
         delete.setEnabled(false);
     }
+
+    /** Anchos preferidos de las columnas (se reaplican cada vez que cambia el modelo). */
+    private static void ajustarColumnas() {
+        if (tablaproveedor.getColumnModel().getColumnCount() < ANCHOS.length) {
+            return;
+        }
+        for (int i = 0; i < ANCHOS.length; i++) {
+            tablaproveedor.getColumnModel().getColumn(i).setPreferredWidth(ANCHOS[i]);
+        }
+    }
     public static void model(DefaultTableModel modelo){
         tablaproveedor.setModel(modelo);
-        modelo.fireTableDataChanged();   
+        ajustarColumnas();
+        modelo.fireTableDataChanged();
         tablaproveedor.repaint();
-        System.out.print("hola");
     }
     void bloquear(){
         view.setEnabled(false);
         delete.setEnabled(false);
     }    
-    public class MiRender extends DefaultTableCellRenderer
-    {
-       public Component getTableCellRendererComponent(JTable table,
-          Object value,
-          boolean isSelected,
-          boolean hasFocus,
-          int row,
-          int column)
-       {
-          super.getTableCellRendererComponent (table, value, isSelected, hasFocus, row, column);
-          int FilaSelec = tablaproveedor.getSelectedRow();
-             this.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);                   
-          return this;
-       }
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -134,28 +137,12 @@ public class proveedor extends JDialog {
         view = new javax.swing.JButton();
         iconproveedor = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        search = new javax.swing.JLabel();
-        fondo = new javax.swing.JLabel();
-        menu = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jSeparator5 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        subtitulo = new javax.swing.JLabel();
+        contadorLbl = new javax.swing.JLabel();
+        fondo = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                // Forzamos un repintado apenas la ventana termina de abrirse: en algunos
-                // entornos (drivers de video/D3D en Windows) el primer pintado de los
-                // componentes estilizados no se completa hasta que ocurre un repintado
-                // adicional, y esto evita depender de que el usuario pase el mouse encima.
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        getContentPane().repaint();
-                    }
-                });
-            }
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
             }
@@ -171,40 +158,43 @@ public class proveedor extends JDialog {
                 formComponentHidden(evt);
             }
         });
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().setBackground(new java.awt.Color(225, 230, 237));
 
-        tablaproveedor.setBackground(new java.awt.Color(255, 255, 255));
-        tablaproveedor.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
-        tablaproveedor.setForeground(new java.awt.Color(33, 37, 41));
-        tablaproveedor.setRowHeight(26);
-        tablaproveedor.setGridColor(new java.awt.Color(230, 232, 236));
-        tablaproveedor.setSelectionForeground(new java.awt.Color(33, 37, 41));
-        tablaproveedor.getTableHeader().setBackground(new java.awt.Color(16, 44, 72));
-        tablaproveedor.getTableHeader().setForeground(java.awt.Color.WHITE);
-        tablaproveedor.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
-        tablaproveedor.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
+        // Layout nulo con reposicionamiento propio (relayoutProveedor): se adapta a cualquier
+        // tamaño de ventana. OJO con el z-order: en Swing el PRIMER componente agregado queda
+        // AL FRENTE y el último al fondo, por eso el panel lateral (fondo) se agrega al final.
+        getContentPane().setLayout(null);
+        getContentPane().setBackground(EstiloUI.FONDO);
 
-            }
-        ));
-        tablaproveedor.setSelectionBackground(new java.awt.Color(210, 231, 240));
+        // ---- Tabla ----
+        tablaproveedor.setModel(new javax.swing.table.DefaultTableModel(new Object[][]{}, TITULOS));
         tablaproveedor.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tablaproveedorMouseClicked(evt);
             }
         });
+        // Habilita/deshabilita Visualizar y Eliminar según haya una fila seleccionada
+        // (también cuando se navega con el teclado).
+        tablaproveedor.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    boolean hay = tablaproveedor.getSelectedRow() >= 0;
+                    view.setEnabled(hay);
+                    delete.setEnabled(hay);
+                }
+            }
+        });
+        // Mantiene al día el contador de la barra lateral cuando cambia el modelo de la tabla.
+        tablaproveedor.addPropertyChangeListener("model", new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                int n = tablaproveedor.getModel().getRowCount();
+                contadorLbl.setText(n + (n == 1 ? " proveedor" : " proveedores"));
+            }
+        });
         jScrollPane1.setViewportView(tablaproveedor);
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(222, 226, 231)));
+        EstiloUI.tabla(tablaproveedor, jScrollPane1);
+        getContentPane().add(jScrollPane1);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, 720, 390));
-
+        // ---- Búsqueda ----
         buscartxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buscartxtActionPerformed(evt);
@@ -215,95 +205,88 @@ public class proveedor extends JDialog {
                 buscartxtKeyReleased(evt);
             }
         });
-        getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 430, 40));
+        EstiloUI.campo(buscartxt);
+        getContentPane().add(buscartxt);
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel1.setText("BUSCAR");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, -1, -1));
+        jLabel1.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel1.setForeground(EstiloUI.MUTED);
+        jLabel1.setText("BUSCAR POR NOMBRE");
+        getContentPane().add(jLabel1);
 
-        estilizarBotonLateral(nuevo);
-        nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
-        nuevo.setText("   Nuevo");
+        // ---- Botones de la barra lateral ----
+        EstiloUI.botonPrimario(nuevo);
+        nuevo.setIcon(EstiloUI.icono(EstiloUI.ICONO_MAS, 22, java.awt.Color.WHITE)); // NOI18N
+        nuevo.setText("Nuevo proveedor");
+        nuevo.setToolTipText("Registrar un proveedor nuevo (F1)");
         nuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nuevoActionPerformed(evt);
             }
         });
-        getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 160, 60));
+        getContentPane().add(nuevo);
 
-        estilizarBotonLateral(delete);
-        delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        delete.setText("  Eliminar");
-        delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
-            }
-        });
-        getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 160, 60));
-
-        estilizarBotonLateral(view);
-        view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
-        view.setText(" Visualizar");
+        EstiloUI.botonLateral(view);
+        view.setIcon(EstiloUI.icono(EstiloUI.ICONO_OJO, 22, java.awt.Color.WHITE)); // NOI18N
+        view.setText("Visualizar");
+        view.setToolTipText("Ver o editar el proveedor seleccionado (doble clic en la fila)");
         view.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewActionPerformed(evt);
             }
         });
-        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 160, 60));
+        getContentPane().add(view);
 
-        iconproveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/provadd.png"))); // NOI18N
-        getContentPane().add(iconproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 150, 150));
+        EstiloUI.botonPeligro(delete);
+        delete.setIcon(EstiloUI.icono(EstiloUI.ICONO_BASURA, 22, java.awt.Color.WHITE)); // NOI18N
+        delete.setText("Eliminar");
+        delete.setToolTipText("Eliminar el proveedor seleccionado");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+        getContentPane().add(delete);
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(240, 240, 240));
+        // ---- Encabezado de la barra lateral ----
+        iconproveedor.setIcon(EstiloUI.escalar(new javax.swing.ImageIcon(getClass().getResource("/images/provadd.png")), 64)); // NOI18N
+        getContentPane().add(iconproveedor);
+
+        jLabel2.setFont(EstiloUI.fuente(Font.BOLD, 22));
+        jLabel2.setForeground(Color.WHITE);
         jLabel2.setText("PROVEEDORES");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 410, -1, -1));
+        getContentPane().add(jLabel2);
 
-        search.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/research.png"))); // NOI18N
-        getContentPane().add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 20, 40, 40));
+        subtitulo.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        subtitulo.setForeground(new Color(150, 172, 194));
+        subtitulo.setText("Gestión de proveedores");
+        getContentPane().add(subtitulo);
+
+        contadorLbl.setFont(EstiloUI.fuente(Font.BOLD, 12));
+        contadorLbl.setForeground(new Color(150, 172, 194));
+        contadorLbl.setText("0 proveedores");
+        getContentPane().add(contadorLbl);
 
         fondo.setOpaque(true);
-        fondo.setBackground(new java.awt.Color(16, 44, 72));
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 490));
+        fondo.setBackground(EstiloUI.NAVY);
+        getContentPane().add(fondo);
 
-        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
-        jMenu1.setText("Acciones");
-        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+        // Este formulario ya trae su propio diseño: el restilizador automático no debe tocarlo.
+        getRootPane().putClientProperty(EstiloForm.OMITIR, Boolean.TRUE);
+
+        // ---- Atajos de teclado (reemplazan al viejo menú "Acciones") ----
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenu1ActionPerformed(evt);
+                nuevoActionPerformed(evt);
             }
-        });
-
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
-        jMenuItem1.setText("Nuevo Proveedor.");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                dispose();
             }
-        });
-        jMenu1.add(jMenuItem1);
-        jMenu1.add(jSeparator5);
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
-        jMenuItem4.setText("Salir");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
-            }
-        });
-        jMenu1.add(jMenuItem4);
-
-        menu.add(jMenu1);
-
-        setJMenuBar(menu);
-
-        pack();
+        setMinimumSize(new java.awt.Dimension(780, 460));
+        setSize(980, 560);
 
         getContentPane().addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -313,45 +296,32 @@ public class proveedor extends JDialog {
         relayoutProveedor();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Recalcula el tamaño de la barra lateral y de la tabla según el tamaño
-     * actual de la ventana, para que el contenido aproveche el espacio
-     * disponible en vez de quedar con el tamaño fijo del diseño original.
-     */
+    /** Reposiciona todo según el tamaño actual de la ventana. */
     private void relayoutProveedor() {
         int w = getContentPane().getWidth();
         int h = getContentPane().getHeight();
         if (w <= 0 || h <= 0) {
-            return;
+            w = getWidth();
+            h = getHeight();
         }
-        int sidebarW = 190;
-        int rightMargin = 30;
-
+        int sidebarW = 210;
         fondo.setBounds(0, 0, sidebarW, h);
-        jScrollPane1.setBounds(sidebarW + 20, 70, Math.max(300, w - sidebarW - 20 - rightMargin), Math.max(200, h - 70 - 30));
-    }
 
-    /** Estilo plano para los botones de acciones de la barra lateral oscura. */
-    private void estilizarBotonLateral(final javax.swing.JButton b) {
-        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
-        b.setOpaque(true);
-        b.setContentAreaFilled(true);
-        b.setBackground(new java.awt.Color(31, 68, 102));
-        b.setForeground(java.awt.Color.WHITE);
-        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-        b.setBorderPainted(false);
-        b.setFocusPainted(false);
-        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        b.setIconTextGap(10);
-        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        b.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(0, 102, 153));
-            }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(31, 68, 102));
-            }
-        });
+        // Barra lateral: encabezado, acciones y contador.
+        iconproveedor.setBounds(24, 26, 64, 64);
+        jLabel2.setBounds(24, 98, sidebarW - 30, 30);
+        subtitulo.setBounds(24, 128, sidebarW - 36, 18);
+        nuevo.setBounds(18, 176, sidebarW - 36, 46);
+        view.setBounds(18, 230, sidebarW - 36, 46);
+        delete.setBounds(18, 284, sidebarW - 36, 46);
+        contadorLbl.setBounds(24, Math.max(344, h - 44), sidebarW - 36, 20);
+
+        // Zona principal: búsqueda arriba, tabla debajo.
+        int x0 = sidebarW + 28;
+        int right = w - 28;
+        jLabel1.setBounds(x0, 20, 220, 16);
+        buscartxt.setBounds(x0, 40, Math.max(200, right - x0), 40);
+        jScrollPane1.setBounds(x0, 100, Math.max(300, right - x0), Math.max(150, h - 100 - 28));
     }
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -374,13 +344,13 @@ public class proveedor extends JDialog {
     
     private void nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoActionPerformed
         cargarprov cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        // El padre es la misma ventana principal que abrió este formulario.
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         this.band=1;
         cp = new cargarprov(mimenu, true, this.band, "");
         cp.setVisible(true);         
         if(cp.modeloRefresca!=null){
-            tablaproveedor.setModel(cp.modeloRefresca);
+            model(cp.modeloRefresca);
         }
     }//GEN-LAST:event_nuevoActionPerformed
 
@@ -402,19 +372,23 @@ public class proveedor extends JDialog {
             codigo="";
         }
         updateprov cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        // El padre es la misma ventana principal que abrió este formulario.
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         this.band=2;
         cp = new updateprov(mimenu, true, this.band, codigo);        
         cp.setVisible(true);  
         if(cp.modeloRefresca!=null){
-            tablaproveedor.setModel(cp.modeloRefresca);
+            model(cp.modeloRefresca);
         }
     }//GEN-LAST:event_viewActionPerformed
 
     private void tablaproveedorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaproveedorMouseClicked
         view.setEnabled(true);
-        delete.setEnabled(true);        
+        delete.setEnabled(true);
+        // Doble clic sobre una fila = visualizar / editar ese proveedor.
+        if (evt.getClickCount() == 2 && tablaproveedor.getSelectedRow() >= 0) {
+            viewActionPerformed(null);
+        }
     }//GEN-LAST:event_tablaproveedorMouseClicked
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
@@ -424,8 +398,11 @@ public class proveedor extends JDialog {
         {
             String sql;
             cod=(tablaproveedor.getValueAt(FilaSelec, 0).toString());
-            try{        
-                int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar al Proveedor?");
+            String nombre = String.valueOf(tablaproveedor.getValueAt(FilaSelec, 1));
+            try{
+                int confirmar = JOptionPane.showConfirmDialog(this,
+                        "¿Desea eliminar al proveedor \"" + nombre + "\"?\nEsta acción no se puede deshacer.",
+                        "Eliminar proveedor", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                     if(confirmar==JOptionPane.YES_OPTION){
                             sql ="DELETE FROM proveedor where codprov='"+cod+"'";                                    
                             conectar cc = new conectar();
@@ -442,30 +419,12 @@ public class proveedor extends JDialog {
                             view.setEnabled(false);                            
                             st.close();
                     }
-            }catch(SQLException ex){            
+            }catch(SQLException ex){
+                JOptionPane.showMessageDialog(this, "No se pudo eliminar el proveedor (¿tiene compras asociadas?):\n" + ex.getMessage(),
+                        "Proveedores", JOptionPane.ERROR_MESSAGE);
             }
         }   
     }//GEN-LAST:event_deleteActionPerformed
-
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        cargarprov cp;
-        menu mimenu;
-        mimenu = new menu(0);
-        this.band=1;
-        cp = new cargarprov(mimenu, true, this.band, "");
-        cp.setVisible(true);         
-        if(cp.modeloRefresca!=null){
-            tablaproveedor.setModel(cp.modeloRefresca);
-        }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
-
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
-
-    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenu1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -504,19 +463,15 @@ public class proveedor extends JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField buscartxt;
+    private javax.swing.JLabel contadorLbl;
     private javax.swing.JButton delete;
-    private javax.swing.JLabel fondo;
+    private javax.swing.JPanel fondo;
     private javax.swing.JLabel iconproveedor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem4;
     public static javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPopupMenu.Separator jSeparator5;
-    private javax.swing.JMenuBar menu;
     private javax.swing.JButton nuevo;
-    private javax.swing.JLabel search;
+    private javax.swing.JLabel subtitulo;
     public static javax.swing.JTable tablaproveedor;
     private javax.swing.JButton view;
     // End of variables declaration//GEN-END:variables

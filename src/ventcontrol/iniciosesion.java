@@ -39,6 +39,7 @@ public class iniciosesion extends javax.swing.JFrame {
 //        menusys1 = new JMenuBar();
 //        menusys1.setForeground(Color.BLUE);
 //        menusys1.setBackground(Color.yellow);
+        EstiloForm.instalar(); // restilizador automático de todos los diálogos
         initComponents();
         this.setLocationRelativeTo(null);
         this.setIconImage(new ImageIcon(getClass().getResource("/images/ms.png")).getImage());

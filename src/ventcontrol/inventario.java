@@ -59,56 +59,183 @@ public class inventario extends JDialog {
         delete.setEnabled(false);        
         view.setEnabled(false);
         btnprinter.setEnabled(false);
+        disenoModerno();
         cargarinv("");
+    }
+
+    /** Mismo diseño que Ventas: cabecera, tarjeta con el listado y botones abajo; se adapta al tamaño de la ventana. */
+    private void disenoModerno() {
+        final java.awt.Container cp = getContentPane();
+        final int M = 20, HEAD = 60, TH = 28, BH = 44;
+
+        jLabel6.setText("INVENTARIO DE PRODUCTOS");
+        jLabel6.setFont(EstiloUI.fuente(java.awt.Font.BOLD, 22));
+        jLabel6.setForeground(java.awt.Color.WHITE);
+        jLabel6.setIcon(null);
+
+        EstiloUI.botonAccion(nuevo);
+        nuevo.setText("Nuevo inventario");
+        FormVentaUI.ico(nuevo, EstiloUI.ICONO_MAS, java.awt.Color.WHITE);
+        EstiloUI.botonAccion(view);
+        view.setText("Visualizar");
+        FormVentaUI.ico(view, EstiloUI.ICONO_OJO, java.awt.Color.WHITE);
+        EstiloUI.botonAccion(btnprinter);
+        btnprinter.setText("Reporte PDF");
+        FormVentaUI.ico(btnprinter, EstiloUI.ICONO_IMPRESORA, java.awt.Color.WHITE);
+        EstiloUI.botonPeligro(delete);
+        delete.setText("Eliminar");
+        FormVentaUI.ico(delete, EstiloUI.ICONO_BASURA, java.awt.Color.WHITE);
+
+        EstiloUI.tabla(tablacliente, jScrollPane1);
+        tablacliente.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tablacliente.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tablacliente.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    seleccionar();
+                }
+            }
+        });
+        // doble clic o Enter sobre un inventario: abrirlo
+        tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2 && tablacliente.getSelectedRow() >= 0) {
+                    viewActionPerformed(null);
+                }
+            }
+        });
+        tablacliente.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0), "abrirInventario");
+        tablacliente.getActionMap().put("abrirInventario", new javax.swing.AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (tablacliente.getSelectedRow() >= 0) {
+                    viewActionPerformed(null);
+                }
+            }
+        });
+
+        final javax.swing.JLabel pista = new javax.swing.JLabel("Doble clic (o Enter) sobre un inventario para visualizarlo");
+        pista.setFont(EstiloUI.fuente(java.awt.Font.PLAIN, 12));
+        pista.setForeground(EstiloUI.MUTED);
+
+        // ---- armado (el primer componente agregado queda al frente) ----
+        cp.removeAll();
+        cp.setLayout(null);
+        cp.setBackground(FormVentaUI.FONDO_VENTA);
+        final FormVentaUI.Tarjeta tLista = new FormVentaUI.Tarjeta("INVENTARIOS REALIZADOS", EstiloUI.AZUL_VIVO, false);
+        final FormVentaUI.Cabecera cabecera = new FormVentaUI.Cabecera();
+        javax.swing.JComponent[] frente = {jLabel6, jScrollPane1, pista, nuevo, view, btnprinter, delete, tLista, cabecera};
+        for (javax.swing.JComponent c : frente) {
+            cp.add(c);
+        }
+
+        final Runnable relayout = new Runnable() {
+            public void run() {
+                int w = cp.getWidth(), h = cp.getHeight();
+                if (w <= 0 || h <= 0) {
+                    w = getWidth() - 16;
+                    h = getHeight() - 80;
+                }
+                cabecera.setBounds(0, 0, w, HEAD);
+                jLabel6.setBounds(M, 0, Math.max(300, w - 2 * M), HEAD - 3);
+                int fw = w - 2 * M;
+                int bottomY = h - M - BH;
+                int top = HEAD + 14;
+                int lh = bottomY - 10 - top;
+                tLista.setBounds(M, top, fw, lh);
+                jScrollPane1.setBounds(M + 8, top + TH + 6, fw - 16, lh - TH - 6 - 11);
+                int x = M + fw;
+                x -= 130;
+                delete.setBounds(x, bottomY, 130, BH);
+                x -= 8 + 170;
+                btnprinter.setBounds(x, bottomY, 170, BH);
+                x -= 8 + 150;
+                view.setBounds(x, bottomY, 150, BH);
+                x -= 8 + 190;
+                nuevo.setBounds(x, bottomY, 190, BH);
+                pista.setBounds(M, bottomY, Math.max(100, x - M - 16), BH);
+            }
+        };
+        cp.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                relayout.run();
+            }
+        });
+
+        setResizable(true);
+        java.awt.Rectangle pant = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int ancho = Math.min(1100, pant.width - 20);
+        int alto = Math.min(680, pant.height - 10);
+        setMinimumSize(new java.awt.Dimension(Math.min(860, ancho), Math.min(460, alto)));
+        setSize(ancho, alto);
+        relayout.run();
+        setLocationRelativeTo(getOwner());
+        EstiloForm.barraMenu(menu);
+        getRootPane().putClientProperty(EstiloForm.OMITIR, Boolean.TRUE);
+    }
+
+    /** Habilita los botones según haya o no un inventario seleccionado y recuerda cuál es. */
+    private void seleccionar() {
+        int fila = tablacliente.getSelectedRow();
+        boolean hay = fila >= 0;
+        view.setEnabled(hay);
+        delete.setEnabled(hay);
+        btnprinter.setEnabled(hay);
+        if (hay) {
+            try {
+                codinv = Integer.parseInt(tablacliente.getValueAt(fila, 0).toString());
+            } catch (NumberFormatException ex) {
+                codinv = null;
+            }
+        }
     }
 
     inventario(menu2 mimenu2, boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     void cargarinv(String valor){
-        String [] titulos ={"Cod","Fecha Emision", "Descripcion","Usuario"};
-        String [] registros = new String[4];
-        String sql, sql1;        
-        sql="SELECT * FROM inventario ORDER BY id_inv";                    
-        model = new DefaultTableModel (null, titulos);     
-        TableRowSorter sorter = new TableRowSorter(model);
+        InventarioDb.asegurarEsquema();
+        String [] titulos ={"Cod","Fecha Emision", "Descripcion","Usuario","Alcance","Stock ajustado"};
+        String [] registros = new String[6];
+        String sql;
+        sql="SELECT i.*, u.usuario AS nomusuario FROM inventario i LEFT JOIN usuario u ON u.id::text=i.usuario::text ORDER BY i.id_inv";
+        model = new DefaultTableModel (null, titulos);
+        Connection cn = null;
         try{
-                conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
+                cn = new conectar().conexion();
                 Statement st = cn.createStatement();
                 ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
-                DecimalFormat formateador = new DecimalFormat("###,###");
                 while(rs.next()){
-                    //cod.setText(rs.getString("codprodu"));
                     registros[0] = rs.getString("id_inv");
                     registros[1] = rs.getString("fecha");
-                    //descrip.setText(rs.getString("nomprodu"));
-                    registros[2] = rs.getString("descripcion");                    
-                    sql1="SELECT * FROM usuario where id='"+rs.getString("usuario")+"'";
-                    System.out.print(sql1);
-                    st = cn.createStatement();
-                    ResultSet as = st.executeQuery(sql1);
-                    while(as.next()){
-                        registros[3] = as.getString("usuario");                       
-                    }
-                    model.addRow(registros);                                                                 
-                }                
-                model.fireTableDataChanged();                                
+                    registros[2] = rs.getString("descripcion");
+                    registros[3] = rs.getString("nomusuario");
+                    registros[4] = rs.getString("alcance");
+                    registros[5] = "1".equals(rs.getString("ajustado")) ? "Sí" : "No";
+                    model.addRow(registros);
+                }
+                rs.close();
+                st.close();
                 tablacliente.setModel(model);
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(60);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(60);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(200);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
+                int[] anchos = {50, 105, 230, 90, 260, 105};
+                for (int c = 0; c < anchos.length; c++) {
+                    tablacliente.getColumnModel().getColumn(c).setPreferredWidth(anchos[c]);
+                }
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        }        
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la lista de inventarios:\n" + ex.getMessage() + InventarioDb.ayuda());
+        }finally{
+                if (cn != null) {
+                    try {
+                        cn.close();
+                    } catch (SQLException ignorada) {
+                    }
+                }
+        }
     }
 
 void abrirproveedor(){
     buscarprodu p;
         menu mimenu;
-        mimenu = new menu(0);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu(mimenu, true);
         p.setVisible(true);        
         if(p.codid!=null){
@@ -375,53 +502,63 @@ void abrirproveedor(){
     private void nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoActionPerformed
       cargarinventario mp;
       menu mimenu;
-      mimenu = new menu(usuarioactu);
+      mimenu = (ventcontrol.menu) getOwner();
       mp = new cargarinventario(mimenu, true, usuarioactu);
       mp.setVisible(true);
-      if(mp.model!=null){
-          tablacliente.setModel(mp.model);
-          tablacliente.getColumnModel().getColumn(0).setPreferredWidth(60);
-          tablacliente.getColumnModel().getColumn(1).setPreferredWidth(60);
-          tablacliente.getColumnModel().getColumn(2).setPreferredWidth(200);
-          tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-          view.setEnabled(false);
-          delete.setEnabled(false);
-      }
+      cargarinv("");
     }//GEN-LAST:event_nuevoActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-        String cod;
         int FilaSelec = tablacliente.getSelectedRow();
-        cod=(tablacliente.getValueAt(FilaSelec, 0).toString());
-            try{        
-                int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar el Inventario?");
-                    if(confirmar==JOptionPane.YES_OPTION){
-                            String sql1="DELETE FROM detinv where inventario='"+cod+"'";
-                            conectar cc = new conectar();
-                            Connection cn = cc.conexion();
-                            System.out.print("    NO SE POR QUE NO PASAS DE ESTEE 111  ");
-                            PreparedStatement staux = cn.prepareStatement(sql1);                            
-                            System.out.print("    NO SE POR QUE NO PASAS DE ESTEE 222  ");
-                            if(staux.executeUpdate()>0){  
-                                System.out.print("    NO SE POR QUE NO PASAS DE ESTEE   ");
-                            }
-                            String sql ="DELETE FROM inventario where id_inv='"+cod+"'";   
-                            System.out.print(sql);
-                            PreparedStatement st = cn.prepareStatement(sql);                                     
-                            if(st.executeUpdate()>0){
-                                JOptionPane.showMessageDialog(null, "Se eliminó correctamente el Inventario.");  
-                                cargarinv("");
-                            }
-                    }
-            }catch(SQLException ex){            
-            }            
+        if (FilaSelec < 0) {
+            JOptionPane.showMessageDialog(null, "Seleccione un inventario.");
+            return;
+        }
+        String cod = tablacliente.getValueAt(FilaSelec, 0).toString();
+        int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar el Inventario?");
+        if (confirmar != JOptionPane.YES_OPTION) {
+            return;
+        }
+        Connection cn = null;
+        try {
+            cn = new conectar().conexion();
+            cn.setAutoCommit(false);
+            Statement st = cn.createStatement();
+            st.executeUpdate("DELETE FROM detinv where inventario='" + cod.replace("'", "''") + "'");
+            int n = st.executeUpdate("DELETE FROM inventario where id_inv='" + cod.replace("'", "''") + "'");
+            cn.commit();
+            st.close();
+            if (n > 0) {
+                JOptionPane.showMessageDialog(null, "Se eliminó correctamente el Inventario.");
+                cargarinv("");
+            }
+        } catch (SQLException ex) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (SQLException ignorada) {
+                }
+            }
+            JOptionPane.showMessageDialog(null, "No se pudo eliminar el inventario (no se borró nada):\n" + ex.getMessage());
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.close();
+                } catch (SQLException ignorada) {
+                }
+            }
+        }
     }//GEN-LAST:event_deleteActionPerformed
 
     private void viewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewActionPerformed
       verinventario mp;
       menu mimenu;
-      mimenu = new menu(usuarioactu);
+      mimenu = (ventcontrol.menu) getOwner();
       int FilaSelec = tablacliente.getSelectedRow();
+      if (FilaSelec < 0) {
+          JOptionPane.showMessageDialog(null, "Seleccione un inventario.");
+          return;
+      }
       Integer id=Integer.parseInt(tablacliente.getValueAt(FilaSelec, 0).toString());
       mp = new verinventario(mimenu, true, usuarioactu, id);
       mp.setVisible(true);
@@ -437,54 +574,12 @@ void abrirproveedor(){
     }//GEN-LAST:event_viewActionPerformed
 
     private void btnprinterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnprinterActionPerformed
-       try {
-                        String sql="SELECT * FROM reporte where id='2'";
-                        conectar cc = new conectar();
-                        Connection cn = cc.conexion();
-                        Statement st = cn.createStatement();
-                        ResultSet rs = st.executeQuery(sql);
-                        String impreaux="";
-                        while(rs.next()){
-                            impreaux=rs.getString("impresora");
-                        }
-                        st.close();
-                        ConexionBD cbd = new ConexionBD();           
-                        JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/inventario.jasper"));
-                        //JasperReport jr =  JasperCompileManager.compileReport(archivo);      
-                        Map<String, Object> parametros = new HashMap<String, Object>();        
-                        PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
-                                parametros.put("vCodventa", codinv);
-                                JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
-                                cn.close();
-                        } catch (Exception ex) {
-                            Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        //JOptionPane.showMessageDialog(null, "Se imprimió el documento.");
+        int fila = tablacliente.getSelectedRow();
+        if (fila < 0) {
+            JOptionPane.showMessageDialog(this, "Seleccione un inventario.");
+            return;
+        }
+        InventarioReporte.preguntarYGenerar(this, Integer.parseInt(tablacliente.getValueAt(fila, 0).toString()));
     }//GEN-LAST:event_btnprinterActionPerformed
 
     /**

@@ -70,9 +70,119 @@ public class presupuesto extends JDialog implements KeyListener{
 //    DefaultTableModel modelprov = new DefaultTableModel(){
 //        public boolean isCellEditable(int rowIndex,int columnIndex){return false;}
 //    };
+    /**
+     * Reacomoda el formulario con el diseño moderno (ver {@link FormVentaUI}, el mismo de Ventas).
+     * Los componentes y sus listeners son los de initComponents(): solo cambian de lugar y de estilo.
+     */
+    private void disenoModerno() {
+        FormVentaUI.Spec s = new FormVentaUI.Spec();
+        s.dlg = this;
+        s.tituloVentana = "PRESUPUESTO";
+        s.textoNro = "NRO. PRESUPUESTO";
+        s.textoGuardar = "Guardar (F1)";
+        s.textoTicket = "Imprimir (F9)";
+        s.tituloResumen = "RESUMEN DEL PRESUPUESTO";
+        s.tituloDetalle = "DETALLE DEL PRESUPUESTO";
+        s.textoTotal = "TOTAL DEL PRESUPUESTO";
+        s.derechaResultados = new int[]{2, 3};
+        s.titulo = jLabel2;
+        s.capNro = jLabel12;
+        s.nro = codcompra;
+        s.capUsuario = jLabel17;
+        s.usuario = nom;
+        s.capCodigo = jLabel5;
+        s.codigo = buscartxt2;
+        s.capDescripcion = jLabel6;
+        s.descripcion = buscartxt;
+        s.buscar = seleccionar;
+        s.resultados = jScrollPane1;
+        s.tablaResultados = tablaproaux;
+        s.capProducto = jLabel3;
+        s.producto = descrippro;
+        s.capPrecio = jLabel22;
+        s.precio = precio;
+        s.capCant = jLabel8;
+        s.cant = cant;
+        s.capMonto = jLabel18;
+        s.monto = monto;
+        s.carrito = jScrollPane2;
+        s.tablaCarrito = tablaprodu;
+        s.quitar = quitar;
+        s.modificar = modificar;
+        s.capTipoPrecio = jLabel19;
+        s.tipoPrecio = tipoprecio;
+        s.capCliente = jLabel9;
+        s.elegirCliente = nuevo;
+        s.capNombre = jLabel11;
+        s.nombre = nombreprov;
+        s.capRuc = jLabel14;
+        s.ruc = codprov;
+        s.capPago = jLabel10;
+        s.pago = combovendedor;
+        s.capFecha = jLabel13;
+        s.fecha = calendar;
+        s.capObs = jLabel15;
+        s.obs = factura1;
+        s.capIva5 = jLabel21;
+        s.iva5 = iva5;
+        s.capIva10 = jLabel7;
+        s.iva10 = iva10;
+        s.capTotIva = jLabel20;
+        s.totIva = totaliva;
+        s.capTotal = jLabel1;
+        s.total = total;
+        s.guardar = guardar;
+        s.ticket = btnprinter;
+        s.cancelar = tbncancelar;
+
+        // Selector de fecha: mismo aspecto plano que el resto de los campos.
+        javax.swing.JComponent editorFecha = calendar.getDateEditor().getUiComponent();
+        if (editorFecha instanceof javax.swing.JTextField) {
+            EstiloUI.campo((javax.swing.JTextField) editorFecha);
+        }
+        calendar.setBorder(null);
+        EstiloUI.botonSecundario(calendar.getCalendarButton());
+        calendar.getCalendarButton().setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 6, 0, 6));
+
+        // Los encabezados se ven desde el principio.
+        tablaproaux.setModel(new DefaultTableModel(new Object[][]{},
+                new String[]{"Cod", "Nombre", "P. Venta", "Stock", "Unidad"}) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        });
+        // Anchos del carrito: se reaplican cada vez que cambia el modelo (la descripción es la más ancha).
+        final int[] anchosCarrito = {72, 58, 68, 240, 84, 94, 94, 66};
+        tablaprodu.getColumnModel().addColumnModelListener(new javax.swing.event.TableColumnModelListener() {
+            public void columnAdded(javax.swing.event.TableColumnModelEvent e) {
+                int i = e.getToIndex();
+                if (i >= 0 && i < anchosCarrito.length && i < tablaprodu.getColumnModel().getColumnCount()) {
+                    tablaprodu.getColumnModel().getColumn(i).setPreferredWidth(anchosCarrito[i]);
+                }
+            }
+            public void columnRemoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMoved(javax.swing.event.TableColumnModelEvent e) {
+            }
+            public void columnMarginChanged(javax.swing.event.ChangeEvent e) {
+            }
+            public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {
+            }
+        });
+        for (int i = 0; i < anchosCarrito.length && i < tablaprodu.getColumnModel().getColumnCount(); i++) {
+            tablaprodu.getColumnModel().getColumn(i).setPreferredWidth(anchosCarrito[i]);
+        }
+
+        FormVentaUI.armar(s);
+        EstiloForm.barraMenu(menu);   // barra "Acciones" con el estilo plano
+    }
+
     public presupuesto(menu menuprincipal, boolean modal, Integer usuactu) {
         super(menuprincipal, modal);
-        initComponents();        
+        initComponents();
+        configurarRuc();
+        disenoModerno();
         usuarioactu = usuactu;
         usuario();
         total.setText("0");
@@ -168,7 +278,7 @@ void guardar(){
 //
 //                       }
 //                }
-                if(!codprov.getText().equals("")){
+                if(!stockjeje.getText().equals("")){
                    if(tablaprodu.getRowCount()>0){
                        String sql="", sql1="";
                        iniciosesion is = new iniciosesion();
@@ -466,6 +576,57 @@ void cargardescrip(String valor){
         }                
         
     }
+    // ---- RUC editable: al dar Enter busca al cliente (o lo trae del padrón de la DNIT y lo registra) ----
+    private String rucActual = "";
+    private boolean buscandoRuc = false;
+
+    private void configurarRuc() {
+        codprov.setEditable(true);
+        codprov.setToolTipText("Escriba el RUC del cliente y presione Enter para buscarlo");
+        codprov.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (!e.isTemporary()) {
+                    buscarClientePorRuc(false);
+                }
+            }
+        });
+    }
+
+    private void buscarClientePorRuc(boolean desdeEnter) {
+        if (buscandoRuc) {
+            return;
+        }
+        String t = codprov.getText().trim();
+        if (t.equals(rucActual)) {
+            if (desdeEnter) {
+                buscartxt2.requestFocus();
+            }
+            return;
+        }
+        if (t.length() == 0) {
+            codprov.setText(rucActual);
+            return;
+        }
+        buscandoRuc = true;
+        try {
+            ClienteRuc.Cliente c = ClienteRuc.resolver(this, t);
+            if (c == null) {
+                codprov.setText(rucActual);
+                if (desdeEnter) {
+                    codprov.selectAll();
+                    codprov.requestFocus();
+                }
+                return;
+            }
+            cargarprov(c.id);
+            if (desdeEnter) {
+                buscartxt2.requestFocus();
+            }
+        } finally {
+            buscandoRuc = false;
+        }
+    }
+
 void cargarprov(String valor){
         String [] titulos ={"Cod","Nombre","Ruc","Telefono", "Direccion"};
         String [] registros = new String[6];
@@ -484,7 +645,8 @@ void cargarprov(String valor){
                     registros[2] = rs.getString("ci");
                     registros[3] = rs.getString("direccion");        
                     registros[4] = rs.getString("id");  
-                    codprov.setText(rs.getString("id"));
+                    codprov.setText(rs.getString("ruc") == null ? "" : rs.getString("ruc").trim());
+                    rucActual = codprov.getText();
                     nombreprov.setText(rs.getString("nombre")+(" ")+rs.getString("apellido"));
                     //ruc.setText(rs.getString("ruc"));
                     //telefono.setText(rs.getString("telefono"));        
@@ -500,7 +662,7 @@ void cargarprov(String valor){
 void abrircliente(){
     buscarcli2 p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarcli2(mimenu, true);
         p.setVisible(true);        
         if(p.codid!=null){
@@ -512,7 +674,7 @@ void abrircliente(){
 void abrirproducto(){
     buscarprodu p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu(mimenu, true);
         p.setVisible(true);        
         String codigoaux="", nomproduaux="", unidadaux="", stockaux="";
@@ -598,7 +760,7 @@ void abrirproducto(){
 void agregarcliente(){
     cargarcli2 p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new cargarcli2(mimenu, true, 0, "");
         p.setVisible(true);        
         if(p.codid!=null){
@@ -1893,7 +2055,7 @@ String idprodu;
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);     
                                 idcosto=p.idcosto;
@@ -1920,7 +2082,7 @@ String idprodu;
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        //idcosto=p.idcosto;
@@ -1949,7 +2111,7 @@ String idprodu;
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        //idcosto=p.idcosto;
@@ -2138,7 +2300,7 @@ String idprodu;
                                 unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                                 presuaux p;
                                 menu mimenu;
-                                mimenu = new menu(usuarioactu);
+                                mimenu = (ventcontrol.menu) getOwner();
                                 p = new presuaux(mimenu, true);
                                 p.setVisible(true);     
                                 idcosto=p.idcosto;
@@ -2165,7 +2327,7 @@ String idprodu;
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        //idcosto=p.idcosto;
@@ -2194,7 +2356,7 @@ String idprodu;
                        unidad = tablaproaux.getValueAt(FilaSelec, 4).toString();  
                        presuaux p;
                        menu mimenu;
-                       mimenu = new menu(usuarioactu);
+                       mimenu = (ventcontrol.menu) getOwner();
                        p = new presuaux(mimenu, true);
                        p.setVisible(true);                      
                        //idcosto=p.idcosto;
@@ -2306,7 +2468,7 @@ String idprodu;
     private void btnprinterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnprinterActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         try {
@@ -2535,7 +2697,7 @@ String idprodu;
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
 //        vuelto u;
 //        menu mimenu;
-//        mimenu = new menu(usuarioactu);
+//        mimenu = (ventcontrol.menu) getOwner();
 //        DecimalFormat formateador = new DecimalFormat("###,###");
 //        Integer aux=0;
 //        try {
@@ -2570,7 +2732,7 @@ String idprodu;
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         vuelto u;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         DecimalFormat formateador = new DecimalFormat("###,###");
         Integer aux=0;
         try {
@@ -2605,7 +2767,7 @@ String idprodu;
     }//GEN-LAST:event_codcompraActionPerformed
 
     private void codprovActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codprovActionPerformed
-        // TODO add your handling code here:
+        buscarClientePorRuc(true);
     }//GEN-LAST:event_codprovActionPerformed
 
     private void combovendedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combovendedorActionPerformed
@@ -2615,7 +2777,7 @@ String idprodu;
     private void seleccionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_seleccionarActionPerformed
         buscarprodu p;
         menu mimenu;
-        mimenu = new menu(usuarioactu);
+        mimenu = (ventcontrol.menu) getOwner();
         p = new buscarprodu(mimenu, true);
         p.setVisible(true);        
         String codigoaux="", nomproduaux="", unidadaux="", stockaux="";

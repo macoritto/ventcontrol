@@ -50,6 +50,8 @@ public class producto extends JDialog {
     DefaultComboBoxModel modeloRol;
     Integer band=0;
     Integer usuarioactu;
+    private ProductoExtras extras;
+    private final javax.swing.JButton historial = new javax.swing.JButton();
     public producto(menu menuprincipal, boolean modal, Integer usuario) {
         super(menuprincipal, modal);
         initComponents();        
@@ -58,6 +60,7 @@ public class producto extends JDialog {
         int contador=0;
          this.setTitle("Productos.");
         cargar("", "", "", "");
+        extras.recargar();
         buscartxt1.setDocument(new solomayusculas());
         buscarcod.setDocument(new solomayusculas());
         bloquear();
@@ -176,14 +179,7 @@ public class producto extends JDialog {
                 montocompra.setText(formateador.format(sumacompra));
                 montoventa.setText(formateador.format(sumaventa));
                 tablacliente.setModel(model);   
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);
+                anchosColumnas();
                 model.fireTableDataChanged();    
                 cn.close();
         }catch(SQLException ex){
@@ -298,14 +294,7 @@ public class producto extends JDialog {
                 montocompra.setText(formateador.format(sumacompra));
                 montoventa.setText(formateador.format(sumaventa));
                 tablacliente.setModel(model);   
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);   
+                anchosColumnas();
                 model.fireTableDataChanged();   
                 cn.close();
         }catch(SQLException ex){
@@ -456,14 +445,7 @@ public class producto extends JDialog {
                 montocompra.setText(formateador.format(sumacompra));
                 montoventa.setText(formateador.format(sumaventa));
                 tablacliente.setModel(model);
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);  
+                anchosColumnas();
                 model.fireTableDataChanged();  
                 cn.close();
         }catch(SQLException ex){
@@ -577,14 +559,7 @@ public class producto extends JDialog {
                 montocompra.setText(formateador.format(sumacompra));
                 montoventa.setText(formateador.format(sumaventa));
                 tablacliente.setModel(model);
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);  
+                anchosColumnas();
                 model.fireTableDataChanged();  
                 cn.close();
         }catch(SQLException ex){
@@ -603,6 +578,18 @@ public class producto extends JDialog {
     void bloquear(){
         view.setEnabled(false);
         delete.setEnabled(false);
+        historial.setEnabled(false);
+    }
+
+    /** Abre el historial de movimientos (compras, ventas, ajustes...) del producto seleccionado. */
+    private void historialActionPerformed() {
+        int fila = tablacliente.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        String codigo = tablacliente.getValueAt(fila, 0).toString();
+        String nombre = tablacliente.getValueAt(fila, 1).toString();
+        new ProductoHistorial((javax.swing.JFrame) getOwner(), codigo, nombre).setVisible(true);
     }    
     
     /**
@@ -615,7 +602,12 @@ public class producto extends JDialog {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tablacliente = new javax.swing.JTable();
+        tablacliente = new javax.swing.JTable() {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return extras == null ? null : extras.tooltipDe(e);
+            }
+        };
         buscartxt = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         nuevo = new javax.swing.JButton();
@@ -642,15 +634,10 @@ public class producto extends JDialog {
         btnprinter1 = new javax.swing.JButton();
         buscardroga = new javax.swing.JTextField();
         fondo = new javax.swing.JLabel();
-        menu = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jSeparator5 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jSeparator6 = new javax.swing.JPopupMenu.Separator();
+        subtitulo = new javax.swing.JLabel();
+        catalogosLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -661,132 +648,63 @@ public class producto extends JDialog {
             public void windowIconified(java.awt.event.WindowEvent evt) {
                 formWindowIconified(evt);
             }
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                // Algunos entornos (drivers de video en Windows) no completan el
-                // primer pintado de los botones estilizados hasta que ocurre un repintado
-                // adicional; forzamos uno apenas la ventana termina de abrirse para que
-                // los botones se vean de entrada, sin necesidad de pasar el mouse encima.
-                // Toolkit.sync() le pide directamente al sistema de ventanas que vuelque a
-                // pantalla cualquier operación de dibujo pendiente en su buffer.
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        getContentPane().repaint();
-                        java.awt.Toolkit.getDefaultToolkit().sync();
-                    }
-                });
-                // Refuerzo adicional con una pequeña demora, por si el primer intento
-                // ocurre antes de que el buffer de video esté listo.
-                javax.swing.Timer repintadoDemorado = new javax.swing.Timer(300, new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent e) {
-                        getContentPane().repaint();
-                        java.awt.Toolkit.getDefaultToolkit().sync();
-                    }
-                });
-                repintadoDemorado.setRepeats(false);
-                repintadoDemorado.start();
-            }
         });
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentHidden(java.awt.event.ComponentEvent evt) {
                 formComponentHidden(evt);
             }
         });
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().setBackground(new java.awt.Color(225, 230, 237));
 
-        fondo.setOpaque(true);
-        fondo.setBackground(new java.awt.Color(16, 44, 72));
-        getContentPane().add(fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 600));
+        // Layout nulo con reposicionamiento propio (relayoutProducto).
+        // OJO con el z-order: en Swing el PRIMER componente agregado queda AL FRENTE y el
+        // último al fondo. Antes la barra lateral (fondo) se agregaba primero y tapaba los
+        // botones hasta que el mouse los repintaba; ahora se agrega al final.
+        getContentPane().setLayout(null);
+        getContentPane().setBackground(EstiloUI.FONDO);
+        extras = new ProductoExtras(tablacliente);
 
-        tablacliente.setBackground(new java.awt.Color(255, 255, 255));
-        tablacliente.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
-        tablacliente.setForeground(new java.awt.Color(33, 37, 41));
-        tablacliente.setRowHeight(26);
-        tablacliente.setGridColor(new java.awt.Color(230, 232, 236));
-        tablacliente.setSelectionForeground(new java.awt.Color(33, 37, 41));
-        tablacliente.getTableHeader().setBackground(new java.awt.Color(16, 44, 72));
-        tablacliente.getTableHeader().setForeground(java.awt.Color.WHITE);
-        tablacliente.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
-        tablacliente.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
-
-            }
-        ));
-        tablacliente.setSelectionBackground(new java.awt.Color(210, 231, 240));
+        // ---- Tabla ----
+        tablacliente.setModel(new javax.swing.table.DefaultTableModel(new Object[][]{}, TITULOS));
         tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tablaclienteMouseClicked(evt);
+                if (evt.getClickCount() == 2 && tablacliente.getSelectedRow() >= 0) {
+                    viewActionPerformed(new java.awt.event.ActionEvent(view, java.awt.event.ActionEvent.ACTION_PERFORMED, "view"));
+                }
+            }
+        });
+        // Habilita Visualizar / Eliminar según haya una fila seleccionada (también con el teclado).
+        tablacliente.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    boolean hay = tablacliente.getSelectedRow() >= 0;
+                    view.setEnabled(hay);
+                    delete.setEnabled(hay);
+                    historial.setEnabled(hay);
+                }
+            }
+        });
+        // Cada vez que se cambia el modelo las columnas se recrean: se vuelve a alinear a la derecha los importes.
+        tablacliente.addPropertyChangeListener("model", new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                // ProductoExtras envuelve el modelo (agrega la columna Ganancia): el cambio se repite ya con el modelo envuelto.
+                if (!extras.alCambiarModelo()) {
+                    return;
+                }
+                EstiloUI.derecha(tablacliente, 2, 3, 4, 5);
+                extras.estilizarColumnas();
+                anchosColumnas();
             }
         });
         jScrollPane1.setViewportView(tablacliente);
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(222, 226, 231)));
+        EstiloUI.tabla(tablacliente, jScrollPane1);
+        EstiloUI.derecha(tablacliente, 2, 3, 4, 5);
+        getContentPane().add(jScrollPane1);
+        for (javax.swing.JComponent extra : extras.componentes()) {
+            getContentPane().add(extra);
+        }
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 1090, 430));
-
-        buscartxt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buscartxtActionPerformed(evt);
-            }
-        });
-        buscartxt.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                buscartxtKeyReleased(evt);
-            }
-        });
-        getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 30, 220, 40));
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel1.setText("POR TIPO");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 10, -1, -1));
-
-        estilizarBotonLateral(nuevo);
-        nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
-        nuevo.setText("   Nuevo");
-        nuevo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nuevoActionPerformed(evt);
-            }
-        });
-        getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 160, 60));
-
-        estilizarBotonLateral(delete);
-        delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        delete.setText("  Eliminar");
-        delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
-            }
-        });
-        getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 160, 60));
-
-        estilizarBotonLateral(view);
-        view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
-        view.setText(" Visualizar");
-        view.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewActionPerformed(evt);
-            }
-        });
-        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 160, 60));
-
-        iconproveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PRODU2.png"))); // NOI18N
-        getContentPane().add(iconproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 430, 150, 150));
-
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel2.setText("PRODUCTOS");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 570, -1, -1));
-
-        search.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/research.png"))); // NOI18N
-        getContentPane().add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, 40, 40));
-
+        // ---- Búsqueda ----
         buscartxt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buscartxt1ActionPerformed(evt);
@@ -797,17 +715,8 @@ public class producto extends JDialog {
                 buscartxt1KeyReleased(evt);
             }
         });
-        getContentPane().add(buscartxt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 270, 40));
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel3.setText("BUSCAR");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, -1, -1));
-
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel4.setText("POR NOMBRE");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
+        EstiloUI.campo(buscartxt1);
+        getContentPane().add(buscartxt1);
 
         buscarcod.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -819,90 +728,23 @@ public class producto extends JDialog {
                 buscarcodKeyReleased(evt);
             }
         });
-        getContentPane().add(buscarcod, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 30, 220, 40));
+        EstiloUI.campo(buscarcod);
+        getContentPane().add(buscarcod);
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel5.setText("POR MARCA");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 10, -1, -1));
-
-        estilizarBotonPrimario(btnprinter);
-        btnprinter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/pdf.png"))); // NOI18N
-        btnprinter.setText("Generar");
-        btnprinter.addActionListener(new java.awt.event.ActionListener() {
+        buscartxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnprinterActionPerformed(evt);
+                buscartxtActionPerformed(evt);
             }
         });
-        getContentPane().add(btnprinter, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 550, 130, 40));
-
-        estilizarBotonLateral(ntipo);
-        ntipo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
-        ntipo.setText("        Tipos");
-        ntipo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ntipoActionPerformed(evt);
+        buscartxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                buscartxtKeyReleased(evt);
             }
         });
-        getContentPane().add(ntipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 290, 160, 60));
+        EstiloUI.campo(buscartxt);
+        getContentPane().add(buscartxt);
 
-        estilizarBotonLateral(nmarca);
-        nmarca.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
-        nmarca.setText("Marcas");
-        nmarca.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nmarcaActionPerformed(evt);
-            }
-        });
-        getContentPane().add(nmarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 160, 60));
-
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel6.setText("IMPORTE EN COMPRA:");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 520, -1, 30));
-
-        montocompra.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        montocompra.setForeground(new java.awt.Color(255, 51, 0));
-        getContentPane().add(montocompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 520, 110, 30));
-
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel7.setText("IMPORTE EN VENTA:");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 520, -1, 30));
-
-        montoventa.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        montoventa.setForeground(new java.awt.Color(255, 51, 0));
-        getContentPane().add(montoventa, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 520, 110, 30));
-
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(60, 68, 78));
-        jLabel8.setText("N° DE ITEMS:");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 520, -1, 30));
-
-        nroproductos.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        nroproductos.setForeground(new java.awt.Color(255, 51, 0));
-        getContentPane().add(nroproductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 520, 80, 30));
-
-        estilizarBotonLateral(cambio);
-        cambio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/exchange.png"))); // NOI18N
-        cambio.setText("   Drogas");
-        cambio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cambioActionPerformed(evt);
-            }
-        });
-        getContentPane().add(cambio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 360, 160, 60));
-
-        estilizarBotonPrimario(btnprinter1);
-        btnprinter1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/printer.png"))); // NOI18N
-        btnprinter1.setText("Imprimir");
-        btnprinter1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnprinter1ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnprinter1, new org.netbeans.lib.awtextra.AbsoluteConstraints(890, 550, 130, 40));
-
+        // Búsqueda por droga: el formulario la oculta (ver constructor), se conserva por compatibilidad.
         buscardroga.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buscardrogaActionPerformed(evt);
@@ -913,46 +755,198 @@ public class producto extends JDialog {
                 buscardrogaKeyReleased(evt);
             }
         });
-        getContentPane().add(buscardroga, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 30, 200, 40));
+        EstiloUI.campo(buscardroga);
+        getContentPane().add(buscardroga);
 
-        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
-        jMenu1.setText("Acciones");
-        jMenu1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+        search.setIcon(EstiloUI.escalar(new javax.swing.ImageIcon(getClass().getResource("/images/research.png")), 28)); // NOI18N
+        getContentPane().add(search);
+
+        jLabel4.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel4.setForeground(EstiloUI.MUTED);
+        jLabel4.setText("BUSCAR POR NOMBRE");
+        getContentPane().add(jLabel4);
+
+        jLabel5.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel5.setForeground(EstiloUI.MUTED);
+        jLabel5.setText("POR MARCA");
+        getContentPane().add(jLabel5);
+
+        jLabel1.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel1.setForeground(EstiloUI.MUTED);
+        jLabel1.setText("POR TIPO");
+        getContentPane().add(jLabel1);
+
+        // ---- Totales (franja inferior) ----
+        estilizarCifra(nroproductos, EstiloUI.TEXTO);
+        getContentPane().add(nroproductos);
+        estilizarCifra(montocompra, EstiloUI.ROJO);
+        getContentPane().add(montocompra);
+        estilizarCifra(montoventa, EstiloUI.AZUL);
+        getContentPane().add(montoventa);
+
+        jLabel8.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel8.setForeground(EstiloUI.MUTED);
+        jLabel8.setText("N° DE ITEMS");
+        getContentPane().add(jLabel8);
+        jLabel6.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel6.setForeground(EstiloUI.MUTED);
+        jLabel6.setText("IMPORTE EN COMPRA");
+        getContentPane().add(jLabel6);
+        jLabel7.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel7.setForeground(EstiloUI.MUTED);
+        jLabel7.setText("IMPORTE EN VENTA");
+        getContentPane().add(jLabel7);
+        // Las tarjetas de resumen (ProductoExtras) reemplazan a estos totales; se conservan porque otros formularios los llenan.
+        nroproductos.setVisible(false);
+        montocompra.setVisible(false);
+        montoventa.setVisible(false);
+        jLabel6.setVisible(false);
+        jLabel7.setVisible(false);
+        jLabel8.setVisible(false);
+
+        EstiloUI.botonAccion(btnprinter);
+        btnprinter.setIcon(EstiloUI.escalar(new javax.swing.ImageIcon(getClass().getResource("/images/pdf.png")), 22)); // NOI18N
+        btnprinter.setText("Generar");
+        btnprinter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenu1ActionPerformed(evt);
+                btnprinterActionPerformed(evt);
             }
         });
+        getContentPane().add(btnprinter);
 
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
-        jMenuItem1.setText("Nuevo Producto.");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        EstiloUI.botonSecundario(btnprinter1);
+        btnprinter1.setIcon(ProductoExcel.icono(22));
+        btnprinter1.setText("Exportar Excel");
+        btnprinter1.setToolTipText("Exportar los productos filtrados a un libro de Excel (.xlsx)");
+        btnprinter1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                btnprinter1ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
-        jMenu1.add(jSeparator5);
+        getContentPane().add(btnprinter1);
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        jMenuItem4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
-        jMenuItem4.setText("Salir");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        // ---- Botones de la barra lateral ----
+        EstiloUI.botonPrimario(nuevo);
+        nuevo.setIcon(EstiloUI.icono(EstiloUI.ICONO_MAS, 22, Color.WHITE)); // NOI18N
+        nuevo.setText("Nuevo producto");
+        nuevo.setToolTipText("Registrar un producto nuevo (F1)");
+        nuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                nuevoActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem4);
-        jMenu1.add(jSeparator6);
+        getContentPane().add(nuevo);
 
-        menu.add(jMenu1);
+        EstiloUI.botonLateral(view);
+        view.setIcon(EstiloUI.icono(EstiloUI.ICONO_OJO, 22, Color.WHITE)); // NOI18N
+        view.setText("Visualizar");
+        view.setToolTipText("Ver o editar el producto seleccionado (doble clic en la fila)");
+        view.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewActionPerformed(evt);
+            }
+        });
+        getContentPane().add(view);
 
-        setJMenuBar(menu);
+        EstiloUI.botonPeligro(delete);
+        delete.setIcon(EstiloUI.icono(EstiloUI.ICONO_BASURA, 22, Color.WHITE)); // NOI18N
+        delete.setText("Eliminar");
+        delete.setToolTipText("Eliminar el producto seleccionado");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+        getContentPane().add(delete);
 
-        pack();
+        EstiloUI.botonLateral(historial);
+        historial.setIcon(EstiloUI.icono(EstiloUI.ICONO_RELOJ, 22, Color.WHITE));
+        historial.setText("Historial");
+        historial.setToolTipText("Compras, ventas y ajustes del producto seleccionado (F3)");
+        historial.setEnabled(false);
+        historial.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                historialActionPerformed();
+            }
+        });
+        getContentPane().add(historial);
+
+        catalogosLbl.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        catalogosLbl.setForeground(new Color(120, 146, 172));
+        catalogosLbl.setText("CATÁLOGOS");
+        getContentPane().add(catalogosLbl);
+
+        EstiloUI.botonLateral(nmarca);
+        nmarca.setIcon(EstiloUI.icono(EstiloUI.ICONO_MAS, 22, Color.WHITE)); // NOI18N
+        nmarca.setText("Marcas");
+        nmarca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nmarcaActionPerformed(evt);
+            }
+        });
+        getContentPane().add(nmarca);
+
+        EstiloUI.botonLateral(ntipo);
+        ntipo.setIcon(EstiloUI.icono(EstiloUI.ICONO_MAS, 22, Color.WHITE)); // NOI18N
+        ntipo.setText("Tipos");
+        ntipo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ntipoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(ntipo);
+
+        // Botón de drogas: el constructor lo oculta, se mantiene por compatibilidad.
+        EstiloUI.botonLateral(cambio);
+        cambio.setIcon(EstiloUI.tintar(new javax.swing.ImageIcon(getClass().getResource("/images/exchange.png")), 22, Color.WHITE)); // NOI18N
+        cambio.setText("Drogas");
+        cambio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cambioActionPerformed(evt);
+            }
+        });
+        getContentPane().add(cambio);
+
+        // ---- Encabezado de la barra lateral ----
+        iconproveedor.setIcon(EstiloUI.escalar(new javax.swing.ImageIcon(getClass().getResource("/images/PRODU2.png")), 64)); // NOI18N
+        getContentPane().add(iconproveedor);
+
+        jLabel2.setFont(EstiloUI.fuente(Font.BOLD, 22));
+        jLabel2.setForeground(Color.WHITE);
+        jLabel2.setText("PRODUCTOS");
+        getContentPane().add(jLabel2);
+
+        subtitulo.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        subtitulo.setForeground(new Color(150, 172, 194));
+        subtitulo.setText("Inventario y precios");
+        getContentPane().add(subtitulo);
+
+        fondo.setOpaque(true);
+        fondo.setBackground(EstiloUI.NAVY);
+        getContentPane().add(fondo);
+
+        // Este formulario ya trae su propio diseño: el restilizador automático no debe tocarlo.
+        getRootPane().putClientProperty(EstiloForm.OMITIR, Boolean.TRUE);
+
+        // ---- Atajos de teclado (reemplazan al viejo menú "Acciones") ----
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nuevoActionPerformed(evt);
+            }
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dispose();
+            }
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                historialActionPerformed();
+            }
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F3, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        setMinimumSize(new java.awt.Dimension(1000, 640));
+        setSize(1180, 720);
 
         getContentPane().addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -962,80 +956,84 @@ public class producto extends JDialog {
         relayoutProducto();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Recalcula el tamaño de la tabla y la posición de los elementos pegados a un
-     * borde (buscador de drogas, franja de totales) según el tamaño actual de la
-     * ventana, para que todo el contenido aproveche el espacio disponible en vez
-     * de quedar con el tamaño fijo del diseño original.
-     */
+    private static final String[] TITULOS = {"Cód.", "Nombre", "P. Costo", "P. Venta", "Stock", "Marca", "Tipo", "Lote"};
+
+    /** Anchos por columna de la vista: Cód., Nombre, P. Costo, P. Venta, Ganancia, Stock, Marca, Tipo, Lote. */
+    private static final int[] ANCHOS = {70, 290, 95, 95, 105, 80, 130, 120, 100};
+
+    /** Anchos iniciales de las columnas (el nombre es la más ancha). */
+    private void anchosColumnas() {
+        int n = tablacliente.getColumnModel().getColumnCount();
+        for (int i = 0; i < n && i < ANCHOS.length; i++) {
+            tablacliente.getColumnModel().getColumn(i).setPreferredWidth(ANCHOS[i]);
+        }
+    }
+
+    /** Cifra de la franja de totales: texto grande y en negrita, sin caja (solo lectura). */
+    private void estilizarCifra(javax.swing.JTextField f, Color color) {
+        f.setUI(new javax.swing.plaf.basic.BasicTextFieldUI());
+        f.setEditable(false);
+        f.setOpaque(false);
+        f.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        f.setFont(EstiloUI.fuente(Font.BOLD, 18));
+        f.setForeground(color);
+        f.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    }
+
+    /** Reposiciona todo según el tamaño actual de la ventana. */
     private void relayoutProducto() {
         int w = getContentPane().getWidth();
         int h = getContentPane().getHeight();
         if (w <= 0 || h <= 0) {
-            return;
+            w = getWidth();
+            h = getHeight();
         }
-        int sidebarW = 190;
-        int rightMargin = 30;
-
+        int sidebarW = 210;
         fondo.setBounds(0, 0, sidebarW, h);
-        jScrollPane1.setBounds(sidebarW, 80, Math.max(300, w - sidebarW - rightMargin), Math.max(200, h - 80 - 90));
-        buscardroga.setLocation(w - rightMargin - buscardroga.getWidth(), buscardroga.getY());
 
-        int filaTotales = h - 80;
-        jLabel6.setLocation(jLabel6.getX(), filaTotales);
-        montocompra.setLocation(montocompra.getX(), filaTotales);
-        jLabel7.setLocation(jLabel7.getX(), filaTotales);
-        montoventa.setLocation(montoventa.getX(), filaTotales);
-        jLabel8.setLocation(jLabel8.getX(), filaTotales);
-        nroproductos.setLocation(nroproductos.getX(), filaTotales);
+        // Barra lateral: encabezado y acciones.
+        int bw = sidebarW - 36;
+        iconproveedor.setBounds(24, 26, 64, 64);
+        jLabel2.setBounds(24, 98, sidebarW - 36, 30);
+        subtitulo.setBounds(24, 128, sidebarW - 36, 18);
+        nuevo.setBounds(18, 176, bw, 46);
+        view.setBounds(18, 230, bw, 46);
+        historial.setBounds(18, 284, bw, 46);
+        delete.setBounds(18, 338, bw, 46);
+        catalogosLbl.setBounds(24, 404, bw, 16);
+        nmarca.setBounds(18, 426, bw, 46);
+        ntipo.setBounds(18, 480, bw, 46);
+        cambio.setBounds(18, 534, bw, 46);
 
-        int filaBotones = h - 50;
-        btnprinter.setLocation(btnprinter.getX(), filaBotones);
-        btnprinter1.setLocation(btnprinter1.getX(), filaBotones);
-    }
+        // Zona principal: búsquedas arriba, tabla en el medio, totales y botones abajo.
+        int x0 = sidebarW + 28;
+        int right = w - 28;
+        int campoW = 190;
+        int tipoX = right - campoW;
+        int marcaX = tipoX - 16 - campoW;
+        int nomX = x0 + 36;
+        search.setBounds(x0, 46, 30, 30);
+        jLabel4.setBounds(nomX, 20, 220, 16);
+        jLabel5.setBounds(marcaX, 20, 120, 16);
+        jLabel1.setBounds(tipoX, 20, 120, 16);
+        buscartxt1.setBounds(nomX, 40, Math.max(120, marcaX - 16 - nomX), 40);
+        buscarcod.setBounds(marcaX, 40, campoW, 40);
+        buscartxt.setBounds(tipoX, 40, campoW, 40);
+        buscardroga.setBounds(tipoX, 40, campoW, 40);
 
-    /** Estilo plano para los botones de acciones de la barra lateral oscura. */
-    private void estilizarBotonLateral(final javax.swing.JButton b) {
-        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
-        b.setOpaque(true);
-        b.setContentAreaFilled(true);
-        b.setBackground(new java.awt.Color(31, 68, 102));
-        b.setForeground(java.awt.Color.WHITE);
-        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-        b.setBorderPainted(false);
-        b.setFocusPainted(false);
-        b.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        b.setIconTextGap(10);
-        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        b.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(0, 102, 153));
-            }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(31, 68, 102));
-            }
-        });
-    }
-
-    /** Estilo plano para los botones de acción principal (generar/imprimir) sobre fondo claro. */
-    private void estilizarBotonPrimario(final javax.swing.JButton b) {
-        b.setUI(new javax.swing.plaf.basic.BasicButtonUI());
-        b.setOpaque(true);
-        b.setContentAreaFilled(true);
-        b.setBackground(new java.awt.Color(0, 102, 153));
-        b.setForeground(java.awt.Color.WHITE);
-        b.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-        b.setBorderPainted(false);
-        b.setFocusPainted(false);
-        b.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        b.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(0, 84, 128));
-            }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(new java.awt.Color(0, 102, 153));
-            }
-        });
+        int footH = 64;
+        // tarjetas de resumen y filtros rápidos entre la búsqueda y la tabla
+        int yTabla = extras.colocar(x0, 96, Math.max(300, right - x0));
+        jScrollPane1.setBounds(x0, yTabla, Math.max(300, right - x0), Math.max(150, h - yTabla - footH - 28));
+        int fy = h - footH - 10;
+        jLabel8.setBounds(x0, fy, 130, 16);
+        nroproductos.setBounds(x0, fy + 18, 120, 30);
+        jLabel6.setBounds(x0 + 140, fy, 160, 16);
+        montocompra.setBounds(x0 + 140, fy + 18, 190, 30);
+        jLabel7.setBounds(x0 + 350, fy, 160, 16);
+        montoventa.setBounds(x0 + 350, fy + 18, 190, 30);
+        btnprinter1.setBounds(right - 170, fy + 6, 170, 40);
+        btnprinter.setBounds(right - 170 - 12 - 130, fy + 6, 130, 40);
     }
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -1058,22 +1056,15 @@ public class producto extends JDialog {
     
     private void nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoActionPerformed
         cargarprodu cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         this.band=1;
         cp = new cargarprodu(mimenu, true, this.band, "");
         DecimalFormat formateador = new DecimalFormat("###,###");
         cp.setVisible(true);         
+        extras.recargar();
         if(cp.modeloRefresca!=null){
             tablacliente.setModel(cp.modeloRefresca);
-            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-            tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-            tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);  
+                anchosColumnas();
             nroproductos.setText(formateador.format(cp.contador));
             montocompra.setText(formateador.format(cp.scompra));
             montoventa.setText(formateador.format(cp.sventa));
@@ -1098,24 +1089,17 @@ public class producto extends JDialog {
             codigo="";
         }
         updateprodu cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         this.band=2;
         System.out.print(codigo);
         System.out.print("valor de la tabla");
         cp = new updateprodu(mimenu, true, this.band, codigo);        
         DecimalFormat formateador = new DecimalFormat("###,###");
         cp.setVisible(true);  
+        extras.recargar();
         if(cp.modeloRefresca!=null){
             tablacliente.setModel(cp.modeloRefresca);
-            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(5).setPreferredWidth(100);
-            tablacliente.getColumnModel().getColumn(6).setPreferredWidth(100);
-            tablacliente.getColumnModel().getColumn(7).setPreferredWidth(100);
+                anchosColumnas();
             nroproductos.setText(formateador.format(cp.contador));
             montocompra.setText(formateador.format(cp.scompra));
             montoventa.setText(formateador.format(cp.sventa));
@@ -1149,6 +1133,7 @@ public class producto extends JDialog {
                                     JOptionPane.showMessageDialog(null, "Se elimino correctamente el Registro.");                                
                             }               
                             cargar(valor, "", "", "");
+                            extras.recargar();
                             delete.setEnabled(false);
                             view.setEnabled(false);                            
                             st.close();
@@ -1176,8 +1161,7 @@ public class producto extends JDialog {
 
     private void ntipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ntipoActionPerformed
         tipos m;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         //this.band=1;
         m = new tipos(mimenu, true);
         m.setVisible(true); 
@@ -1185,8 +1169,7 @@ public class producto extends JDialog {
 
     private void nmarcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nmarcaActionPerformed
         marcas m;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         //this.band=1;
         m = new marcas(mimenu, true);
         m.setVisible(true); 
@@ -1202,18 +1185,14 @@ public class producto extends JDialog {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         cargarprodu cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         this.band=1;
         cp = new cargarprodu(mimenu, true, this.band, "");
         DecimalFormat formateador = new DecimalFormat("###,###");
         cp.setVisible(true);         
         if(cp.modeloRefresca!=null){
             tablacliente.setModel(cp.modeloRefresca);
-            tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-            tablacliente.getColumnModel().getColumn(2).setPreferredWidth(80);
-            tablacliente.getColumnModel().getColumn(3).setPreferredWidth(80);  
+                anchosColumnas();
             nroproductos.setText(formateador.format(cp.contador));
             montocompra.setText(formateador.format(cp.scompra));
             montoventa.setText(formateador.format(cp.sventa));
@@ -1222,29 +1201,22 @@ public class producto extends JDialog {
 
     private void cambioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cambioActionPerformed
         drogas m;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         //this.band=1;
         m = new drogas(mimenu, true);
         m.setVisible(true); 
     }//GEN-LAST:event_cambioActionPerformed
 
     private void btnprinterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnprinterActionPerformed
-//    try {
-//            ConexionBD cbd = new ConexionBD();
-//            String archivo ="C:\\Users\\Usuario\\Documents\\transporsystem\\ventcontrol.1\\src\\reports\\productos.jasper";
-//            JasperReport jr = (JasperReport) JRLoader.loadObject(archivo);
-//            JasperPrint jp = JasperFillManager.fillReport(jr, null, cbd.getConexion());
-//            JasperViewer viewer = new JasperViewer(jp, false);
-//            viewer.setTitle("Productos.");
-//            viewer.setVisible(true);
-//    } catch (Exception ex) {
-//        Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
-//    }       
+        // Reporte PDF formal con los mismos filtros que se ven en pantalla
+        ProductoReporte.preguntarYGenerar(this, buscartxt1.getText(), buscarcod.getText(), buscartxt.getText(),
+                buscardroga.getText(), usuarioactu, false);
     }//GEN-LAST:event_btnprinterActionPerformed
 
     private void btnprinter1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnprinter1ActionPerformed
-        // TODO add your handling code here:
+        // Exporta los productos filtrados a un libro de Excel (.xlsx)
+        ProductoExcel.preguntarYExportar(this, buscartxt1.getText(), buscarcod.getText(), buscartxt.getText(),
+                buscardroga.getText(), usuarioactu);
     }//GEN-LAST:event_btnprinter1ActionPerformed
 
     private void buscardrogaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscardrogaKeyReleased
@@ -1309,13 +1281,7 @@ public class producto extends JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem4;
     public static javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPopupMenu.Separator jSeparator5;
-    private javax.swing.JPopupMenu.Separator jSeparator6;
-    private javax.swing.JMenuBar menu;
     private javax.swing.JTextField montocompra;
     private javax.swing.JTextField montoventa;
     private javax.swing.JButton nmarca;
@@ -1323,6 +1289,8 @@ public class producto extends JDialog {
     private javax.swing.JButton ntipo;
     private javax.swing.JButton nuevo;
     private javax.swing.JLabel search;
+    private javax.swing.JLabel subtitulo;
+    private javax.swing.JLabel catalogosLbl;
     public static javax.swing.JTable tablacliente;
     private javax.swing.JButton view;
     // End of variables declaration//GEN-END:variables

@@ -91,7 +91,20 @@ public class ImagenProductoUtil {
             return null;
         }
         ImageIcon original = new ImageIcon(archivo.getAbsolutePath());
-        Image escalada = original.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
-        return new ImageIcon(escalada);
+        int ow = original.getIconWidth(), oh = original.getIconHeight();
+        if (ow <= 0 || oh <= 0) {
+            return null;
+        }
+        // Se ajusta dentro del recuadro conservando la proporción (antes se deformaba) y sin agrandar de más.
+        double factor = Math.min((double) ancho / ow, (double) alto / oh);
+        int w = Math.max(1, (int) Math.round(ow * factor));
+        int h = Math.max(1, (int) Math.round(oh * factor));
+        java.awt.image.BufferedImage dst = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D g = dst.createGraphics();
+        g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+        g.drawImage(original.getImage(), 0, 0, w, h, null);
+        g.dispose();
+        return new ImageIcon(dst);
     }
 }

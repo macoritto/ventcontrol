@@ -24,19 +24,24 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
+ * Listado de clientes (búsqueda por nombre o por C.I., alta, edición y baja).
+ * El estilo visual (barra lateral, botones, campos y tabla) viene de {@link EstiloUI}.
  *
  * @author Usuario
  */
 public class cliente extends JDialog {
     //OJO QUE EN MI BASE DE DATOS SEXO ES TIPO DE CLIENTE, M SIGNIFICA MINORISTA Y F MAYORISTA
 
+    private static final String[] TITULOS = {"Cód.", "Nombre", "C.I.", "Dirección", "RUC"};
+    private static final int[] ANCHOS = {60, 300, 110, 260, 110};
+
     DefaultTableModel model;
     DefaultComboBoxModel modeloRol;
     Integer band=0;
     public cliente(menu menuprincipal, boolean modal) {
         super(menuprincipal, modal);
-        initComponents();        
-        this.setLocation(300, 100);  
+        initComponents();
+        this.setLocation(300, 100);
         int contador=0;
          this.setTitle("Clientes.");
         cargar("");
@@ -45,116 +50,91 @@ public class cliente extends JDialog {
         buscartxt.setDocument(new solomayusculas());
         buscartxt1.setDocument(new solomayusculas());
     }
-    void cargar(String valor){
-        String [] titulos ={"Cod","Nombre","Ci","Direccion", "Ruc"};
-        String [] registros = new String[5];
-        String sql;
-        if(valor.equals("")){
-            sql="SELECT * FROM cliente ORDER BY id";
-            System.out.print("entra en el simple");
-        }else{
-            sql="SELECT * FROM cliente where UPPER(CONCAT(nombre, apellido)) LIKE UPPER('%"+valor+"%') ORDER BY id";
-            System.out.print("entra en el segundo");
-        }                
-        model = new DefaultTableModel (null, titulos){
+
+    /** Arma el modelo de la tabla (solo lectura) a partir de una consulta de clientes. */
+    private void consultar(String sql) {
+        model = new DefaultTableModel (null, TITULOS){
         @Override
         public boolean isCellEditable(int row, int col)
         {
             return false;
         }
-        };       
+        };
+        Connection cn = null;
         try{
                 conectar cc = new conectar();
-                Connection cn = cc.conexion(); 
+                cn = cc.conexion();
+                if (cn == null) {
+                    return;
+                }
                 Statement st = cn.createStatement();
                 ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
+                String [] registros = new String[5];
                 while(rs.next()){
                     registros[0] = rs.getString("id");
                     registros[1] = rs.getString("nombre")+(" ")+rs.getString("apellido");
                     registros[2] = rs.getString("ci");
-                    registros[3] = rs.getString("direccion");        
-                    registros[4] = rs.getString("ruc");                 
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
-                }                
-                tablacliente.setModel(model);  
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                model.fireTableDataChanged();     
-                cn.close();
+                    registros[3] = rs.getString("direccion");
+                    registros[4] = rs.getString("ruc");
+                    model.addRow(registros);
+                }
+                tablacliente.setModel(model);
+                ajustarColumnas();
+                model.fireTableDataChanged();
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-       view.setEnabled(false);
-       delete.setEnabled(false);
+                JOptionPane.showMessageDialog(this, "No se pudieron cargar los clientes:\n" + ex.getMessage(),
+                        "Clientes", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.close();
+                } catch (SQLException ignorada) {
+                }
+            }
+        }
+        view.setEnabled(false);
+        delete.setEnabled(false);
     }
-    void cargarci(String valor){
-        String [] titulos ={"Cod","Nombre","Ci","Direccion", "Ruc"};
-        String [] registros = new String[5];
+
+    /** Anchos preferidos de las columnas (se reaplican cada vez que cambia el modelo). */
+    private static void ajustarColumnas() {
+        if (tablacliente.getColumnModel().getColumnCount() < ANCHOS.length) {
+            return;
+        }
+        for (int i = 0; i < ANCHOS.length; i++) {
+            tablacliente.getColumnModel().getColumn(i).setPreferredWidth(ANCHOS[i]);
+        }
+    }
+
+    void cargar(String valor){
         String sql;
         if(valor.equals("")){
             sql="SELECT * FROM cliente ORDER BY id";
-            System.out.print("entra en el simple");
+        }else{
+            sql="SELECT * FROM cliente where UPPER(CONCAT(nombre, apellido)) LIKE UPPER('%"+valor+"%') ORDER BY id";
+        }
+        consultar(sql);
+    }
+    void cargarci(String valor){
+        String sql;
+        if(valor.equals("")){
+            sql="SELECT * FROM cliente ORDER BY id";
         }else{
             sql="SELECT * FROM cliente where ci='"+valor+"' ORDER BY id";
-            System.out.print("entra en el segundo");
-        }                
-        model = new DefaultTableModel (null, titulos){
-        @Override
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
         }
-        };     
-        conectar cc = new conectar();
-        Connection cn = cc.conexion();
-        try{                 
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(sql);
-                System.out.print(sql);
-                while(rs.next()){
-                    registros[0] = rs.getString("id");
-                    registros[1] = rs.getString("nombre")+(" ")+rs.getString("apellido");
-                    registros[2] = rs.getString("ci");
-                    registros[3] = rs.getString("direccion");        
-                    registros[4] = rs.getString("ruc");                 
-                    model.addRow(registros);                                                                 
-                    //JTableHeader header = tablausu.getTableHeader();
-
-                    //header.setForeground(Color.yellow);
-                }                
-                tablacliente.setModel(model);   
-                tablacliente.getColumnModel().getColumn(0).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(1).setPreferredWidth(300);
-                tablacliente.getColumnModel().getColumn(2).setPreferredWidth(50);
-                tablacliente.getColumnModel().getColumn(3).setPreferredWidth(100);
-                tablacliente.getColumnModel().getColumn(4).setPreferredWidth(50);
-                model.fireTableDataChanged();  
-                cn.close();
-        }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
-        } 
-        view.setEnabled(false);
-        delete.setEnabled(false);
-        
+        consultar(sql);
     }
     public static void model(DefaultTableModel modelo){
         tablacliente.setModel(modelo);
-        modelo.fireTableDataChanged();   
+        ajustarColumnas();
+        modelo.fireTableDataChanged();
         tablacliente.repaint();
-        System.out.print("hola");
     }
     void bloquear(){
         view.setEnabled(false);
         delete.setEnabled(false);
-    }    
-    
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -173,31 +153,14 @@ public class cliente extends JDialog {
         view = new javax.swing.JButton();
         iconproveedor = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        search = new javax.swing.JLabel();
+        subtitulo = new javax.swing.JLabel();
+        contadorLbl = new javax.swing.JLabel();
         buscartxt1 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        fondo = new javax.swing.JLabel();
-        menu = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jSeparator5 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        fondo = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                // Forzamos un repintado apenas la ventana termina de abrirse: en algunos
-                // entornos (drivers de video/D3D en Windows) el primer pintado de los
-                // componentes estilizados no se completa hasta que ocurre un repintado
-                // adicional, y esto evita depender de que el usuario pase el mouse encima.
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        getContentPane().repaint();
-                    }
-                });
-            }
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
             }
@@ -213,33 +176,43 @@ public class cliente extends JDialog {
                 formComponentHidden(evt);
             }
         });
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().setBackground(new java.awt.Color(247, 248, 250));
 
-        tablacliente.setBackground(new java.awt.Color(0, 102, 153));
-        tablacliente.setFont(new java.awt.Font("Khmer UI", 1, 11)); // NOI18N
-        tablacliente.setForeground(new java.awt.Color(240, 240, 240));
-        tablacliente.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
+        // Layout nulo con reposicionamiento propio (relayoutCliente): se adapta a cualquier
+        // tamaño de ventana. OJO con el z-order: en Swing el PRIMER componente agregado queda
+        // AL FRENTE y el último al fondo, por eso el panel lateral (fondo) se agrega al final.
+        getContentPane().setLayout(null);
+        getContentPane().setBackground(EstiloUI.FONDO);
 
-            }
-        ));
-        tablacliente.setSelectionBackground(new java.awt.Color(0, 0, 0));
+        // ---- Tabla ----
+        tablacliente.setModel(new javax.swing.table.DefaultTableModel(new Object[][]{}, TITULOS));
         tablacliente.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tablaclienteMouseClicked(evt);
             }
         });
+        // Habilita/deshabilita Visualizar y Eliminar según haya una fila seleccionada
+        // (también cuando se navega con el teclado).
+        tablacliente.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    boolean hay = tablacliente.getSelectedRow() >= 0;
+                    view.setEnabled(hay);
+                    delete.setEnabled(hay);
+                }
+            }
+        });
+        // Mantiene al día el contador de la barra lateral cuando cambia el modelo de la tabla.
+        tablacliente.addPropertyChangeListener("model", new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                int n = tablacliente.getModel().getRowCount();
+                contadorLbl.setText(n + (n == 1 ? " cliente" : " clientes"));
+            }
+        });
         jScrollPane1.setViewportView(tablacliente);
+        EstiloUI.tabla(tablacliente, jScrollPane1);
+        getContentPane().add(jScrollPane1);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 80, 720, 380));
-
+        // ---- Búsqueda ----
         buscartxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buscartxtActionPerformed(evt);
@@ -250,59 +223,8 @@ public class cliente extends JDialog {
                 buscartxtKeyReleased(evt);
             }
         });
-        getContentPane().add(buscartxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 30, 220, 40));
-
-        jLabel1.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel1.setText("POR C.I.");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, -1, -1));
-
-        nuevo.setBackground(new java.awt.Color(0, 102, 153));
-        nuevo.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        nuevo.setForeground(new java.awt.Color(240, 240, 240));
-        nuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new.png"))); // NOI18N
-        nuevo.setText("   Nuevo");
-        nuevo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nuevoActionPerformed(evt);
-            }
-        });
-        getContentPane().add(nuevo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 160, 60));
-
-        delete.setBackground(new java.awt.Color(0, 102, 153));
-        delete.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        delete.setForeground(new java.awt.Color(240, 240, 240));
-        delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/delete.png"))); // NOI18N
-        delete.setText("  Eliminar");
-        delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
-            }
-        });
-        getContentPane().add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 160, 60));
-
-        view.setBackground(new java.awt.Color(0, 102, 153));
-        view.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        view.setForeground(new java.awt.Color(240, 240, 240));
-        view.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/view.png"))); // NOI18N
-        view.setText(" Visualizar");
-        view.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewActionPerformed(evt);
-            }
-        });
-        getContentPane().add(view, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 160, 60));
-
-        iconproveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/clientadd.png"))); // NOI18N
-        getContentPane().add(iconproveedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 150, 150));
-
-        jLabel2.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel2.setText("CLIENTES");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 410, -1, -1));
-
-        search.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/research.png"))); // NOI18N
-        getContentPane().add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, 40, 40));
+        EstiloUI.campo(buscartxt);
+        getContentPane().add(buscartxt);
 
         buscartxt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -314,69 +236,144 @@ public class cliente extends JDialog {
                 buscartxt1KeyReleased(evt);
             }
         });
-        getContentPane().add(buscartxt1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 370, 40));
+        EstiloUI.campo(buscartxt1);
+        getContentPane().add(buscartxt1);
 
-        jLabel3.setFont(new java.awt.Font("Khmer UI", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel3.setText("BUSCAR");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, -1, -1));
+        jLabel4.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel4.setForeground(EstiloUI.MUTED);
+        jLabel4.setText("BUSCAR POR NOMBRE");
+        getContentPane().add(jLabel4);
 
-        jLabel4.setFont(new java.awt.Font("Khmer UI", 1, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel4.setText("POR NOMBRE");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
-        // Fondo con imagen fijo eliminado: ahora el color de fondo se aplica directo
-        // al content pane (arriba), que se adapta a cualquier tamaño de ventana.
+        jLabel1.setFont(EstiloUI.fuente(Font.BOLD, 11));
+        jLabel1.setForeground(EstiloUI.MUTED);
+        jLabel1.setText("POR C.I.");
+        getContentPane().add(jLabel1);
 
-        jMenu1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menusys.png"))); // NOI18N
-        jMenu1.setText("Acciones");
-        jMenu1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
-        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+        // ---- Botones de la barra lateral ----
+        EstiloUI.botonPrimario(nuevo);
+        nuevo.setIcon(EstiloUI.icono(EstiloUI.ICONO_MAS, 22, java.awt.Color.WHITE)); // NOI18N
+        nuevo.setText("Nuevo cliente");
+        nuevo.setToolTipText("Registrar un cliente nuevo (F1)");
+        nuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenu1ActionPerformed(evt);
+                nuevoActionPerformed(evt);
             }
         });
+        getContentPane().add(nuevo);
 
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
-        jMenuItem1.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
-        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/menucampra.png"))); // NOI18N
-        jMenuItem1.setText("Nuevo Cliente.");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        EstiloUI.botonLateral(view);
+        view.setIcon(EstiloUI.icono(EstiloUI.ICONO_OJO, 22, java.awt.Color.WHITE)); // NOI18N
+        view.setText("Visualizar");
+        view.setToolTipText("Ver o editar el cliente seleccionado (doble clic en la fila)");
+        view.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                viewActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
-        jMenu1.add(jSeparator5);
+        getContentPane().add(view);
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
-        jMenuItem4.setFont(new java.awt.Font("Khmer UI", 1, 12)); // NOI18N
-        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/door.png"))); // NOI18N
-        jMenuItem4.setText("Salir");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        EstiloUI.botonPeligro(delete);
+        delete.setIcon(EstiloUI.icono(EstiloUI.ICONO_BASURA, 22, java.awt.Color.WHITE)); // NOI18N
+        delete.setText("Eliminar");
+        delete.setToolTipText("Eliminar el cliente seleccionado");
+        delete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                deleteActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem4);
+        getContentPane().add(delete);
 
-        menu.add(jMenu1);
+        // ---- Encabezado de la barra lateral ----
+        iconproveedor.setIcon(EstiloUI.escalar(new javax.swing.ImageIcon(getClass().getResource("/images/clientadd.png")), 64)); // NOI18N
+        getContentPane().add(iconproveedor);
 
-        setJMenuBar(menu);
+        jLabel2.setFont(EstiloUI.fuente(Font.BOLD, 22));
+        jLabel2.setForeground(Color.WHITE);
+        jLabel2.setText("CLIENTES");
+        getContentPane().add(jLabel2);
 
-        pack();
+        subtitulo.setFont(EstiloUI.fuente(Font.PLAIN, 12));
+        subtitulo.setForeground(new Color(150, 172, 194));
+        subtitulo.setText("Gestión de clientes");
+        getContentPane().add(subtitulo);
+
+        contadorLbl.setFont(EstiloUI.fuente(Font.BOLD, 12));
+        contadorLbl.setForeground(new Color(150, 172, 194));
+        contadorLbl.setText("0 clientes");
+        getContentPane().add(contadorLbl);
+
+        fondo.setOpaque(true);
+        fondo.setBackground(EstiloUI.NAVY);
+        getContentPane().add(fondo);
+
+        // Este formulario ya trae su propio diseño: el restilizador automático no debe tocarlo.
+        getRootPane().putClientProperty(EstiloForm.OMITIR, Boolean.TRUE);
+
+        // ---- Atajos de teclado (reemplazan al viejo menú "Acciones") ----
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nuevoActionPerformed(evt);
+            }
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dispose();
+            }
+        }, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        setMinimumSize(new java.awt.Dimension(780, 460));
+        setSize(980, 560);
+
+        getContentPane().addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                relayoutCliente();
+            }
+        });
+        relayoutCliente();
     }// </editor-fold>//GEN-END:initComponents
 
+    /** Reposiciona todo según el tamaño actual de la ventana. */
+    private void relayoutCliente() {
+        int w = getContentPane().getWidth();
+        int h = getContentPane().getHeight();
+        if (w <= 0 || h <= 0) {
+            w = getWidth();
+            h = getHeight();
+        }
+        int sidebarW = 210;
+        fondo.setBounds(0, 0, sidebarW, h);
+
+        // Barra lateral: encabezado, acciones y contador.
+        iconproveedor.setBounds(24, 26, 64, 64);
+        jLabel2.setBounds(24, 98, sidebarW - 36, 30);
+        subtitulo.setBounds(24, 128, sidebarW - 36, 18);
+        nuevo.setBounds(18, 176, sidebarW - 36, 46);
+        view.setBounds(18, 230, sidebarW - 36, 46);
+        delete.setBounds(18, 284, sidebarW - 36, 46);
+        contadorLbl.setBounds(24, Math.max(344, h - 44), sidebarW - 36, 20);
+
+        // Zona principal: búsqueda arriba, tabla debajo.
+        int x0 = sidebarW + 28;
+        int right = w - 28;
+        int ciW = 190;
+        int ciX = right - ciW;
+        jLabel4.setBounds(x0, 20, 220, 16);
+        jLabel1.setBounds(ciX, 20, 120, 16);
+        buscartxt1.setBounds(x0, 40, Math.max(120, ciX - 16 - x0), 40);
+        buscartxt.setBounds(ciX, 40, ciW, 40);
+        jScrollPane1.setBounds(x0, 100, Math.max(300, right - x0), Math.max(150, h - 100 - 28));
+    }
+
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        
+
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        
+
     }//GEN-LAST:event_formWindowClosing
 
     private void formComponentHidden(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentHidden
-        
+
     }//GEN-LAST:event_formComponentHidden
 
     private void formWindowIconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowIconified
@@ -384,16 +381,17 @@ public class cliente extends JDialog {
 //        m.setEnabled(true);
 //        m.show();
     }//GEN-LAST:event_formWindowIconified
-    
+
     private void nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoActionPerformed
         cargarcli cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        // El padre de los diálogos es la misma ventana principal que abrió este formulario
+        // (antes se construía un menú nuevo, completo, solo para usarlo de padre).
+        menu mimenu = (menu) getOwner();
         this.band=1;
         cp = new cargarcli(mimenu, true, this.band, "");
-        cp.setVisible(true);         
+        cp.setVisible(true);
         if(cp.modeloRefresca!=null){
-            tablacliente.setModel(cp.modeloRefresca);
+            model(cp.modeloRefresca);
         }
     }//GEN-LAST:event_nuevoActionPerformed
 
@@ -408,58 +406,65 @@ public class cliente extends JDialog {
     private void viewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewActionPerformed
         int FilaSelec = tablacliente.getSelectedRow();
         String codigo;
-        if(FilaSelec>=0)            
+        if(FilaSelec>=0)
         {
             codigo = tablacliente.getValueAt(FilaSelec, 0).toString();
         }else{
             codigo="";
         }
         updatecli cp;
-        menu mimenu;
-        mimenu = new menu(0);
+        menu mimenu = (menu) getOwner();
         this.band=2;
         cp = new updatecli(mimenu, true, this.band, codigo);
-        
-        cp.setVisible(true);  
+
+        cp.setVisible(true);
         if(cp.modeloRefresca!=null){
-            tablacliente.setModel(cp.modeloRefresca);
+            model(cp.modeloRefresca);
         }
     }//GEN-LAST:event_viewActionPerformed
 
     private void tablaclienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaclienteMouseClicked
         view.setEnabled(true);
-        delete.setEnabled(true);        
+        delete.setEnabled(true);
+        // Doble clic sobre una fila = visualizar / editar ese cliente.
+        if (evt.getClickCount() == 2 && tablacliente.getSelectedRow() >= 0) {
+            viewActionPerformed(null);
+        }
     }//GEN-LAST:event_tablaclienteMouseClicked
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
          int FilaSelec = tablacliente.getSelectedRow();
          String cod;
-        if(FilaSelec>=0)            
+        if(FilaSelec>=0)
         {
             String sql;
             cod=(tablacliente.getValueAt(FilaSelec, 0).toString());
-            try{        
-                int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar al Cliente?");
+            String nombre = String.valueOf(tablacliente.getValueAt(FilaSelec, 1));
+            try{
+                int confirmar = JOptionPane.showConfirmDialog(this,
+                        "¿Desea eliminar al cliente \"" + nombre + "\"?\nEsta acción no se puede deshacer.",
+                        "Eliminar cliente", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                     if(confirmar==JOptionPane.YES_OPTION){
-                            sql ="DELETE FROM cliente where id='"+cod+"'";                                    
+                            sql ="DELETE FROM cliente where id='"+cod+"'";
                             conectar cc = new conectar();
-                            Connection cn = cc.conexion(); 
-                            PreparedStatement st = cn.prepareStatement(sql);         
-                            System.out.print(sql);
-                            bloquear();        
-                            String valor="";                                               
+                            Connection cn = cc.conexion();
+                            PreparedStatement st = cn.prepareStatement(sql);
+                            bloquear();
+                            String valor="";
                             if(st.executeUpdate()>0){
-                                    JOptionPane.showMessageDialog(null, "Se elimino correctamente el Registro.");                                
-                            }               
+                                    JOptionPane.showMessageDialog(this, "Se eliminó correctamente el registro.");
+                            }
                             cargar(valor);
                             delete.setEnabled(false);
-                            view.setEnabled(false);                            
+                            view.setEnabled(false);
                             st.close();
                             cn.close();
                     }
-            }catch(SQLException ex){            
+            }catch(SQLException ex){
+                JOptionPane.showMessageDialog(this, "No se pudo eliminar el cliente (puede tener ventas u otros registros asociados):\n"
+                        + ex.getMessage(), "Eliminar cliente", JOptionPane.ERROR_MESSAGE);
             }
-        }   
+        }
     }//GEN-LAST:event_deleteActionPerformed
 
     private void buscartxt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscartxt1ActionPerformed
@@ -470,26 +475,6 @@ public class cliente extends JDialog {
         cargar(buscartxt1.getText());
     }//GEN-LAST:event_buscartxt1KeyReleased
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        cargarcli cp;
-        menu mimenu;
-        mimenu = new menu(0);
-        this.band=1;
-        cp = new cargarcli(mimenu, true, this.band, "");
-        cp.setVisible(true);         
-        if(cp.modeloRefresca!=null){
-            tablacliente.setModel(cp.modeloRefresca);
-        }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
-
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
-
-    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenu1ActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -497,7 +482,7 @@ public class cliente extends JDialog {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -507,42 +492,30 @@ public class cliente extends JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(proveedor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new proveedor().setVisible(true);
-//            }
-//        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField buscartxt;
     private javax.swing.JTextField buscartxt1;
+    private javax.swing.JLabel contadorLbl;
     private javax.swing.JButton delete;
-    private javax.swing.JLabel fondo;
+    private javax.swing.JPanel fondo;
     private javax.swing.JLabel iconproveedor;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem4;
     public static javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPopupMenu.Separator jSeparator5;
-    private javax.swing.JMenuBar menu;
     private javax.swing.JButton nuevo;
-    private javax.swing.JLabel search;
+    private javax.swing.JLabel subtitulo;
     public static javax.swing.JTable tablacliente;
     private javax.swing.JButton view;
     // End of variables declaration//GEN-END:variables

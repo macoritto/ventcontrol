@@ -511,12 +511,22 @@ public class retirocaja extends JDialog {
     }//GEN-LAST:event_guardarActionPerformed
 
     private void guardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardar1ActionPerformed
+        TurnoCaja.Turno turnoActual = TurnoCaja.requerir(this, usuarioactu);
+        if (turnoActual == null) {
+            return;
+        }
         DecimalFormat formateador = new DecimalFormat("###,###");
         String aux3; 
         Integer monto5;
         Integer totalingresos=0, diferencia;
-        totalingresos=sumav+sumai+sumap;
-        diferencia=totalingresos-sumar-sumad;
+        // el efectivo disponible es el de SU turno (no el de todo el día): fondo inicial + ingresos + ventas y cobros en
+        // efectivo - retiros - devoluciones
+        try {
+            diferencia = (int) TurnoCaja.efectivoEsperado(turnoActual.id);
+        } catch (SQLException exTurno) {
+            JOptionPane.showMessageDialog(null, "No se pudo calcular el efectivo del turno: " + exTurno.getMessage());
+            return;
+        }
         aux3 = monto.getText();
         Number w=0;
         try {
@@ -552,7 +562,7 @@ public class retirocaja extends JDialog {
                                         monto4 = c.intValue();
                                         System.out.print(monto4.toString());
                                         //monto.setText(monto4.toString());
-                                        String sql ="INSERT INTO retiro (fecha, hora, monto, detalle, cod, usuario, caja) VALUES ('" +calendar.getDate()+ "','"+aux+"','" +monto4.toString()+"','" +descrip.getText()+ "','"+cod.getText()+"','"+usuarioactu+"','1')";                                                        
+                                        String sql ="INSERT INTO retiro (fecha, hora, monto, detalle, cod, usuario, caja, turno_id) VALUES ('" +calendar.getDate()+ "','"+aux+"','" +monto4.toString()+"','" +descrip.getText()+ "','"+cod.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+turnoActual.id+"')";                                                        
                                         PreparedStatement st = cn.prepareStatement(sql);                             
                                         System.out.print(sql);
                                         System.out.print(st);
@@ -564,7 +574,7 @@ public class retirocaja extends JDialog {
                                             if(confirmar==JOptionPane.YES_OPTION){
                                                 autonumerargasto();
                                                 //monto.setText(monto4.toString());
-                                                String sql2 ="INSERT INTO gastos (id, fecha, monto, descripcion, usuario, caja, idaux) VALUES ('" +codigogasto+"','"+calendar.getDate()+"','" +monto4.toString()+"','" +descrip.getText()+ "','"+usuarioactu+"','1','"+cod.getText()+"')";                                                        
+                                                String sql2 ="INSERT INTO gastos (id, fecha, monto, descripcion, usuario, caja, idaux) VALUES ('" +codigogasto+"','"+calendar.getDate()+"','" +monto4.toString()+"','" +descrip.getText()+ "','"+usuarioactu+"','"+turnoActual.cajaId+"','"+cod.getText()+"')";                                                        
                                                 PreparedStatement st1 = cn.prepareStatement(sql2);                             
                                                 System.out.print(sql2);
                                                 System.out.print(st1);

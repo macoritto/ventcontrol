@@ -50,6 +50,7 @@ import model.Tipo;
         
         super(menuprincipal, modal);
         initComponents();
+        disenoModerno();
         this.setLocationRelativeTo(null);
         cod.setEnabled(false);
         limpiar();        
@@ -191,7 +192,7 @@ import model.Tipo;
         precioc.setText("");
         preciov.setText("");
         descuento.setText("");
-        stock.setText("");
+        stock.setText("0");
         canpaq.setText("");
         estante.setText("");
         kgmt.setText("0");
@@ -205,6 +206,24 @@ import model.Tipo;
     public void setModel(DefaultTableModel modelo){
         modelo = modeloRefresca;
     }
+    /** Acomoda los componentes del formulario en el diseño moderno (ver FormProductoUI). */
+    private void disenoModerno() {
+        FormProductoUI.Spec s = new FormProductoUI.Spec();
+        s.dlg = this;
+        s.titulo = "Nuevo producto";
+        s.subtitulo = "Los campos con * son obligatorios.";
+        s.cod = cod; s.estante = estante; s.nombreProd = nombre1; s.observ = nombre;
+        s.laboratorio = laboratorio; s.costo = costo; s.preciov = preciov; s.preciom = preciom;
+        s.precioc = precioc; s.stock = stock; s.minimo = descuento; s.canpaq = canpaq;
+        s.generar = generar; s.nuevotipo = nuevotipo; s.nuevaUnidad = medida; s.selectLab = selectlaboratorio;
+        s.btnImagen = btnImagen; s.guardar = btnguardar; s.cancelar = btncancelar;
+        s.tipo = combotipo; s.unidad = medida1; s.iva = comboiva;
+        s.img = imgProducto; s.mensaje = nece1;
+        s.ast = new javax.swing.JLabel[]{necesa5, necesa6, necesa, necesa1, necesa2, necesa3, necesa7, necesa4, necesa8};
+        s.astCampo = new javax.swing.JComponent[]{estante, nombre1, costo, preciov, preciom, precioc, stock, laboratorio, comboiva};
+        FormProductoUI.armar(s);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -959,6 +978,23 @@ import model.Tipo;
     }// </editor-fold>//GEN-END:initComponents
 
     
+    /** Duplica las comillas simples para poder armar el SQL con textos como D'AGOSTINI. */
+    private static String q(String t) {
+        return t == null ? "" : t.replace("'", "''");
+    }
+
+    private static int entero(String t) {
+        return decimal(t).intValue();
+    }
+
+    private static Double decimal(String t) {
+        try {
+            return t == null || t.trim().isEmpty() ? 0.0 : new java.math.BigDecimal(t.trim().replace(",", ".")).doubleValue();
+        } catch (NumberFormatException ex) {
+            return 0.0;
+        }
+    }
+
     private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
         //String [] titulos ={"Cod","Nombre","P. Costo","P. Venta", "Stock","Marca","Tipo"};
        // String [] registros = new String[7];
@@ -1001,8 +1037,12 @@ import model.Tipo;
                         bandera=1;
                     }
                 }
+                rs.close();
+                st.close();
+                cn.close();
         }catch(SQLException ex){
-                        JOptionPane.showMessageDialog(null, "");
+                        JOptionPane.showMessageDialog(null, "No se pudo verificar si el producto ya existe:\n"+ex.getMessage());
+                        return;
         }         
         //ban = p.pasar(ban);
         
@@ -1028,7 +1068,7 @@ import model.Tipo;
 
                                    }
                             String compa1=nombre1.getText(), compa2=precioventa.toString(), compa3=preciomayo.toString(), compa4=preciocredito.toString(), compa5 = preciocompra.toString(), compa6 = stock.getText(), compa7 = descuento.getText(), compa8 = canpaq.getText(), compa9 = estante.getText(), compa10=nombre.getText();
-                            if(!compa1.equals("") && !compa2.equals("") && !compa3.equals("") && !compa4.equals("") && !compa5.equals("") && !compa6.equals("") && !compa7.equals("") && !compa8.equals("") && !compa9.equals("") && !laboratorio.getText().equals("Seleccionar Laboratorio")){
+                            if(!compa1.equals("") && !compa2.equals("") && !compa3.equals("") && !compa4.equals("") && !compa5.equals("") && !compa6.equals("") && !compa7.equals("") && !compa8.equals("") && !compa9.equals("") && !laboratorio.getText().equals("Seleccionar Laboratorio") && id_marca!=null){
                                         Double iva=0.0;
                                         if(comboiva.getSelectedItem().equals("10%")){
                                             iva =0.10;
@@ -1063,7 +1103,7 @@ import model.Tipo;
                                                             JOptionPane.showMessageDialog(null, "No se pudo copiar la imagen: "+iox.getMessage());
                                                         }
                                                     }
-                                                    sql ="INSERT INTO producto (codprodu, nomprodu, costo, venta, venta_m, stock, promocion, historial, venta_c, por_ven, tipo_id, unidad_medida, cant_paquete, iva, estante, descuento,marca, descrip, vencimiento, id_droga, imagen) VALUES ('"+cod.getText()+"','" +nombre1.getText().toUpperCase()+ "','" +preciocompra.toString()+"','" +precioventa.toString()+ "','"+preciomayo.toString()+"','"+stock.getText()+"','0','"+descuento.getText()+"','"+preciocredito.toString()+"','0','"+codtipo.toString()+"','"+medida1.getSelectedItem()+"','"+canpaq.getText()+"','"+iva+"','"+estante.getText()+"','"+des+"','"+id_marca+"','"+nombre.getText()+"','"+fecha+"','1','"+nombreImagen+"')";
+                                                    sql ="INSERT INTO producto (codprodu, nomprodu, costo, venta, venta_m, stock, promocion, historial, venta_c, por_ven, tipo_id, unidad_medida, cant_paquete, iva, estante, descuento,marca, descrip, vencimiento, id_droga, imagen) VALUES ('"+q(cod.getText())+"','" +q(nombre1.getText().toUpperCase())+ "','" +preciocompra.toString()+"','" +precioventa.toString()+ "','"+preciomayo.toString()+"','"+q(stock.getText())+"','0','"+q(descuento.getText())+"','"+preciocredito.toString()+"','0','"+codtipo.toString()+"','"+q(String.valueOf(medida1.getSelectedItem()))+"','"+q(canpaq.getText())+"','"+iva+"','"+q(estante.getText())+"','"+des+"','"+id_marca+"','"+q(nombre.getText())+"','"+fecha+"','1','"+q(nombreImagen)+"')";
                                                     PreparedStatement st1 = cn.prepareStatement(sql);
                                                     System.out.print(sql);
                                                     System.out.print(st1);                                                          
@@ -1075,9 +1115,8 @@ import model.Tipo;
                                                             unidad=medida1.getSelectedItem().toString();
                                                             preuni=preciocompra.toString();  
                                                             stockauxx=stock.getText();
-                                                            laboratorio.setText("Seleccionar Laboratorio");
+                                                            // el laboratorio elegido se conserva para cargar el siguiente producto
                                                             id_droga=null;
-                                                            id_marca=null;
                                                             nece1.setVisible(false);
                                                             necesa.setVisible(false);
                                                             necesa1.setVisible(false);
@@ -1089,10 +1128,12 @@ import model.Tipo;
                                                             necesa7.setVisible(false);
                                                             necesa8.setVisible(false);
                                                     }                                         
-                                                    st1.close();                        
+                                                    st1.close();
+                                                    cn.close();
                                                     limpiar();
-                                                    System.out.print("PUTO");
-                                        }catch(SQLException ex){            
+                                        }catch(SQLException ex){
+                                            JOptionPane.showMessageDialog(null, "No se pudo guardar el producto:\n"+ex.getMessage());
+                                            return;
                                         }
                                         String [] titulos ={"Cod","Nombre","P. Costo","P. Venta", "Stock","Laboratorio", "Tipo", "Droga"};
                                         String [] registros = new String[8];
@@ -1101,7 +1142,8 @@ import model.Tipo;
                                         System.out.print("entra en el simple"); 
                                         Double aux2=0.0;
                                         Double aux1=0.0;
-                                        modeloRefresca = new DefaultTableModel (null, titulos);         
+                                        modeloRefresca = new DefaultTableModel (null, titulos);
+                                        contador=0; scompra=0; sventa=0;
                                         try{                
                                                 conectar cc = new conectar();
                                                 Connection cn = cc.conexion();
@@ -1110,15 +1152,15 @@ import model.Tipo;
                                                 while(rs.next()){
                                                     registros[0] = rs.getString("codprodu");
                                                     registros[1] = rs.getString("nomprodu");
-                                                    registros[2] = formateador.format(Integer.parseInt(rs.getString("costo")));
+                                                    registros[2] = formateador.format(entero(rs.getString("costo")));
                                                     contador=contador+1;
-                                                    aux1 =Integer.parseInt(rs.getString("costo"))*Double.parseDouble(rs.getString("stock"));
+                                                    aux1 =entero(rs.getString("costo"))*decimal(rs.getString("stock"));
                                                     scompra=scompra+aux1.intValue();                   
-                                                    registros[3] = formateador.format(Integer.parseInt(rs.getString("venta")));   
-                                                    aux2=Integer.parseInt(rs.getString("venta"))*Double.parseDouble(rs.getString("stock"));
+                                                    registros[3] = formateador.format(entero(rs.getString("venta")));   
+                                                    aux2=entero(rs.getString("venta"))*decimal(rs.getString("stock"));
                                                     sventa=sventa+aux2.intValue();
-                                                    registros[3] = formateador.format(Integer.parseInt(rs.getString("venta")));       
-                                                    registros[4] = formateador.format(Double.parseDouble(rs.getString("stock")));   
+                                                    registros[3] = formateador.format(entero(rs.getString("venta")));       
+                                                    registros[4] = formateador.format(decimal(rs.getString("stock")));   
                                                     //sql2="SELECT * FROM marca where id_marca='"+rs.getString("marca")+"'";
                                                     //st = cn.createStatement();
                                                     //ResultSet bs = st.executeQuery(sql2);
@@ -1140,9 +1182,12 @@ import model.Tipo;
                     //                            proveedor p = new proveedor(m, true);
                     //                            p.tablaproveedor.setModel(modeloRefresca);
                                                 modeloRefresca.fireTableDataChanged();
-
+                                                rs.close();
+                                                st.close();
+                                                cn.close();
                                         }catch(SQLException ex){
-                                                        JOptionPane.showMessageDialog(null, "");
+                                                // el producto ya se guardó; solo falló refrescar la lista de atrás
+                                                ex.printStackTrace();
                                         }
                             }else{
                                   nece1.setVisible(true);
@@ -1376,8 +1421,7 @@ import model.Tipo;
 
     private void nuevamarcaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevamarcaActionPerformed
         cargarmarca cm;
-        menu mimenu;
-        mimenu = new menu(0);
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         Integer band=1;
         cm = new cargarmarca(mimenu, true, band, "");
         cm.setVisible(true);         
@@ -1388,8 +1432,7 @@ import model.Tipo;
 
     private void nuevotipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevotipoActionPerformed
         cargartipo cm;
-        menu mimenu;
-        mimenu = new menu(0);
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         Integer band=1;
         cm = new cargartipo(mimenu, true, band, "");
         cm.setVisible(true);         
@@ -1574,8 +1617,7 @@ import model.Tipo;
 
     private void selectlaboratorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectlaboratorioActionPerformed
         buscarmarca cm;
-        menu mimenu;
-        mimenu = new menu(0);
+        ventcontrol.menu mimenu = (ventcontrol.menu) getOwner();
         Integer band=1;
         cm = new buscarmarca(mimenu, true);
         cm.setVisible(true);         
@@ -1700,7 +1742,7 @@ import model.Tipo;
         File archivo = ImagenProductoUtil.elegirImagen(this);
         if (archivo != null) {
             imagenSeleccionada = archivo;
-            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 158, 120);
+            javax.swing.ImageIcon miniatura = ImagenProductoUtil.cargarMiniaturaDesdeArchivo(archivo, 268, 232);
             if (miniatura != null) {
                 imgProducto.setIcon(miniatura);
                 imgProducto.setText("");
