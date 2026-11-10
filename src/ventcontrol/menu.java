@@ -65,6 +65,11 @@ public class menu extends javax.swing.JFrame {
     public menu(Integer usuarioid) {
         initComponents();
         usuarioactu = usuarioid;
+        // permisos del usuario (rol) y control de botones dentro de cada pantalla
+        if (usuarioid != null && !Sesion.activa(usuarioid.intValue())) {
+            Sesion.iniciar(usuarioid.intValue());
+        }
+        Gate.instalar();
         usuario();
 
         // La maximización se aplica ahora en windowOpened (ver initComponents), una vez
@@ -85,6 +90,7 @@ public class menu extends javax.swing.JFrame {
         abrircaja();
         agregarMenuCuentasPorPagar();
         agregarMenuEstadoGeneral();
+        aplicarPermisos();
          //Date dia = new Date();
         //horas.setText(dia.toString());
         //Image icon = new ImageIcon(getClass().getResource("/ventcontrol/src/images/menucampra.png")).getImage();
@@ -1127,7 +1133,8 @@ public class menu extends javax.swing.JFrame {
     private void mostrarUsuario(String nombre, String rol) {
         String n = nombre == null ? "" : nombre;
         nom.setText(n);
-        usu.setText("0".equals(rol) ? "Administrador" : "Usuario");
+        String nombreRol = Sesion.rolNombre();
+        usu.setText(nombreRol.length() > 0 ? nombreRol : ("0".equals(rol) ? "Administrador" : "Usuario"));
         userCard.setInicial(n);
         saludoSub.setText("Bienvenido, " + n);
     }
@@ -1227,6 +1234,170 @@ public class menu extends javax.swing.JFrame {
                 b.setForeground(new java.awt.Color(255, 190, 182));
             }
         });
+    }
+
+    // ---------------------------------------------------------------- permisos por rol
+
+    /** Texto de cada ítem del menú (sin mayúsculas ni punto final) y el permiso que hace falta para verlo. */
+    private static final String[][] PERMISOS_MENU = {
+        {"impresoras", "sistema.impresoras"},
+        {"registro de clientes", "clientes.ver"},
+        {"registro de proveedores", "proveedores.ver"},
+        {"registro de productos", "productos.ver"},
+        {"registro de vendedores", "vendedores.ver"},
+        {"inventarios", "inventario.ver"},
+        {"devoluciones", "inventario.devoluciones"},
+        {"cambio de mercadería", "inventario.cambios"},
+        {"reajuste de stock", "inventario.reajuste"},
+        {"venta del día", "informes.ventas"},
+        {"ventas por producto", "informes.ventas"},
+        {"ventas por marca", "informes.ventas"},
+        {"ventas por tipo", "informes.ventas"},
+        {"ventas por cliente", "informes.ventas"},
+        {"mejores productos", "informes.ventas"},
+        {"listado de clientes", "informes.listados"},
+        {"listado de proveedores", "informes.listados"},
+        {"listado de vendedores", "informes.listados"},
+        {"listado de productos", "informes.listados"},
+        {"productos en falta", "informes.listados"},
+        {"productos a vencer", "informes.listados"},
+        {"efectuar compra", "compras.realizar"},
+        {"compras realizadas", "compras.ver"},
+        {"efectuar venta", "ventas.realizar"},
+        {"ventas realizadas", "ventas.ver"},
+        {"efectuar presupuesto", "presupuestos.crear"},
+        {"presupuestos", "presupuestos.ver"},
+        {"registrar ingreso a la caja", "caja.ingreso"},
+        {"retiro de dinero", "caja.retirar"},
+        {"ver retiros del día", "caja.retiros"},
+        {"arqueo y cierre de caja", "caja.arqueo"},
+        {"cuentas y movimientos del banco", "banco.ver"},
+        {"registrar gastos", "balance.gastos"},
+        {"realizar balance por mes", "balance.mensual"},
+        {"estado general de la empresa", "balance.general"},
+        {"cuentas por pagar (proveedores)", "cuentas_pagar.ver"}
+    };
+
+    private static String normalizarTexto(String t) {
+        String x = t == null ? "" : t.trim().toLowerCase();
+        while (x.endsWith(".")) {
+            x = x.substring(0, x.length() - 1).trim();
+        }
+        return x;
+    }
+
+    /** Permiso necesario para un ítem del menú; null si el ítem no figura en la tabla (queda oculto: nada se muestra por descuido). */
+    static String permisoDeItem(String texto) {
+        String x = normalizarTexto(texto);
+        for (String[] par : PERMISOS_MENU) {
+            if (par[0].equals(x)) {
+                return par[1];
+            }
+        }
+        return null;
+    }
+
+    private boolean itemPermitido(javax.swing.JMenuItem it) {
+        String x = normalizarTexto(it.getText());
+        if (x.equals("salir")) {
+            return true;
+        }
+        if (x.equals("administrar usuarios")) {
+            return Sesion.puedeAlguno("sistema.usuarios", "sistema.roles");
+        }
+        String p = permisoDeItem(it.getText());
+        if (p == null) {
+            System.err.println("Menú sin permiso asignado (se oculta): " + it.getText());
+            return false;
+        }
+        return Sesion.puede(p);
+    }
+
+    /** Oculta los ítems sin permiso, los submenús que quedan vacíos y los separadores sobrantes. Devuelve true si el menú conserva algo. */
+    private boolean podarMenu(javax.swing.JMenu m) {
+        boolean hay = false;
+        java.awt.Component sepPendiente = null;
+        for (int i = 0; i < m.getMenuComponentCount(); i++) {
+            java.awt.Component c = m.getMenuComponent(i);
+            if (c instanceof javax.swing.JPopupMenu.Separator) {
+                c.setVisible(false);
+                if (hay) {
+                    sepPendiente = c;
+                }
+                continue;
+            }
+            boolean vivo;
+            if (c instanceof javax.swing.JMenu) {
+                vivo = podarMenu((javax.swing.JMenu) c);
+                c.setVisible(vivo);
+            } else if (c instanceof javax.swing.JMenuItem) {
+                vivo = itemPermitido((javax.swing.JMenuItem) c);
+                c.setVisible(vivo);
+                if (!vivo) {
+                    c.setEnabled(false); // sin esto el atajo de teclado seguiría funcionando
+                }
+            } else {
+                vivo = c.isVisible();
+            }
+            if (vivo) {
+                if (sepPendiente != null) {
+                    sepPendiente.setVisible(true);
+                }
+                sepPendiente = null;
+                hay = true;
+            }
+        }
+        return hay;
+    }
+
+    private void ocultarBotonSin(javax.swing.JButton b, String permiso) {
+        if (!Sesion.puede(permiso)) {
+            b.setVisible(false);
+            b.setEnabled(false);
+        }
+    }
+
+    /** Aplica los permisos del rol al menú, a los botones laterales y al panel de estadísticas. El administrador lo ve todo. */
+    private void aplicarPermisos() {
+        if (Sesion.esAdmin()) {
+            return;
+        }
+        for (int i = 0; i < menusys.getMenuCount(); i++) {
+            javax.swing.JMenu m = menusys.getMenu(i);
+            if (m != null) {
+                m.setVisible(podarMenu(m));
+            }
+        }
+        ocultarBotonSin(jButton4, "productos.ver");
+        ocultarBotonSin(jButton2, "proveedores.ver");
+        ocultarBotonSin(jButton3, "clientes.ver");
+        ocultarBotonSin(jButton1, "presupuestos.crear");
+        ocultarBotonSin(jButton5, "ventas.realizar");
+        ocultarBotonSin(jButton6, "compras.realizar");
+        ocultarBotonSin(jButton8, "caja.arqueo");
+        ocultarBotonSin(jButton9, "cuentas_cobrar.ver");
+        ocultarBotonSin(jButton10, "banco.ver");
+        // los botones que quedan se apilan sin dejar huecos
+        javax.swing.JButton[] orden = {jButton4, jButton2, jButton3, jButton1, jButton5, jButton6, jButton8, jButton9, jButton10};
+        int by = NAV_TOP;
+        for (javax.swing.JButton b : orden) {
+            if (b.isVisible()) {
+                b.setBounds(16, by, 228, NAV_H);
+                by += NAV_H + NAV_GAP;
+            }
+        }
+        if (!Sesion.puede("informes.ventas")) {
+            panelEstadisticas.setVisible(false);
+            btnActualizar.setVisible(false);
+        }
+        if (Sesion.permisos().isEmpty()) {
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    JOptionPane.showMessageDialog(menu.this, "Su rol no tiene permisos asignados.\nConsulte con el administrador del sistema.",
+                            "Sin permisos", JOptionPane.WARNING_MESSAGE);
+                }
+            });
+        }
     }
 
     /** Agrega al menú Balance el estado general de la empresa: patrimonio, activo, pasivo, mercadería y deudas. */
@@ -1457,6 +1628,7 @@ public class menu extends javax.swing.JFrame {
         if (r != JOptionPane.YES_OPTION) {
             return;
         }
+        Sesion.cerrar();
         this.dispose();
         new iniciosesion().setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
@@ -1469,10 +1641,7 @@ public class menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        usuario u;
-        u = new usuario(this, true);
-        posicionarDerecha(u);
-        u.setVisible(true);
+        UsuariosAdmin.mostrar(this, usuarioactu == null ? -1 : usuarioactu.intValue()); // usuarios, roles y permisos (la vieja usuario.java queda sin usar)
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuItem1MouseClicked

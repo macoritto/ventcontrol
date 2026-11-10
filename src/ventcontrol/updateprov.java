@@ -38,6 +38,16 @@ public class updateprov extends JDialog {
         direccion.setDocument(new solomayusculas());
         cargar(codigo);
          this.setTitle("Proveedor Seleccionado");
+        agregarResumen(menuprincipal, codigo);
+    }
+
+    /** Panel a la derecha de los datos: total que nos vendió, productos que más nos vendió y si se le debe. */
+    private void agregarResumen(menu menuprincipal, String codigo) {
+        Integer uid = menuprincipal == null ? null : menuprincipal.usuarioactu;
+        getContentPane().add(new ProveedorResumen(codigo, uid == null ? -1 : uid.intValue()),
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 700, 440));
+        pack();
+        this.setLocationRelativeTo(getOwner());
     }
     void limpiar(){
         nombre.setText("");

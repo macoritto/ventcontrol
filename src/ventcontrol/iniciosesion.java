@@ -211,48 +211,21 @@ public class iniciosesion extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
     void acceder(String usuario, String pass){
-        String sql ="SELECT * FROM usuario WHERE usuario='"+usuario+"' and clave='"+pass+"'";
-        String Usuario="";
-        String Pass="";
-        String rol ="";
-        conectar cc = new conectar();
-        Connection cn = cc.conexion();
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-            while(rs.next()){
-                Usuario =rs.getString("usuario");
-                Pass = rs.getString("clave");
-                rol = rs.getString("rol_id");
-                idusuario = Integer.parseInt(rs.getString("id"));
-            }
-            if(Usuario.equals(usuario) && Pass.equals(pass)){
-                if(rol.equals("0")){
-                    System.out.print(Usuario);
-                    System.out.print(rol);
-                    System.out.print(" el usuario es ");
-                    System.out.print(idusuario);
-                    menu m = new menu(idusuario);
-                    m.setVisible(true);
-                    m.setTitle("Menú Principal.");
-                    dispose();
-                }else{
-                    System.out.print(Usuario);
-                    System.out.print(rol);
-                    menu2 m = new menu2(idusuario);
-                    m.setVisible(true);
-                    m.setTitle("Menú Principal.");
-                    dispose();
-                }
-            }else{
-                JOptionPane.showMessageDialog(this, "Usuario Incorrecto");
-                ingresopassword.requestFocus();
-                ingresopassword.selectAll();
-            }
-            cn.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(iniciosesion.class.getName()).log(Level.SEVERE, null, ex);
+        // consulta parametrizada y clave con hash (las claves viejas se convierten solas al primer ingreso correcto)
+        SeguridadDb.Ingreso r = SeguridadDb.ingresar(usuario, pass);
+        if (!r.ok) {
+            JOptionPane.showMessageDialog(this, r.mensaje);
+            ingresopassword.requestFocus();
+            ingresopassword.selectAll();
+            return;
         }
+        idusuario = r.id;
+        Sesion.iniciar(idusuario);
+        // un solo menú para todos: cada usuario ve lo que su rol permite
+        menu m = new menu(idusuario);
+        m.setVisible(true);
+        m.setTitle("Menú Principal.");
+        dispose();
     }
     private void ingresopasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ingresopasswordActionPerformed
         ingresopassword.transferFocus();

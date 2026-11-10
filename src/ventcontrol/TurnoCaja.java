@@ -140,8 +140,12 @@ final class TurnoCaja {
 
     // ------------------------------------------------------------------ usuarios
 
-    /** El administrador es el usuario con rol 0 (el mismo criterio del menú). */
+    /** Quien puede supervisar cajas y turnos de otros: permiso "caja.supervisar" del rol (el administrador siempre). */
     static boolean esAdmin(int usuarioId) {
+        // con sesión iniciada manda el permiso del rol; el administrador siempre lo tiene
+        if (Sesion.activa(usuarioId)) {
+            return Sesion.puede("caja.supervisar");
+        }
         Connection cn = null;
         try {
             cn = new conectar().conexion();

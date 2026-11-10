@@ -4134,7 +4134,7 @@ void btnagregar(){
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void montoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_montoMouseClicked
-    if(tipousu==0){     
+    if(Sesion.puede("ventas.precio")){     
 //        if(evt.getClickCount()==2){
 //            if(!monto.getText().equals("") && !monto.getText().equals("0")){
 //                int confirmar = JOptionPane.showConfirmDialog(null, "Desea modificar el Precio de venta?");
@@ -4207,7 +4207,7 @@ void btnagregar(){
     }//GEN-LAST:event_montoKeyPressed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        if(tipousu==0){   
+        if(Sesion.puede("ventas.precio")){   
             monto.setEnabled(true);
             monto.setEditable(true);
             monto.requestFocus();

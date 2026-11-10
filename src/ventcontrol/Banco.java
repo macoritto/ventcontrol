@@ -43,6 +43,7 @@ final class Banco extends JDialog {
     private final JLabel lblSaldo = new JLabel("0");
     private final JLabel lblPie = new JLabel(" ");
     private final JLabel lblEstado = new JLabel(" ");
+    private final JButton btnNueva = new JButton("Nueva cuenta");
     private final JButton btnEditar = new JButton("Editar");
     private final JButton btnActivar = new JButton("Desactivar");
     private final com.toedter.calendar.JDateChooser desde = new com.toedter.calendar.JDateChooser();
@@ -71,7 +72,7 @@ final class Banco extends JDialog {
         izq.add(spC, BorderLayout.CENTER);
         JPanel botones = new JPanel(new java.awt.GridLayout(1, 3, 8, 0));
         botones.setOpaque(false);
-        JButton nueva = new JButton("Nueva cuenta");
+        JButton nueva = btnNueva;
         EstiloUI.botonAccion(nueva);
         EstiloUI.botonSecundario(btnEditar);
         EstiloUI.botonSecundario(btnActivar);
