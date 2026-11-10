@@ -48,7 +48,7 @@ public class arqueocaja extends JDialog {
     private Tarjeta tFondo, tVentas, tCobros, tIngresos, tRetiros, tDevo, tOtros, tCredito;
     private JLabel lblMonto, lblTituloMonto, lblDetalleMonto, lblFechaGrande, lblTituloTabla, lblPieCant, lblPieTotal, lblPista, lblBanner, lblBanner2;
     private JPanel panelTablas, banner;
-    private JButton btnDetalle, btnAbrir, btnCerrar, btnCajas;
+    private JButton btnDetalle, btnAbrir, btnCerrar, btnCajas, btnBanco, btnReporte;
     private JComboBox cmbVista;
     private java.awt.CardLayout cartas;
     private String vistaActual = "ventas";
@@ -329,11 +329,20 @@ public class arqueocaja extends JDialog {
         btnCajas = new JButton("Cajas");
         EstiloUI.botonSecundario(btnCajas);
         btnCajas.setPreferredSize(new Dimension(100, 36));
+        btnBanco = new JButton("Banco");
+        EstiloUI.botonSecundario(btnBanco);
+        btnBanco.setPreferredSize(new Dimension(100, 36));
+        btnReporte = new JButton("Reporte");
+        EstiloUI.botonSecundario(btnReporte);
+        btnReporte.setPreferredSize(new Dimension(110, 36));
+        btnReporte.setToolTipText("Reporte en PDF para cerrar la caja y hacer el arreglo con el jefe");
         JPanel accionesBanner = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
         accionesBanner.setOpaque(false);
         accionesBanner.add(btnAbrir);
         accionesBanner.add(btnCerrar);
+        accionesBanner.add(btnReporte);
         accionesBanner.add(btnCajas);
+        accionesBanner.add(btnBanco);
         JPanel accionesBox = new JPanel(new java.awt.GridBagLayout());
         accionesBox.setOpaque(false);
         accionesBox.add(accionesBanner);
@@ -341,6 +350,18 @@ public class arqueocaja extends JDialog {
         btnAbrir.setVisible(false);
         btnCerrar.setVisible(false);
         btnCajas.setVisible(admin);
+        btnBanco.setVisible(admin);
+        btnReporte.setVisible(false);
+        btnReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                reporte();
+            }
+        });
+        btnBanco.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                Banco.mostrar(arqueocaja.this);
+            }
+        });
         btnAbrir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 TurnoCaja.Turno t = AperturaTurno.mostrar(arqueocaja.this, usuarioId);
@@ -404,7 +425,7 @@ public class arqueocaja extends JDialog {
         tIngresos = new Tarjeta("INGRESOS A LA CAJA", EstiloUI.AZUL);
         tRetiros = new Tarjeta("RETIROS", C_ROJO);
         tDevo = new Tarjeta("DEVOLUCIONES", C_ROJO);
-        tOtros = new Tarjeta("TARJETA / TRANSFERENCIA", EstiloUI.MUTED);
+        tOtros = new Tarjeta("QR / TRANSF. / TARJETA", EstiloUI.MUTED);
         tCredito = new Tarjeta("VENTAS A CRÉDITO", C_NARANJA);
         JPanel rejilla = new JPanel(new java.awt.GridLayout(2, 4, 12, 12));
         rejilla.setOpaque(false);
@@ -603,7 +624,7 @@ public class arqueocaja extends JDialog {
         String total;
         if (vistaActual.equals("ventas")) {
             n = ultimo.ventas.size();
-            total = "Efectivo " + fmt.format(ultimo.ventasEfectivo) + "   ·   Tarjeta/Transf. " + fmt.format(ultimo.ventasOtros)
+            total = "Efectivo " + fmt.format(ultimo.ventasEfectivo) + "   ·   Otros medios " + fmt.format(ultimo.ventasOtros)
                     + "   ·   Crédito " + fmt.format(ultimo.credito)
                     + "   ·   Total " + fmt.format(ultimo.ventasEfectivo + ultimo.ventasOtros + ultimo.credito);
         } else if (vistaActual.equals("ingresos")) {
@@ -706,6 +727,24 @@ public class arqueocaja extends JDialog {
         return c;
     }
 
+    /** Reporte PDF de lo que se ve en pantalla (el turno elegido, el día completo o lo registrado sin turno). */
+    private void reporte() {
+        if (ultimo == null || vistaElegida == null) {
+            return;
+        }
+        java.util.Date dia = calendar.getDate() == null ? new Date() : calendar.getDate();
+        String fecha = new java.text.SimpleDateFormat("dd/MM/yyyy").format(dia);
+        String titulo;
+        if (vistaElegida.turno != null) {
+            titulo = null;
+        } else if (vistaElegida.clave == SIN_TURNO) {
+            titulo = "Operaciones sin turno del " + fecha;
+        } else {
+            titulo = "Todas las cajas y turnos del " + fecha;
+        }
+        ReporteTurno.mostrar(this, vistaElegida.turno, titulo, dia, ultimo);
+    }
+
     /** Muestra en pantalla lo leído: selector, franja del turno, tarjetas y las cinco tablas. */
     private void aplicar(Carga c) {
         llenandoCombo = true;
@@ -728,6 +767,7 @@ public class arqueocaja extends JDialog {
         boolean abiertoMio = c.propio != null;
         btnAbrir.setVisible(!abiertoMio && usuarioId >= 0);
         btnCerrar.setVisible(t != null && t.abierto() && (admin || t.usuarioId == usuarioId));
+        btnReporte.setVisible(vistaElegida != null);
         Color fondo = new Color(236, 241, 247);
         if (vistaElegida == null) {
             fondo = new Color(253, 243, 224);

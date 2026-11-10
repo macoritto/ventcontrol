@@ -87,6 +87,9 @@ public class venta extends JDialog implements KeyListener{
     Integer banderaextreme=0;
     Integer idparaprint;
     Integer banderacredito=0;
+    /** Plan de cuotas elegido en la venta a crédito (1 = sin plan) y su período. */
+    int cuotasPlan = 1, planCreadoId = 0;
+    String periodoPlan = CuotasDb.MENSUAL;
     String tipocliente;
     String totalletras, comboiva;
 //    DefaultTableModel modelprov = new DefaultTableModel(){
@@ -175,8 +178,6 @@ public class venta extends JDialog implements KeyListener{
         s.ruc = codprov;
         s.capPago = jLabel10;
         s.pago = combovendedor;
-        s.capMedio = lblMedioPago;
-        s.medio = medioPago;
         s.capFecha = jLabel13;
         s.fecha = calendar;
         s.capObs = jLabel15;
@@ -282,9 +283,9 @@ public class venta extends JDialog implements KeyListener{
         }
     } 
 
-/** Medio con el que se cobra (el efectivo es el que suma al arqueo de la caja; tarjeta y transferencia se informan aparte). */
-private final javax.swing.JLabel lblMedioPago = new javax.swing.JLabel();
-private final javax.swing.JComboBox medioPago = new javax.swing.JComboBox(TurnoCaja.MEDIOS);
+/** Medio con el que se cobró y cuenta bancaria donde entró (si no fue efectivo): lo eligen las ventanas de cobro (vuelto y vueltocredito). */
+private String medioCobro = TurnoCaja.EFECTIVO;
+private Integer cuentaCobro = null;
 
 void guardar(){
     // toda venta queda ligada al turno de caja del usuario: si no tiene uno abierto, se le ofrece abrirlo
@@ -292,7 +293,10 @@ void guardar(){
     if (turnoActual == null) {
         return;
     }
-    String medioElegido = String.valueOf(medioPago.getSelectedItem());
+    // el medio de pago y la cuenta bancaria se eligieron en la ventana de cobro
+    String medioElegido = medioCobro == null ? TurnoCaja.EFECTIVO : medioCobro;
+    Integer cuentaBanco = cuentaCobro;
+    String cuentaSql = cuentaBanco == null ? "NULL" : "'" + cuentaBanco + "'";
     DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
     System.out.println("Hora actual: " + dateFormat.format(date));
@@ -360,7 +364,7 @@ void guardar(){
                    //ACA SE CREA LA VENTA EN SI
                    conectar cc = new conectar();
                    Connection cn = cc.conexion();
-                   sql ="INSERT INTO venta(codventa, fecha, total, estado, fecha1, porc_ven, resto, descripcion, entregado, usuario_id, cliente_id, vendedor_id, turno_id, medio_pago) VALUES ('"+codcompra.getText()+"','" +calendar.getDate()+ "','" +totalaux1.toString()+"','"+saldostring+"','" +calendar.getDate()+ "','"+saldocredito.toString()+"','0','"+factura1.getText()+"','"+dateFormat.format(date)+"','"+usuarioactu+"', '"+stockjeje.getText()+"', '"+v.toString()+"', '"+turnoActual.id+"', '"+medioElegido+"')";                                                                                                         
+                   sql ="INSERT INTO venta(codventa, fecha, total, estado, fecha1, porc_ven, resto, descripcion, entregado, usuario_id, cliente_id, vendedor_id, turno_id, medio_pago, cuenta_id) VALUES ('"+codcompra.getText()+"','" +calendar.getDate()+ "','" +totalaux1.toString()+"','"+saldostring+"','" +calendar.getDate()+ "','"+saldocredito.toString()+"','0','"+factura1.getText()+"','"+dateFormat.format(date)+"','"+usuarioactu+"', '"+stockjeje.getText()+"', '"+v.toString()+"', '"+turnoActual.id+"', '"+medioElegido+"', "+cuentaSql+")";                                                                                                         
                    PreparedStatement st = cn.prepareStatement(sql);
                    if(st.executeUpdate()>0){
                         band1=0;
@@ -504,7 +508,7 @@ void guardar(){
                                 System.out.print(montopago);
                                 if(montopago>0){
                                     System.out.print("     entra acaaaa    2   ");                                    
-                                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja,cliente, turno_id, medio_pago) VALUES ('"+calendar.getDate()+ "','0','"+montopago+"','"+montosaldo+"','Pago entregado en el momento de la compra.','"+idpagoaux+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+stockjeje.getText()+"','"+turnoActual.id+"','"+medioElegido+"')";                                                        
+                                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja,cliente, turno_id, medio_pago, cuenta_id) VALUES ('"+calendar.getDate()+ "','0','"+montopago+"','"+montosaldo+"','Pago entregado en el momento de la compra.','"+idpagoaux+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+stockjeje.getText()+"','"+turnoActual.id+"','"+medioElegido+"',"+cuentaSql+")";                                                        
                                     PreparedStatement st6= cn.prepareStatement(sql5);                             
                                     System.out.print(sql5);
                                     System.out.print(st6);
@@ -533,8 +537,23 @@ void guardar(){
                     }catch(SQLException ex){   
                         JOptionPane.showMessageDialog(null, "Excepcion al crear la venta "+ex);
                     }
+                    planCreadoId = 0;
+                    if(combovendedor.getSelectedItem().equals("Credito") && cuotasPlan >= 2){
+                        try{
+                            planCreadoId = CuotasDb.crearPlan(codcompra.getText(), stockjeje.getText(), montototal.longValue(), montopago.longValue(),
+                                    cuotasPlan, fechacredito, periodoPlan, usuarioactu.intValue());
+                        }catch(SQLException exPlan){
+                            JOptionPane.showMessageDialog(null, "La venta se guardó, pero no se pudo crear el plan de cuotas:\n" + exPlan.getMessage() + CuotasDb.ayuda());
+                        }
+                    }
                     JOptionPane.showMessageDialog(null, "Se creo exitosamente el registro.");
-                    medioPago.setSelectedIndex(0);
+                    if(planCreadoId > 0 && JOptionPane.showConfirmDialog(null, "Se creó el plan de " + cuotasPlan + " cuotas.\n¿Desea imprimir el pagaré?",
+                            "Plan de cuotas", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                        ReportesCuenta.pagare(this, planCreadoId);
+                    }
+                    cuotasPlan = 1;
+                    medioCobro = TurnoCaja.EFECTIVO;
+                    cuentaCobro = null;
                     banderacredito=0;
                     tablaprodu.removeAll();
                     buscartxt2.requestFocus(); 
@@ -3314,10 +3333,13 @@ void btnagregar(){
             vueltocredito uc;
             uc = new vueltocredito(mimenu, true, aux);
             uc.setVisible(true);   
+            medioCobro = uc.medio; cuentaCobro = uc.cuentaId;
             if(uc.band1==1){  
                 montototal=uc.montototal;
                 montopago=uc.montopago;
                 montosaldo=uc.montosaldo;
+                cuotasPlan=uc.cuotas.intValue();
+                periodoPlan=uc.periodo;
                 fechacredito=uc.myDate;
                 System.out.print("    LOS MONTOOOOS    ");
                 System.out.print(montototal);
@@ -3383,8 +3405,9 @@ void btnagregar(){
 //                }                                
             }
         }else{
-            u = new vuelto(mimenu, true, aux);
+            u = new vuelto(mimenu, true, aux, true);
             u.setVisible(true);   
+            medioCobro = u.medio; cuentaCobro = u.cuentaId;
             if(u.band1==1){        
                 //guardar();
                 guardar();
@@ -3463,10 +3486,13 @@ void btnagregar(){
             vueltocredito uc;
             uc = new vueltocredito(mimenu, true, aux);
             uc.setVisible(true);   
+            medioCobro = uc.medio; cuentaCobro = uc.cuentaId;
             if(uc.band1==1){  
                 montototal=uc.montototal;
                 montopago=uc.montopago;
                 montosaldo=uc.montosaldo;
+                cuotasPlan=uc.cuotas.intValue();
+                periodoPlan=uc.periodo;
                 fechacredito=uc.myDate;
                 System.out.print("    LOS MONTOOOOS    ");
                 System.out.print(montototal);
@@ -3529,8 +3555,9 @@ void btnagregar(){
 //                }                                 
             }
         }else{
-            u = new vuelto(mimenu, true, aux);
+            u = new vuelto(mimenu, true, aux, true);
             u.setVisible(true);   
+            medioCobro = u.medio; cuentaCobro = u.cuentaId;
             if(u.band1==1){        
                 //guardar();
                 guardar();
@@ -3800,10 +3827,13 @@ void btnagregar(){
             vueltocredito uc;
             uc = new vueltocredito(mimenu, true, aux);
             uc.setVisible(true);   
+            medioCobro = uc.medio; cuentaCobro = uc.cuentaId;
             if(uc.band1==1){  
                 montototal=uc.montototal;
                 montopago=uc.montopago;
                 montosaldo=uc.montosaldo;
+                cuotasPlan=uc.cuotas.intValue();
+                periodoPlan=uc.periodo;
                 fechacredito=uc.myDate;
                 System.out.print("    LOS MONTOOOOS    ");
                 System.out.print(montototal);
@@ -3813,8 +3843,9 @@ void btnagregar(){
                 guardar();
             }
         }else{
-            u = new vuelto(mimenu, true, aux);
+            u = new vuelto(mimenu, true, aux, true);
             u.setVisible(true);   
+            medioCobro = u.medio; cuentaCobro = u.cuentaId;
             if(u.band1==1){        
                 guardar();
             }
@@ -3857,10 +3888,13 @@ void btnagregar(){
             vueltocredito uc;
             uc = new vueltocredito(mimenu, true, aux);
             uc.setVisible(true);   
+            medioCobro = uc.medio; cuentaCobro = uc.cuentaId;
             if(uc.band1==1){  
                 montototal=uc.montototal;
                 montopago=uc.montopago;
                 montosaldo=uc.montosaldo;
+                cuotasPlan=uc.cuotas.intValue();
+                periodoPlan=uc.periodo;
                 fechacredito=uc.myDate;
                 System.out.print("    LOS MONTOOOOS    ");
                 System.out.print(montototal);
@@ -3925,8 +3959,9 @@ void btnagregar(){
 //                }                                 
             }
         }else{
-            u = new vuelto(mimenu, true, aux);
+            u = new vuelto(mimenu, true, aux, true);
             u.setVisible(true);   
+            medioCobro = u.medio; cuentaCobro = u.cuentaId;
             if(u.band1==1){        
                 //guardar();
                 guardar();
@@ -4367,6 +4402,7 @@ void btnagregar(){
                 vueltocredito uc;
                 uc = new vueltocredito(mimenu, true, aux);
                 uc.setVisible(true);
+                medioCobro = uc.medio; cuentaCobro = uc.cuentaId;
                 if (uc.band1 == 1) {
                     montototal = uc.montototal;
                     montopago = uc.montopago;
@@ -4451,8 +4487,9 @@ void btnagregar(){
                     //                }
             }
         } else {
-            u = new vuelto(mimenu, true, aux);
+            u = new vuelto(mimenu, true, aux, true);
             u.setVisible(true);
+            medioCobro = u.medio; cuentaCobro = u.cuentaId;
             if (u.band1 == 1) {
                 //guardar();
                 guardar();

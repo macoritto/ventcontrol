@@ -22,8 +22,8 @@ import javax.swing.JOptionPane;
  */
 final class TurnoCaja {
 
-    static final String EFECTIVO = "Efectivo", TARJETA = "Tarjeta", TRANSFERENCIA = "Transferencia";
-    static final String[] MEDIOS = {EFECTIVO, TARJETA, TRANSFERENCIA};
+    static final String EFECTIVO = "Efectivo", TARJETA = "Tarjeta", TRANSFERENCIA = "Transferencia", QR = "QR";
+    static final String[] MEDIOS = {EFECTIVO, TARJETA, TRANSFERENCIA, QR};
 
     private TurnoCaja() {
     }

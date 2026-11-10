@@ -555,6 +555,7 @@ void cargar(String valor){
                     st1.executeUpdate();
                     System.out.print(sql1);
                     if(st1.executeUpdate()>0){
+                        CuotasDb.reaplicarPago(cod.getText(), monto4); // vuelve a repartir el pago entre las cuotas
                         cargarpago("");
                         JOptionPane.showMessageDialog(null, "Se actualizó correctamente el Registro.");
                         bloquear();

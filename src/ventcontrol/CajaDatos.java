@@ -63,6 +63,10 @@ final class CajaDatos {
         int nVentasEfectivo, nVentasOtros, nCredito, nPagosEfectivo, nPagosOtros;
         /** Lo cobrado con tarjeta, transferencia u otro medio (ventas al contado y cobros), por medio. */
         final Map<String, Long> otrosPorMedio = new LinkedHashMap<String, Long>();
+        /** Ventas al contado por medio (incluye Efectivo): {monto, cantidad}. */
+        final Map<String, long[]> ventasPorMedio = new LinkedHashMap<String, long[]>();
+        /** Cobros de créditos por medio (incluye Efectivo): {monto, cantidad}. */
+        final Map<String, long[]> pagosPorMedio = new LinkedHashMap<String, long[]>();
 
         /** Efectivo que tiene que haber en la caja. */
         long esperado() {
@@ -203,6 +207,7 @@ final class CajaDatos {
             while (rs.next()) {
                 long m = importe(rs.getString("monto"));
                 String medio = texto(rs.getString("medio"));
+                acumular(d.pagosPorMedio, medio.length() == 0 ? TurnoCaja.EFECTIVO : medio, m);
                 if (medio.length() == 0 || medio.equals(TurnoCaja.EFECTIVO)) {
                     medio = TurnoCaja.EFECTIVO;
                     d.pagosEfectivo += m;
@@ -244,6 +249,7 @@ final class CajaDatos {
                     medio = TurnoCaja.EFECTIVO;
                 }
                 if (estado.equals("Contado")) {
+                    acumular(d.ventasPorMedio, medio, m);
                     if (medio.equals(TurnoCaja.EFECTIVO)) {
                         d.ventasEfectivo += m;
                         d.nVentasEfectivo++;
@@ -272,6 +278,16 @@ final class CajaDatos {
                 }
             }
         }
+    }
+
+    private static void acumular(Map<String, long[]> m, String clave, long v) {
+        long[] x = m.get(clave);
+        if (x == null) {
+            x = new long[2];
+            m.put(clave, x);
+        }
+        x[0] += v;
+        x[1]++;
     }
 
     private static void sumar(Map<String, Long> m, String clave, long v) {

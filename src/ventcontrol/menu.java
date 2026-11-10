@@ -83,6 +83,8 @@ public class menu extends javax.swing.JFrame {
         javax.swing.Timer tiempo = new javax.swing.Timer(100, new menu.horas());
         tiempo.start();
         abrircaja();
+        agregarMenuCuentasPorPagar();
+        agregarMenuEstadoGeneral();
          //Date dia = new Date();
         //horas.setText(dia.toString());
         //Image icon = new ImageIcon(getClass().getResource("/ventcontrol/src/images/menucampra.png")).getImage();
@@ -122,6 +124,7 @@ public class menu extends javax.swing.JFrame {
         nom = new javax.swing.JLabel();
         usu = new javax.swing.JLabel();
         jButton9 = new javax.swing.JButton();
+        jButton10 = new javax.swing.JButton();
         horas = new javax.swing.JLabel();
         fecha = new javax.swing.JLabel();
         fondo = new javax.swing.JPanel();
@@ -282,6 +285,16 @@ public class menu extends javax.swing.JFrame {
             }
         });
         estilizarBotonNav(jButton9);
+
+        // Banco: cuentas bancarias y lo que entra por QR, transferencia y tarjeta (solo lo ve el administrador).
+        jButton10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money-box.png"))); // NOI18N
+        jButton10.setText("     BANCO");
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton10ActionPerformed(evt);
+            }
+        });
+        estilizarBotonNav(jButton10);
 
         jLabel3.setIcon(crearLogoRedondo(LOGO_SIZE));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -807,6 +820,23 @@ public class menu extends javax.swing.JFrame {
 
         menusys.add(jMenu6);
 
+        // Menú Banco (cuentas, saldos y movimientos por QR, transferencia y tarjeta)
+        javax.swing.JMenu jMenuBanco = new javax.swing.JMenu();
+        jMenuBanco.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money-box.png"))); // NOI18N
+        jMenuBanco.setText("Banco  ");
+        jMenuBanco.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        javax.swing.JMenuItem jMenuItemBanco = new javax.swing.JMenuItem();
+        jMenuItemBanco.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jMenuItemBanco.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/money-box.png"))); // NOI18N
+        jMenuItemBanco.setText("Cuentas y movimientos del banco.");
+        jMenuItemBanco.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Banco.mostrar(menu.this);
+            }
+        });
+        jMenuBanco.add(jMenuItemBanco);
+        menusys.add(jMenuBanco);
+
         jMenu9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/balance.png"))); // NOI18N
         jMenu9.setText("Balance");
         jMenu9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -857,6 +887,7 @@ public class menu extends javax.swing.JFrame {
         raiz.add(jButton6);
         raiz.add(jButton8);
         raiz.add(jButton9);
+        raiz.add(jButton10);
         raiz.add(jLabel3);
         raiz.add(jButton7);
         raiz.add(usu);
@@ -880,7 +911,8 @@ public class menu extends javax.swing.JFrame {
         jButton5.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton6.setBounds(bx, by, bw, bh); by += bh + bgap;
         jButton8.setBounds(bx, by, bw, bh); by += bh + bgap;
-        jButton9.setBounds(bx, by, bw, bh);
+        jButton9.setBounds(bx, by, bw, bh); by += bh + bgap;
+        jButton10.setBounds(bx, by, bw, bh);
 
         setMinimumSize(new java.awt.Dimension(1100, 760));
 
@@ -1197,6 +1229,43 @@ public class menu extends javax.swing.JFrame {
         });
     }
 
+    /** Agrega al menú Balance el estado general de la empresa: patrimonio, activo, pasivo, mercadería y deudas. */
+    private void agregarMenuEstadoGeneral() {
+        javax.swing.JMenuItem it = new javax.swing.JMenuItem("Estado general de la empresa");
+        it.setUI(new FlatMenuItemUI());
+        it.setOpaque(true);
+        it.setBackground(MB_BG);
+        it.setForeground(MB_TEXT);
+        it.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        it.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 14, 7, 14));
+        it.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        it.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BalanceGeneral.mostrar(menu.this);
+            }
+        });
+        jMenu9.insert(it, 0);
+    }
+
+    /** Agrega al menú Compras el acceso a las cuentas por pagar: proveedores con deuda en cuotas, pagos desde caja o banco y extracto. */
+    private void agregarMenuCuentasPorPagar() {
+        javax.swing.JMenuItem it = new javax.swing.JMenuItem("Cuentas por pagar (proveedores)");
+        // mismo estilo plano que el resto de los ítems de la barra (sin ícono)
+        it.setUI(new FlatMenuItemUI());
+        it.setOpaque(true);
+        it.setBackground(MB_BG);
+        it.setForeground(MB_TEXT);
+        it.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        it.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 14, 7, 14));
+        it.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        it.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CuentasPorPagar.mostrar(menu.this, usuarioactu == null ? -1 : usuarioactu.intValue());
+            }
+        });
+        jMenu4.add(it);
+    }
+
     /** Aplica el estilo plano de navegación (barra lateral) a un botón del menú. */
     private void estilizarBotonNav(final javax.swing.JButton b) {
         // Mismo estilo (esquinas redondeadas, hover azul) que los botones de Clientes,
@@ -1268,7 +1337,7 @@ public class menu extends javax.swing.JFrame {
 
         // Tarjeta de usuario abajo en el sidebar: avatar + nombre + rol + "Cerrar sesión".
         int cardX = 16, cardW = sidebarW - 32, cardH = 108;
-        int cardY = Math.max(NAV_TOP + 8 * (NAV_H + NAV_GAP), h - cardH - 16);
+        int cardY = Math.max(NAV_TOP + 9 * (NAV_H + NAV_GAP), h - cardH - 16);
         userCard.setBounds(cardX, cardY, cardW, cardH);
         nom.setBounds(cardX + 68, cardY + 14, cardW - 80, 22);
         usu.setBounds(cardX + 68, cardY + 36, cardW - 80, 18);
@@ -1598,18 +1667,12 @@ public class menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
-        gastos caja;
-        caja = new gastos(this, true, usuarioactu);
-        posicionarDerecha(caja);
-        caja.setVisible(true);
+        GastosDialog.mostrar(this, usuarioactu); // nueva pantalla de gastos (la vieja gastos.java queda sin usar)
         //cargar("");
     }//GEN-LAST:event_jMenuItem23ActionPerformed
 
     private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
-        balance balance;
-        balance = new balance(this, true);
-        posicionarDerecha(balance);
-        balance.setVisible(true);
+        BalanceMes.mostrar(this); // nuevo balance (el viejo balance.java queda sin usar)
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
@@ -1717,11 +1780,13 @@ public class menu extends javax.swing.JFrame {
         u.setVisible(true);
     }//GEN-LAST:event_jMenuItem34ActionPerformed
 
+    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {
+        Banco.mostrar(this);
+    }
+
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        extracto1 com;
-        com = new extracto1(this, true, usuarioactu);
-        posicionarDerecha(com);
-        com.setVisible(true);
+        // Extractos: clientes con deuda, cuotas, cobro, PDF y cierre de cuenta
+        ExtractosClientes.mostrar(this, usuarioactu == null ? -1 : usuarioactu.intValue());
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jMenuItem35ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem35ActionPerformed
@@ -1794,6 +1859,7 @@ public class menu extends javax.swing.JFrame {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
+    private javax.swing.JButton jButton10;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu10;

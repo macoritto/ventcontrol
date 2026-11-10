@@ -369,10 +369,19 @@ import javax.swing.table.DefaultTableModel;
         System.out.print("   descripo    ");
         System.out.print(compa1);
         String sql5, sql6, sql8, sql9;
+        // un cobro con QR, transferencia o tarjeta entra a una cuenta bancaria: se pregunta en cuál
+        String cuentaSql = "NULL";
+        if(auxsaldo>0 && !compa1.equals("") && !TurnoCaja.EFECTIVO.equals(String.valueOf(medioPago.getSelectedItem()))){
+            BancoDb.Cuenta cuentaElegida = BancoDb.pedirCuenta(this, String.valueOf(medioPago.getSelectedItem()), auxsaldo);
+            if (cuentaElegida == null) {
+                return;
+            }
+            cuentaSql = "'" + cuentaElegida.id + "'";
+        }
         if(auxsaldo>0 && !compa1.equals("")){
         try{          
                     System.out.print("     entra acaaaa    2   ");                                    
-                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja, cliente, turno_id, medio_pago) VALUES ('"+calendar.getDate()+ "','0','"+aux+"','"+auxsaldo+"','"+descrip.getText()+"','"+cod.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+codigocliente+"','"+turnoActual.id+"','"+medioPago.getSelectedItem()+"')";                                                        
+                    sql5 ="INSERT INTO pago (fecha, retraso, monto, saldo, descripcion, idpago, usuario, caja, cliente, turno_id, medio_pago, cuenta_id) VALUES ('"+calendar.getDate()+ "','0','"+aux+"','"+auxsaldo+"','"+descrip.getText()+"','"+cod.getText()+"','"+usuarioactu+"','"+turnoActual.cajaId+"','"+codigocliente+"','"+turnoActual.id+"','"+medioPago.getSelectedItem()+"',"+cuentaSql+")";                                                        
                     PreparedStatement st6= cn.prepareStatement(sql5);                             
                     System.out.print(sql5);
                     System.out.print(st6);
@@ -388,6 +397,8 @@ import javax.swing.table.DefaultTableModel;
                         System.out.print("     ANTES DEL PASIVO   ");
                         if(st9.executeUpdate()>0){
                             System.out.print("     PASIVO DEL EXTRACTO    ");
+                            // el cobro se aplica a las cuotas más antiguas del cliente (si tiene plan de cuotas)
+                            CuotasDb.aplicarPago(String.valueOf(codigocliente), aux.longValue(), cod.getText());
                             JOptionPane.showMessageDialog(null, "Se cargo exitosamente el Pago.");  
                             System.out.print("     HAY UN NULL QUE NO SE QUE ONDA    ");
                         }
@@ -473,14 +484,20 @@ import javax.swing.table.DefaultTableModel;
         menu mimenu;
         mimenu = new menu(0);
         p = new buscarcli(mimenu, true);
-        p.setVisible(true);        
-        DecimalFormat formateador = new DecimalFormat("###,###");
+        p.setVisible(true);
         if(p.codid!=null){
-            
-            codigocliente=Integer.parseInt(p.codid);
+            cargarcliente(p.codid, p.nombrecliente);
+        }
+    }
+
+    /** Carga el cliente (su deuda y los campos de cobro); lo usa la búsqueda y también la pantalla de cuenta del cliente. */
+    void cargarcliente(String codid, String nombrecliente){
+        DecimalFormat formateador = new DecimalFormat("###,###");
+        {
+            codigocliente=Integer.parseInt(codid);
             System.out.print("     ESTE ES EL CODIGO DEL CLIENTE en el primero   ");
             System.out.print(codigocliente);
-            cliente.setText(p.nombrecliente);
+            cliente.setText(nombrecliente);
             String sql, sql1;
             sql="SELECT * FROM cliente where id='"+codigocliente+"'";
             System.out.print("entra en el simple");

@@ -557,6 +557,12 @@ public class compras extends JDialog {
             String sql, sql2="", sqlaux, codprodu="";
             Double stockaux=0.0, totalstock=0.0, auxcanti=0.0; 
             cod=(tablacliente.getValueAt(FilaSelec, 0).toString());
+            // una compra a crédito con cuotas ya pagadas no se elimina: primero hay que anular esos pagos
+            String motivoCredito = CuentaProvDb.motivoParaNoEliminar(cod);
+            if(motivoCredito != null){
+                JOptionPane.showMessageDialog(null, motivoCredito, "Eliminar compra", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             try{        
                 int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar la Compra?");
                     if(confirmar==JOptionPane.YES_OPTION){
@@ -596,6 +602,7 @@ public class compras extends JDialog {
                             bloquear();        
                             String valor="";                                               
                             if(st.executeUpdate()>0){
+                                    CuentaProvDb.eliminarPlanDeCompra(cod);
                                     JOptionPane.showMessageDialog(null, "Se elimino correctamente el Registro.");                                
                             }               
                             cargar(valor);

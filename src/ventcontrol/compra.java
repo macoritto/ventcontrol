@@ -650,10 +650,16 @@ void btnguardar(){
                }catch (ParseException e){
         
                }
+               // forma de pago: contado (como siempre) o crédito en cuotas (cuentas por pagar)
+               PlanCompra.Datos formaPago = totalaux1 > 0 ? PlanCompra.preguntar(this, nombreprov.getText(), totalaux1.longValue(), usuarioactu.intValue()) : new PlanCompra.Datos();
+               if(formaPago == null){
+                   return;
+               }
+               String fechaCompra = formaPago.credito ? new SimpleDateFormat("yyyy-MM-dd").format(calendar.getDate()) : String.valueOf(calendar.getDate());
                try{
                    conectar cc = new conectar();
                    Connection cn = cc.conexion();
-                   sql ="INSERT INTO compra(codcompra, fecha, total, estado, fecha1, nrofactura, descripcion, usuario_id, proveedor_codprov, hora) VALUES ('"+codcompra.getText()+"','" +calendar.getDate()+ "','" +totalaux1.toString()+"','Pagado','" +calendar.getDate()+ "','"+q(factura.getText())+"','"+q(factura1.getText())+"','"+usuarioactu+"','"+provId+"','"+dateFormat.format(date)+"')";                                                         
+                   sql ="INSERT INTO compra(codcompra, fecha, total, estado, fecha1, nrofactura, descripcion, usuario_id, proveedor_codprov, hora) VALUES ('"+codcompra.getText()+"','" +fechaCompra+ "','" +totalaux1.toString()+"','"+(formaPago.credito ? "Credito" : "Pagado")+"','" +fechaCompra+ "','"+q(factura.getText())+"','"+q(factura1.getText())+"','"+usuarioactu+"','"+provId+"','"+dateFormat.format(date)+"')";                                                         
                    PreparedStatement st = cn.prepareStatement(sql);
                    if(st.executeUpdate()>0){
                         band1=0;
@@ -711,8 +717,17 @@ void btnguardar(){
                 } 
                 if(band1==0 && band2==0){
                     int costosActualizados = actualizarCostos();
+                    String avisoCredito = "";
+                    if(formaPago.credito){
+                        try{
+                            avisoCredito = "\n\n" + PlanCompra.registrar(formaPago, codcompra.getText(), provId, usuarioactu.intValue(), totalaux1.longValue());
+                        }catch(SQLException exPlan){
+                            avisoCredito = "\n\nLa compra se guardó, pero no se pudo crear el plan de cuotas:\n" + exPlan.getMessage() + CuentaProvDb.ayuda();
+                        }
+                    }
                     JOptionPane.showMessageDialog(null, "Se creo exitosamente el registro."
-                            + (costosActualizados > 0 ? "\nSe actualizó el costo de " + costosActualizados + " producto(s) con el precio de esta compra." : ""));
+                            + (costosActualizados > 0 ? "\nSe actualizó el costo de " + costosActualizados + " producto(s) con el precio de esta compra." : "")
+                            + avisoCredito);
                     tablaprodu.removeAll();
                     buscartxt2.requestFocus(); 
 //                    for(int i=0; i<tablaprodu.getRowCount(); i++){  

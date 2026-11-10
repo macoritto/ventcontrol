@@ -764,6 +764,7 @@ public class ventas extends JDialog {
                             bloquear();        
                             String valor="";                                               
                             if(st.executeUpdate()>0){
+                                    CuotasDb.eliminarPlanDeVenta(String.valueOf(cod));
                                     sql1 ="DELETE FROM extracto where pasivo>0 and idaux='"+cod+"'";
                                     PreparedStatement st1 = cn.prepareStatement(sql1); 
                                     if(st1.executeUpdate()>0){

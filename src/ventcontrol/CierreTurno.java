@@ -59,8 +59,40 @@ final class CierreTurno extends JDialog {
         detalle.setAlignmentX(0f);
         cuerpo.add(detalle);
         cuerpo.add(Box.createVerticalStrut(6));
-        JLabel otros = new JLabel("<html>No entran al efectivo: tarjeta/transferencia " + UiCaja.monto(d.otrosMedios())
-                + " · ventas a crédito " + UiCaja.monto(d.credito) + "</html>");
+        cuerpo.add(Box.createVerticalStrut(14));
+        cuerpo.add(UiCaja.caption("COBRADO EN EL TURNO POR MEDIO DE PAGO"));
+        cuerpo.add(Box.createVerticalStrut(4));
+        JPanel medios = new JPanel(new java.awt.GridLayout(0, 2, 8, 5));
+        medios.setBackground(Color.WHITE);
+        medios.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(EstiloUI.BORDE),
+                BorderFactory.createEmptyBorder(12, 18, 12, 18)));
+        java.util.List<String> nombres = new java.util.ArrayList<String>(java.util.Arrays.asList(TurnoCaja.MEDIOS));
+        for (String m : d.ventasPorMedio.keySet()) {
+            if (!nombres.contains(m)) {
+                nombres.add(m);
+            }
+        }
+        for (String m : d.pagosPorMedio.keySet()) {
+            if (!nombres.contains(m)) {
+                nombres.add(m);
+            }
+        }
+        long totalCobrado = 0;
+        for (String m : nombres) {
+            long[] v = d.ventasPorMedio.get(m);
+            long[] c = d.pagosPorMedio.get(m);
+            long monto = (v == null ? 0 : v[0]) + (c == null ? 0 : c[0]);
+            int n = (v == null ? 0 : (int) v[1]) + (c == null ? 0 : (int) c[1]);
+            totalCobrado += monto;
+            boolean ef = TurnoCaja.EFECTIVO.equals(m);
+            fila(medios, m + "  (" + n + (n == 1 ? " cobro)" : " cobros)") + (ef ? "" : "  *"), monto, false);
+        }
+        fila(medios, "TOTAL COBRADO", totalCobrado, true);
+        medios.setAlignmentX(0f);
+        cuerpo.add(medios);
+        cuerpo.add(Box.createVerticalStrut(6));
+        JLabel otros = new JLabel("<html>Ventas a crédito del turno (sin cobrar): " + d.nCredito + " · " + UiCaja.monto(d.credito)
+                + "<br>* No entra a la caja: solo el efectivo se cuenta; lo demás ya está en el banco o en la tarjeta.</html>");
         otros.setFont(EstiloUI.fuente(Font.PLAIN, 12));
         otros.setForeground(EstiloUI.MUTED);
         otros.setAlignmentX(0f);
@@ -131,7 +163,7 @@ final class CierreTurno extends JDialog {
                 dispose();
             }
         });
-        setPreferredSize(new Dimension(520, 640));
+        setPreferredSize(new Dimension(540, 780));
         pack();
         setLocationRelativeTo(dueno);
         SwingUtilities.invokeLater(new Runnable() {
@@ -195,7 +227,13 @@ final class CierreTurno extends JDialog {
             JOptionPane.showMessageDialog(this, "Turno cerrado.\n\nEsperado: " + UiCaja.monto(esperado) + "\nContado: " + UiCaja.monto(contado)
                     + "\n" + (dif == 0 ? "La caja cuadra." : (dif > 0 ? "Sobrante: " + UiCaja.monto(dif) : "Faltante: " + UiCaja.monto(-dif))),
                     "Cerrar turno", JOptionPane.INFORMATION_MESSAGE);
+            final int turnoCerrado = turno.id;
+            final java.awt.Component padreReporte = getOwner();
             dispose();
+            if (JOptionPane.showConfirmDialog(padreReporte, "¿Desea abrir el reporte del turno para hacer el arreglo con el jefe?",
+                    "Reporte del turno", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+                ReporteTurno.mostrarDeTurno(padreReporte, turnoCerrado);
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "No se pudo cerrar el turno:\n" + e.getMessage(), "Cerrar turno", JOptionPane.ERROR_MESSAGE);
         }

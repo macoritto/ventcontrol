@@ -520,6 +520,7 @@ public class pagos1 extends JDialog {
             try{        
                 int confirmar = JOptionPane.showConfirmDialog(null, "Desea Eliminar el Pago?");
                     if(confirmar==JOptionPane.YES_OPTION){
+                            CuotasDb.deshacerAplicacionDePago(cod); // devuelve a las cuotas lo que este pago había cobrado
                             sql ="DELETE FROM pago where idpago='"+cod+"'";                                    
                             //conectar cc = new conectar();
                             //Connection cn = cc.conexion(); 
