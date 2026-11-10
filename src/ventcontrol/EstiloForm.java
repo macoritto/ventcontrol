@@ -136,6 +136,7 @@ public final class EstiloForm {
             return;
         }
         rp.putClientProperty(APLICADO, Boolean.TRUE);
+        IconoApp.aplicar(d);
         Container cp = d.getContentPane();
         cp.setBackground(EstiloUI.FONDO);
         if (cp instanceof JComponent) {

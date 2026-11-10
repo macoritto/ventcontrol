@@ -2490,7 +2490,7 @@ String idprodu;
         Map<String, Object> parametros = new HashMap<String, Object>();        
         parametros.put("vCodventa", aux2);
         JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-        JasperPrintManager.printReport(jp, false);
+        Impresion.imprimir(jp, ConfigImpresion.PRESUPUESTO);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -2754,7 +2754,7 @@ String idprodu;
         Map<String, Object> parametros = new HashMap<String, Object>();        
         parametros.put("vCodventa", aux2);
         JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-        JasperPrintManager.printReport(jp, false);
+        Impresion.imprimir(jp, ConfigImpresion.PRESUPUESTO);
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
         }

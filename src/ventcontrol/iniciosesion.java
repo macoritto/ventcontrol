@@ -42,9 +42,7 @@ public class iniciosesion extends javax.swing.JFrame {
         EstiloForm.instalar(); // restilizador automático de todos los diálogos
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/ms.png")).getImage());
-        ingresotext.setDocument(new solomayusculas());
-        ingresopassword.setDocument(new solomayusculas());
+        IconoApp.aplicar(this);
     }
     /**
      * This method is called from within the constructor to initialize the form.

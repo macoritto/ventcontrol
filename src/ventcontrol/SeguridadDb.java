@@ -292,7 +292,8 @@ final class SeguridadDb {
             return c.length() == 0;
         }
         if (!cifrada(guardada)) {
-            return MessageDigest.isEqual(c.getBytes(), guardada.getBytes());
+            // clave antigua sin cifrar: el formulario viejo forzaba mayúsculas, así que se compara sin distinguirlas
+            return c.equalsIgnoreCase(guardada);
         }
         try {
             String[] p = guardada.split("\\$");

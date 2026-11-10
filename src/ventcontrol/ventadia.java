@@ -457,8 +457,8 @@ public class ventadia extends JDialog {
     private void delete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete1ActionPerformed
         try {
         ConexionBD cbd = new ConexionBD();           
-        String archivo ="C:\\Users\\USER\\Documents\\NetbeansProjects\\ventcontrol\\src\\reports\\ventas.jrxml";
-        JasperReport jr = JasperCompileManager.compileReport(archivo);
+
+        JasperReport jr = Impresion.reporte("ventas");
         Date fecha = fechaini.getDate();
         Map<String, Object> parametros = new HashMap<String, Object>();
         parametros.put("cant", Integer.parseInt(nrocompras.getText()));

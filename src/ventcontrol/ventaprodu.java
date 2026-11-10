@@ -673,8 +673,8 @@ void abrirproveedor(){
     private void delete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete1ActionPerformed
         try {
         ConexionBD cbd = new ConexionBD();           
-        String archivo ="C:\\Users\\USER\\Documents\\NetbeansProjects\\ventcontrol\\src\\reports\\ventaprodu.jrxml";
-        JasperReport jr = JasperCompileManager.compileReport(archivo);
+
+        JasperReport jr = Impresion.reporte("ventaprodu");
         Date fecha = fechaini.getDate();
         Date fecha1 = fechafin.getDate();
         Map<String, Object> parametros = new HashMap<String, Object>();

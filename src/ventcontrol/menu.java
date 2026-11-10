@@ -100,7 +100,7 @@ public class menu extends javax.swing.JFrame {
 //        sistema = new JMenu("Sistema");
 //        sistema.addMenuListener(null);
 //        menusys.add(sistema);
-        this.setIconImage(new ImageIcon(getClass().getResource("/images/ms.png")).getImage());
+        IconoApp.aplicar(this);
     }
 
     class horas implements ActionListener {
@@ -1943,10 +1943,7 @@ public class menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem34MouseClicked
 
     private void jMenuItem34ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem34ActionPerformed
-        cargarreporte u;
-        u = new cargarreporte(this, true);
-        posicionarDerecha(u);
-        u.setVisible(true);
+        ConfigImpresoras.mostrar(this);
     }//GEN-LAST:event_jMenuItem34ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {

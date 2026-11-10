@@ -3354,49 +3354,17 @@ void btnagregar(){
                     conectar cc = new conectar();
                     Connection cn = cc.conexion();
                         try {
-                            Statement st = cn.createStatement();
-                                ResultSet rs = st.executeQuery(sql);
-                                String impreaux="";
-                                while(rs.next()){
-                                    impreaux=rs.getString("impresora");
-                                }
-                                st.close();
                                 ConexionBD cbd = new ConexionBD();           
                                 //String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factucredito.jrxml";
                                 //JasperReport jr =  JasperCompileManager.compileReport(archivo);      
                                 JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/ticket2.jasper"));
                                 rutaimagen = "/reports/gomez.jpg";
                                 Map<String, Object> parametros = new HashMap<String, Object>();
-                                PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                                 parametros.put("vCodventa", aux2);
                                 parametros.put("rutaimagen", this.getClass().getResourceAsStream(rutaimagen));
                         System.out.print(this.getClass().getResourceAsStream(rutaimagen));
                                 JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
+                                Impresion.imprimir(jp, ConfigImpresion.TICKET);
                     }catch (Exception ex) {
                         Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -3419,48 +3387,16 @@ void btnagregar(){
                 Connection cn = cc.conexion(); 
 //                        if(combovendedor.getSelectedItem().toString().equals("Contado")){
                             try {
-                                Statement st = cn.createStatement();
-                                ResultSet rs = st.executeQuery(sql);
-                                String impreaux="";
-                                while(rs.next()){
-                                    impreaux=rs.getString("impresora");
-                                }
-                                st.close();
                                 ConexionBD cbd = new ConexionBD();           
 //                                String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factura.jrxml";
 //                                JasperReport jr =  JasperCompileManager.compileReport(archivo);   
                                 JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/ticket2.jasper"));
                                 rutaimagen = "/reports/gomez.jpg";
                                 Map<String, Object> parametros = new HashMap<String, Object>();
-                                PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                                 parametros.put("vCodventa", aux2);
                                 parametros.put("rutaimagen", this.getClass().getResourceAsStream(rutaimagen));
                                 JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
+                                Impresion.imprimir(jp, ConfigImpresion.TICKET);
                                 //JasperPrintManager.printReport(jp, false);
                             }catch (Exception ex) {
                                 Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -3909,48 +3845,16 @@ void btnagregar(){
                     conectar cc = new conectar();
                     Connection cn = cc.conexion();
                         try {
-                            Statement st = cn.createStatement();
-                                ResultSet rs = st.executeQuery(sql);
-                                String impreaux="";
-                                while(rs.next()){
-                                    impreaux=rs.getString("impresora");
-                                }
-                                st.close();
                                 ConexionBD cbd = new ConexionBD();           
                                 //String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factucredito.jrxml";
                                 //JasperReport jr =  JasperCompileManager.compileReport(archivo);      
                                 JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/ticket1.jasper"));
                                 rutaimagen = "/reports/gomez.jpg";
                                 Map<String, Object> parametros = new HashMap<String, Object>();
-                                PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                                 parametros.put("vCodventa", aux2);
                                 parametros.put("rutaimagen", this.getClass().getResourceAsStream(rutaimagen));
                                 JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
+                                Impresion.imprimir(jp, ConfigImpresion.TICKET);
                     }catch (Exception ex) {
                         Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -3973,50 +3877,18 @@ void btnagregar(){
                 Connection cn = cc.conexion(); 
 //                        if(combovendedor.getSelectedItem().toString().equals("Contado")){
                             try {
-                                Statement st = cn.createStatement();
-                                ResultSet rs = st.executeQuery(sql);
-                                String impreaux="";
-                                while(rs.next()){
-                                    impreaux=rs.getString("impresora");
-                                }
-                                st.close();
                                 ConexionBD cbd = new ConexionBD();           
 //                                String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factura.jrxml";
 //                                JasperReport jr =  JasperCompileManager.compileReport(archivo);   
                                 JasperReport jr = (JasperReport) JRLoader.loadObject(getClass().getResource("/reports/ticket2.jasper"));
                                 rutaimagen = "/reports/gomez.jpg";
                                 Map<String, Object> parametros = new HashMap<String, Object>();
-                                PrinterJob job = PrinterJob.getPrinterJob();
-                                PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                                int selectedService = 0;
-                                Integer con=0;
-                                for(int i = 0; i < services.length;i++){                                    
-                                    con=con+1;
-                                    System.out.print(services[i].getName());
-                                if(services[i].getName().toUpperCase().contains(impreaux)){
-                                        /*If the service is named as what we are querying we select it */
-                                        selectedService = i;
-                                        System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                        System.out.print(selectedService);
-                                        }
-                                }   
-                                System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                                System.out.print(con);
-                                //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                                 parametros.put("vCodventa", aux2);
                                 parametros.put("rutaimagen", this.getClass().getResourceAsStream(rutaimagen));
                     System.out.println("ESTE ES LO QUE PASA");
                     System.out.println(this.getClass().getResourceAsStream(rutaimagen));
                                 JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                                job.setPrintService(services[selectedService]);  
-                                //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                                JRPrintServiceExporter exporter;
-                                exporter = new JRPrintServiceExporter();                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);                                
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);                                
-                                exporter.exportReport();
+                                Impresion.imprimir(jp, ConfigImpresion.TICKET);
                                 //JasperPrintManager.printReport(jp, false);
                             }catch (Exception ex) {
                                 Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
@@ -4421,13 +4293,6 @@ void btnagregar(){
                         conectar cc = new conectar();
                         Connection cn = cc.conexion();
                         try {
-                            Statement st = cn.createStatement();
-                            ResultSet rs = st.executeQuery(sql);
-                            String impreaux = "";
-                            while (rs.next()) {
-                                impreaux = rs.getString("impresora");
-                            }
-                            st.close();
                             ConexionBD cbd = new ConexionBD();
                             //String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factucredito.jrxml";
                             //JasperReport jr =  JasperCompileManager.compileReport(archivo);
@@ -4443,23 +4308,6 @@ void btnagregar(){
                             rutaimagen = "/reports/gomez.jpg";
                             rutareporte="/reports/";
                             Map<String, Object> parametros = new HashMap<String, Object>();
-                            PrinterJob job = PrinterJob.getPrinterJob();
-                            PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                            int selectedService = 0;
-                            Integer con = 0;
-                            for (int i = 0; i < services.length; i++) {
-                                con = con + 1;
-                                System.out.print(services[i].getName());
-                                if (services[i].getName().toUpperCase().contains(impreaux)) {
-                                    /*If the service is named as what we are querying we select it */
-                                    selectedService = i;
-                                    System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                    System.out.print(selectedService);
-                                }
-                            }
-                            System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                            System.out.print(con);
-                            //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                             tcredi="X";
                             parametros.put("vCodventab", aux2);
                             parametros.put("piva5", piva5);
@@ -4470,15 +4318,7 @@ void btnagregar(){
                             parametros.put("tcont", tcont);
                             parametros.put("rutareporte", rutareporte);
                             JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                            job.setPrintService(services[selectedService]);
-                            //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                            JRPrintServiceExporter exporter;
-                            exporter = new JRPrintServiceExporter();
-                            exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);
-                            exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                            exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                            exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);
-                            exporter.exportReport();
+                            Impresion.imprimir(jp, ConfigImpresion.FACTURA);
                         } catch (Exception ex) {
                             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -4501,13 +4341,6 @@ void btnagregar(){
                 Connection cn = cc.conexion();
                 //                        if(combovendedor.getSelectedItem().toString().equals("Contado")){
                     try {
-                        Statement st = cn.createStatement();
-                        ResultSet rs = st.executeQuery(sql);
-                        String impreaux = "";
-                        while (rs.next()) {
-                            impreaux = rs.getString("impresora");
-                        }
-                        st.close();
                         ConexionBD cbd = new ConexionBD();
                         //                                String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\factura.jrxml";
                         //                                JasperReport jr =  JasperCompileManager.compileReport(archivo);
@@ -4523,23 +4356,6 @@ void btnagregar(){
                         rutaimagen = "/reports/gomez.jpg";
                         rutareporte=getClass().getResource("/reports/").toString();
                         Map<String, Object> parametros = new HashMap<String, Object>();
-                        PrinterJob job = PrinterJob.getPrinterJob();
-                        PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                        int selectedService = 0;
-                        Integer con = 0;
-                        for (int i = 0; i < services.length; i++) {
-                            con = con + 1;
-                            System.out.print(services[i].getName());
-                            if (services[i].getName().toUpperCase().contains(impreaux)) {
-                                /*If the service is named as what we are querying we select it */
-                                selectedService = i;
-                                System.out.print("ESTE ES EL NOMBRE DE LA IMPRESORA");
-                                System.out.print(selectedService);
-                            }
-                        }
-                        System.out.print("   ESTAS SON LAS VECES QUE RECORRIO LAS IMPRESORAS   ");
-                        System.out.print(con);
-                        //PrinterName printerName = new PrinterName("EPSON L475 Series", null);
                         tcont="X";
                         parametros.put("vCodventab", aux2);
                         parametros.put("piva5", piva5);
@@ -4550,15 +4366,7 @@ void btnagregar(){
                         parametros.put("tcont", tcont);
                         parametros.put("rutareporte", rutareporte);
                         JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-                        job.setPrintService(services[selectedService]);
-                        //boolean printSucceed = JasperPrintManager.printReport(jp, false);
-                        JRPrintServiceExporter exporter;
-                        exporter = new JRPrintServiceExporter();
-                        exporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE, services[selectedService]);
-                        exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_DIALOG, Boolean.FALSE);
-                        exporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_DIALOG, Boolean.FALSE);
-                        exporter.setParameter(JRExporterParameter.JASPER_PRINT, jp);
-                        exporter.exportReport();
+                        Impresion.imprimir(jp, ConfigImpresion.FACTURA);
                         //JasperPrintManager.printReport(jp, false);
                     } catch (Exception ex) {
                         Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);

@@ -2017,12 +2017,14 @@ void btnagregar(){
         aux2 = Integer.parseInt(cod4);
         try {
         ConexionBD cbd = new ConexionBD();           
-        String archivo ="C:\\Users\\USER\\Documents\\ventcontrol.1\\src\\reports\\presupuesto.jrxml";
-        JasperReport jr =  JasperCompileManager.compileReport(archivo);      
+
+        JasperReport jr = Impresion.reporte("presupuesto");
         Map<String, Object> parametros = new HashMap<String, Object>();        
         parametros.put("vCodventa", aux2);
         JasperPrint jp = JasperFillManager.fillReport(jr, parametros, cbd.getConexion());
-        JasperPrintManager.printReport(jp, false);
+        if (Impresion.imprimir(jp, ConfigImpresion.PRESUPUESTO)) {
+            JOptionPane.showMessageDialog(null, "Se imprimió el documento.");
+        }
 //            JasperViewer viewer = new JasperViewer(jp, false);            
 //            viewer.setTitle("Ventas.");
 //            viewer.setVisible(true);
@@ -2035,7 +2037,6 @@ void btnagregar(){
         } catch (Exception ex) {
             Logger.getLogger(menu.class.getName()).log(Level.SEVERE, null, ex);
         }
-        JOptionPane.showMessageDialog(null, "Se imprimió el documento.");
     }//GEN-LAST:event_btnprinterActionPerformed
 
     private void btnmodificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmodificarActionPerformed
